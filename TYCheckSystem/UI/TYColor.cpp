@@ -187,7 +187,13 @@ int TYColor::apply_cb()
 			TYCOM_FaceAskMidPointNormal(secondFace,normal2);
 
 			int isp = false;
-			UF_VEC3_is_perpendicular(normal1,normal2,0.05,&isp);
+			//公差的意义
+			//0.01 ->0.57 度
+			//0.02 ->1.14度
+			//0.03-->1.71度
+			//0.04--> 2.29度
+			//https://www.pianshen.com/article/9101212216/
+			UF_VEC3_is_perpendicular(normal1,normal2,0.001,&isp);
 			if(isp == 0)
 			{
 				TYColor::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, "两个基准面必须垂直");
