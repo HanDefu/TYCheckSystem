@@ -15,6 +15,12 @@ MENU CUSTOM_TY
     BITMAP clear_highlights
     ACTIONS TYCheckSystem.dll
 
+
+    BUTTON CUSTOM_TY_CREATE_HOLE
+    LABEL 自动引孔
+    BITMAP tfe_hole_counterbore_sc
+    ACTIONS TYCheckSystem.dll
+
     BUTTON CUSTOM_TY_SAME_BODY
     LABEL 相同件选择
     BITMAP compare_common2
@@ -43,11 +49,6 @@ MENU CUSTOM_TY
     BUTTON CUSTOM_TY_EXPORT3D
     LABEL 批量导出模型
     BITMAP export_assy
-    ACTIONS TYCheckSystem.dll
-
-    BUTTON CUSTOM_TY_CREATE_HOLE
-    LABEL 自动引孔
-    BITMAP tfe_hole_counterbore_sc
     ACTIONS TYCheckSystem.dll
 
     BUTTON CUSTOM_TY_STAND_PART

@@ -1346,7 +1346,7 @@ double TY_MIN(double a, double b)
 	return a;
 }
 
-#define  CHECK_USE_NUM_1 4300
+#define  CHECK_USE_NUM_1 8300
 
 static bool CHECKUSE1()
 {
@@ -1392,7 +1392,7 @@ static bool CHECKUSE1()
 bool checkuse()
 {
 	CTime tm = CTime::GetCurrentTime();
-	CTime tm1(2020,10,1,0,0,0,-1);
+	CTime tm1(2021,10,1,0,0,0,-1);
 	if (tm > tm1)
 	{
 		return FALSE;

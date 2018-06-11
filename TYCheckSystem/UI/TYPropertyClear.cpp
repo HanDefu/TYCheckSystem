@@ -169,7 +169,7 @@ int TYPropertyClear::ClearOldFaceColorAndProperty(tag_t faceBody)
 	{
 		UF_OBJ_disp_props_t disp_props1;
 		UF_OBJ_ask_display_properties(faces[i], &disp_props1);
-		if(disp_props1.color == 186)
+		if(disp_props1.color == 21)
 		{
 			UF_ATTR_delete_all( faces[i] , UF_ATTR_any );
 			UF_OBJ_set_color(faces[i] , disp_props.color);

@@ -215,8 +215,8 @@ int TYColor::apply_cb()
 			ClearOldProperty(secondFace);
 
 			//第三步：着色
-			UF_OBJ_set_color(firstFace , 186);
-			UF_OBJ_set_color(secondFace , 186);
+			UF_OBJ_set_color(firstFace , 21);
+			UF_OBJ_set_color(secondFace , 21);
 
 			//UF_VEC3_negate(normal1,normal1);
 			//UF_VEC3_negate(normal2,normal2);
@@ -405,7 +405,7 @@ int TYColor::ClearOldProperty(tag_t face)
 	{
 		UF_OBJ_disp_props_t disp_props1;
 		UF_OBJ_ask_display_properties(faces[i], &disp_props1);
-		if(disp_props1.color == 186)
+		if(disp_props1.color == 21)
 		{
 			UF_ATTR_delete_all( faces[i] , UF_ATTR_any );
 			UF_OBJ_set_color(faces[i] , disp_props.color);

@@ -108,6 +108,7 @@ private:
     NXOpen::BlockStyler::BlockDialog* theDialog;
     NXOpen::BlockStyler::UIBlock* group0;// Block type: Group
     NXOpen::BlockStyler::UIBlock* selectionSameBody;// Block type: Selection
+	NXOpen::BlockStyler::UIBlock* toggleFroceSame;// Block type: Toggle
     
 };
 #endif //TYSAMEBODY_H_INCLUDED

@@ -140,6 +140,7 @@ void TYSameBody::initialize_cb()
 	{
 		group0 = theDialog->TopBlock()->FindBlock("group0");
 		selectionSameBody = theDialog->TopBlock()->FindBlock("selectionSameBody");
+		toggleFroceSame = theDialog->TopBlock()->FindBlock("toggleFroceSame");
 
 		UI_SetSeletSolidBody(selectionSameBody);
 	}
@@ -184,7 +185,7 @@ bool AreBodiesSameVolume(vtag_t &bodies)
 	return true;
 }
 
-int ProcessSameBody(std::vector<tag_t> &sameBodies)
+int ProcessSameBody(std::vector<tag_t> &sameBodies, bool checkVolume)
 {
 	char attriValue[128] = "";
 	int has = 0;
@@ -196,11 +197,11 @@ int ProcessSameBody(std::vector<tag_t> &sameBodies)
 	}
 
 
-	/*if(!AreBodiesSameVolume(allBodies))
+	if(checkVolume && !AreBodiesSameVolume(sameBodies))
 	{
 		uc1601("零件体积不一样，请检查",1);
 		return 1;
-	}*/
+	}
 
 
 
@@ -212,7 +213,7 @@ int ProcessSameBody(std::vector<tag_t> &sameBodies)
 	for(int i = 0; i < sameBodies.size(); i++)
 	{
 
-		TYCOM_GetObjectStringAttribute( sameBodies[i] , ATTR_TY_SAME_BODY , attriValue );
+		has = TYCOM_GetObjectStringAttribute( sameBodies[i] , ATTR_TY_SAME_BODY , attriValue );
 		if(has)
 		{
 			break;
@@ -242,7 +243,9 @@ int TYSameBody::apply_cb()
 	{
 		std::vector<tag_t> sameBodies = UI_GetSelectObjects2(selectionSameBody);
 
-		ProcessSameBody(sameBodies);
+		bool checkVolume = false;
+		UI_LogicalGetValue(toggleFroceSame,checkVolume);
+		ProcessSameBody(sameBodies,!checkVolume);
 	}
 	catch(exception& ex)
 	{
