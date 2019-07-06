@@ -271,15 +271,15 @@ int GetTopViewProjectDirection( tag_t partTag, NXString& refset,double dir[3][3]
 		char VZx[133]="",VZy[133]="",VZz[133]="";
 		char VXx[133]="",VXy[133]="",VXz[133]="";
 		int irc = TYCOM_GetObjectStringAttribute(body,ATTR_DRAFTING_NORMAL_DIR_X,VZx);
-		if( 0 == irc )
+		if( 1 == irc )
 		{
 			irc = TYCOM_GetObjectStringAttribute(body,ATTR_DRAFTING_NORMAL_DIR_Y,VZy);
 		}
-		if( 0 == irc )
+		if( 1 == irc )
 		{
 			irc = TYCOM_GetObjectStringAttribute(body,ATTR_DRAFTING_NORMAL_DIR_Z,VZz);
 		}
-		if( 0 == irc )
+		if( 1 == irc )
 		{
 			irc = TYCOM_GetObjectStringAttribute(body,ATTR_DRAFTING_X_DIR_X,VXx);
 		}
@@ -287,11 +287,11 @@ int GetTopViewProjectDirection( tag_t partTag, NXString& refset,double dir[3][3]
 		{
 			irc = TYCOM_GetObjectStringAttribute(body,ATTR_DRAFTING_X_DIR_Y,VXy);
 		}
-		if( 0 == irc )
+		if( 1 == irc )
 		{
 			irc = TYCOM_GetObjectStringAttribute(body,ATTR_DRAFTING_X_DIR_Z,VXz);
 		}
-		if( 0 == irc )
+		if( 1 == irc )
 		{
 			dir[0][0] = atof(VXx);
 			dir[0][1] = atof(VXy);

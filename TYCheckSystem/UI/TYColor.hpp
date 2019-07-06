@@ -95,6 +95,8 @@ public:
     int cancel_cb();
     int update_cb(NXOpen::BlockStyler::UIBlock* block);
     int filter_cb(NXOpen::BlockStyler::UIBlock*  block, NXOpen::TaggedObject* selectObject);
+	void InitShow();
+	int ClearOldProperty(tag_t face);
     
 private:
     std::string theDialogName;
@@ -106,6 +108,8 @@ private:
     NXOpen::BlockStyler::UIBlock* faceSelection;// Block type: Face Collector
     NXOpen::BlockStyler::UIBlock* firstFace;// Block type: Face Collector
     NXOpen::BlockStyler::UIBlock* secondFace;// Block type: Face Collector
+
+	int m_curSel;
     
 };
 #endif //TYCOLOR_H_INCLUDED

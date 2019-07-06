@@ -17,6 +17,12 @@
 //These includes are needed for the following template code
 //------------------------------------------------------------------------------
 #include "TYColor.hpp"
+#include "../Common/Com_UI.h"
+#include "../Common/Com_Attribute.h"
+#include "../Common/Com_UG.h"
+#include <uf_vec.h>
+#include <uf_assem.h>
+
 using namespace NXOpen;
 using namespace NXOpen::BlockStyler;
 
@@ -50,6 +56,10 @@ TYColor::TYColor()
 		theDialog->AddFilterHandler(make_callback(this, &TYColor::filter_cb));
 		theDialog->AddInitializeHandler(make_callback(this, &TYColor::initialize_cb));
 		theDialog->AddDialogShownHandler(make_callback(this, &TYColor::dialogShown_cb));
+
+		//注意我们在dlx文件中设置bmp时候 系统自动读取的是ugii_user_dir的路径作为相对路径
+		//系统不会自动读取当前dlx文件所在路径作为相对路径的！！
+		m_curSel = 0;
 	}
 	catch(exception& ex)
 	{
@@ -120,6 +130,10 @@ void TYColor::initialize_cb()
 		faceSelection = theDialog->TopBlock()->FindBlock("faceSelection");
 		firstFace = theDialog->TopBlock()->FindBlock("firstFace");
 		secondFace = theDialog->TopBlock()->FindBlock("secondFace");
+
+        UI_EnumSetCurrentSel(enumColor,m_curSel);
+		InitShow();
+		
 	}
 	catch(exception& ex)
 	{
@@ -153,7 +167,94 @@ int TYColor::apply_cb()
 {
 	try
 	{
-		//---- Enter your callback code here -----
+		NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
+
+		int colorIndex = 0;
+		UI_EnumGetCurrentSel(enumColor, colorIndex);
+		if(colorIndex == 0)
+		{
+			std::vector<tag_t> objsFaces1 = UI_GetSelectObjects2(firstFace);
+			std::vector<tag_t> objsFaces2 = UI_GetSelectObjects2(secondFace);
+
+
+			tag_t firstFace = TYCOM_Prototype(objsFaces1[0]);
+			tag_t secondFace = TYCOM_Prototype(objsFaces2[0]);
+
+			//第二步：检测
+			double normal1[3],normal2[3];
+			TYCOM_FaceAskMidPointNormal(firstFace,normal1);
+			TYCOM_FaceAskMidPointNormal(secondFace,normal2);
+
+			int isp = false;
+			UF_VEC3_is_perpendicular(normal1,normal2,0.05,&isp);
+			if(isp == 0)
+			{
+				TYColor::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, "两个基准面必须垂直");
+				return 0;
+			}
+
+			tag_t faceBody1 = 0;
+			UF_MODL_ask_face_body(firstFace, &faceBody1);
+			tag_t faceBody2 = 0;
+			UF_MODL_ask_face_body(secondFace, &faceBody2);
+			if (faceBody1 != faceBody2)
+			{
+				TYColor::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, "两个面不属于同一个实体");
+				return 0;
+			}
+
+			//清除原有的属性和颜色
+			ClearOldProperty(firstFace);
+			ClearOldProperty(secondFace);
+
+			//第三步：着色
+			UF_OBJ_set_color(firstFace , 186);
+			UF_OBJ_set_color(secondFace , 186);
+
+			char str[133]="";
+			sprintf(str,"%g",normal1[0]);
+			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_DRAFTING_X_DIR_X,str);
+			sprintf(str,"%g",normal1[1]);
+			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_DRAFTING_X_DIR_Y,str);
+			sprintf(str,"%g",normal1[2]);
+			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_DRAFTING_X_DIR_Z,str);
+			sprintf(str,"%g",normal2[0]);
+			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_DRAFTING_NORMAL_DIR_X,str);
+			sprintf(str,"%g",normal2[1]);
+			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_DRAFTING_NORMAL_DIR_Y,str);
+			sprintf(str,"%g",normal2[2]);
+			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_DRAFTING_NORMAL_DIR_Z,str);
+
+			
+		}
+		else
+		{
+			std::vector<tag_t> objsFaces1 = UI_GetSelectObjects2(faceSelection);
+
+			for(int i = 0; i < objsFaces1.size(); i++)
+			{
+				tag_t oneFace = objsFaces1[i];
+				if(UF_ASSEM_is_occurrence(oneFace))
+				{
+					oneFace = UF_ASSEM_ask_prototype_of_occ( oneFace) ;
+				}
+
+				int color = 1;
+				if(colorIndex == 1)
+					color = 36;
+				else if(colorIndex == 2)
+					color = 211;
+				else if(colorIndex == 3)
+					color = 6;
+				else if(colorIndex == 4)
+					color = 181;
+				else if(colorIndex == 5)
+					color = 31;
+				else if(colorIndex == 6)
+					color = 196;
+				UF_OBJ_set_color(oneFace , color);
+			}
+		}
 	}
 	catch(exception& ex)
 	{
@@ -173,6 +274,8 @@ int TYColor::update_cb(NXOpen::BlockStyler::UIBlock* block)
 		if(block == enumColor)
 		{
 			//---------Enter your code here-----------
+			UI_EnumGetCurrentSel(enumColor,m_curSel);
+			InitShow();
 		}
 		else if(block == colorPicker)
 		{
@@ -239,4 +342,46 @@ int TYColor::cancel_cb()
 int TYColor::filter_cb(NXOpen::BlockStyler::UIBlock*  block, NXOpen::TaggedObject* selectObject)
 {
 	return(UF_UI_SEL_ACCEPT);
+}
+
+void TYColor::InitShow()
+{
+	if (m_curSel == 0)
+	{
+		UI_SetShow(firstFace,true);
+		UI_SetShow(secondFace,true);
+		UI_SetShow(faceSelection,false);
+	}
+	else
+	{
+		UI_SetShow(firstFace,false);
+		UI_SetShow(secondFace,false);
+		UI_SetShow(faceSelection,true);
+	}
+}
+
+int TYColor::ClearOldProperty(tag_t face)
+{
+	tag_t faceBody = 0;
+	UF_MODL_ask_face_body(face, &faceBody);
+	uf_list_p_t faceList;
+	UF_MODL_ask_body_faces(faceBody, &faceList);
+
+	vtag_t faces;
+	TYCOM_AskListItemsAndDelete(faceList, faces);
+
+	UF_OBJ_disp_props_t disp_props;
+	UF_OBJ_ask_display_properties(faceBody, &disp_props);
+
+	for(int i = 0; i < faces.size(); i++)
+	{
+		UF_OBJ_disp_props_t disp_props1;
+		UF_OBJ_ask_display_properties(faces[i], &disp_props1);
+		if(disp_props1.color == 186)
+		{
+			UF_ATTR_delete_all( faces[i] , UF_ATTR_any );
+			UF_OBJ_set_color(faces[i] , disp_props.color);
+		}
+	}
+	return 0;
 }
