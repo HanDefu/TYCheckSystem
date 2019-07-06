@@ -42,6 +42,76 @@
 
 using namespace NXOpen;
 
+void export_sheet_to_acad_dwg2d2( char* inputfile, char* outputfile, NXString& drawingName )
+{
+	NXOpen::Session *theSession = NXOpen::Session::GetSession();
+	NXOpen::Part *workPart(theSession->Parts()->Work());
+	NXOpen::Part *displayPart(theSession->Parts()->Display());
+
+	int status = 0;
+	UF_CFI_ask_file_exist(outputfile,&status);
+	if( 0 == status )
+	{
+		uc4561(outputfile,0);
+	}
+	char *p_env;
+	char dwgdef[MAX_FSPEC_SIZE];
+	p_env = getenv("UGII_USER_DIR");
+	strcpy(dwgdef,p_env);
+	strcat(dwgdef,"\\application\\dxfdwg.def");
+
+    ///////////////////////////////////////////////
+	NXTo2dCreator *nXTo2dCreator1;
+	nXTo2dCreator1 = theSession->DexManager()->CreateNxto2dCreator();
+
+	nXTo2dCreator1->SetMaxSystem3DModelSpace(true);
+
+	nXTo2dCreator1->SetMaxSystemPointRes(true);
+
+	nXTo2dCreator1->SetSpCurveTolerance(0.0508);
+
+	nXTo2dCreator1->SetMaxUser3DModelSpace(10000.0);
+
+	nXTo2dCreator1->SetMaxUserPointRes(0.001);
+
+	nXTo2dCreator1->SetOutputFileType(NXTo2dCreator::OutputAsOptionDWGFile);
+
+	nXTo2dCreator1->SetOutputFile(outputfile);
+
+	//nXTo2dCreator1->SetNxto2dSettingsFile("C:\\Program Files (x86)\\UGS\\NX 7.0\\ugto2d\\ugto2d.def");
+
+	nXTo2dCreator1->SetDxfSettingsFile(dwgdef);
+
+	nXTo2dCreator1->SetExportData(NXTo2dCreator::ExportDataOptionDrawing);
+
+	nXTo2dCreator1->SetFacetBodies(true);
+
+	nXTo2dCreator1->SetAutoCADRevision(NXTo2dCreator::AutoCADRevisionOptionR2004);
+
+	nXTo2dCreator1->SetInputFile(inputfile);
+
+	nXTo2dCreator1->SetDrawingName("Sheet 1");
+
+	nXTo2dCreator1->SetViewName("TOP");
+
+	nXTo2dCreator1->SetUserCredential("", "", "");
+
+	NXObject *nXObject1;
+	nXObject1 = nXTo2dCreator1->Commit();
+
+	nXTo2dCreator1->Destroy();
+
+	int count = 0;
+	UF_CFI_ask_file_exist(outputfile,&status);
+	while( count < 300 && 1 == status)
+	{
+		_sleep(500);
+		count++;
+		UF_CFI_ask_file_exist(outputfile,&status);
+	}
+}
+
+
 void export_sheet_to_acad_dwg2d( char* inputfile, char* outputfile, NXString& drawingName )
 {
 	NXOpen::Session *theSession = NXOpen::Session::GetSession();
@@ -289,7 +359,7 @@ static tag_t CreateBaseView(tag_t partTag, NXString viewType, NXString& refset,P
     NXOpen::ModelingView *modelingView2(dynamic_cast<NXOpen::ModelingView *>(part1->ModelingViews()->FindObject(viewType)));
     baseViewBuilder1->SelectModelView()->SetSelectedView(modelingView2);
 
-	baseViewBuilder1->SelectModelView()->SetSelectedView(modelingView2);
+	//baseViewBuilder1->SelectModelView()->SetSelectedView(modelingView2);
     
     NXOpen::Assemblies::Arrangement *nullNXOpen_Assemblies_Arrangement(NULL);
     baseViewBuilder1->Style()->ViewStyleBase()->Arrangement()->SetSelectedArrangement(nullNXOpen_Assemblies_Arrangement);
@@ -302,7 +372,7 @@ static tag_t CreateBaseView(tag_t partTag, NXString viewType, NXString& refset,P
 	//logical adjust = false;
 	//NXOpen::Vector3d vec1(0.0, 0.0, 1.0);
 	//NXOpen::Vector3d vec2(1.0, 0.0, 0.0);
-	if( 0 == strcmp("Top",viewType.GetText()) )
+	if( 0 == strcmp("TOP",viewType.GetText()) )
 	{
 		/*workPart->DrawingSheets()->CurrentDrawingSheet();
 		Drawings::DrawingSheet *drawingSheet1= workPart->DrawingSheets()->CurrentDrawingSheet();
@@ -613,7 +683,7 @@ static int CreateBaseAndProjectViews( tag_t partTag, NXString& refset, double st
 		MoveProjectView(projectViewr,projecRview_x,projecRview_y);
 
 		NXOpen::Point3d point2(projecRview_x, projeclview_y, 0.0);
-		tag_t IsometricView = CreateBaseView(partTag," TFR-ISO", refset,point2,stdscale,sheetlen,sheethei);
+		tag_t IsometricView = CreateBaseView(partTag,"TFR-ISO", refset,point2,stdscale,sheetlen,sheethei);
 		NXOpen::Session *theSession = NXOpen::Session::GetSession();
 		NXOpen::Part *workPart(theSession->Parts()->Work());
 		std::vector<NXOpen::Drawings::DraftingView *> views1(2);
@@ -1402,7 +1472,7 @@ int TY_AutoDrafting()
 		char inputfile[UF_CFI_MAX_PATH_NAME_SIZE]="";
 		char outputfile[UF_CFI_MAX_PATH_NAME_SIZE]="";
 		tag_t disp = UF_PART_ask_display_part();
-        NXString savepath("E:\\Projects\\WeiTang\\Test");
+        NXString savepath("E:\\Project\\WetTang\\Test");
 
 		vtag_t allBodies;
 		TYCOM_GetCurrentPartSolidBodies(allBodies);
@@ -1455,7 +1525,7 @@ int TY_AutoDrafting()
             RY_DWG_create_demention(disp,viewr,scale,viewrdir);
             UF_PART_save();
             sprintf(outputfile,"%s\\%s.dwg",savepath.GetLocaleText(),refNames[idx].GetLocaleText());
-            export_sheet_to_acad_dwg2d(inputfile,outputfile,refNames[idx]);
+            export_sheet_to_acad_dwg2d2(inputfile,outputfile,refNames[idx]);
         }
         UF_PART_close(newpart,0,1);
         UF_PART_set_display_part(disp);

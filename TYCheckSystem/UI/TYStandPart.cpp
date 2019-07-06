@@ -177,7 +177,7 @@ void TYStandPart::initialize_cb()
 				RoyStdData.InitalData(env_name,"\\standard\\TYStandardReg.xls");
 			}
 			else
-				RoyStdData.RefreshData(RoyStdData.GetClass1Index(),RoyStdData.GetClass2Index(),RoyStdData.GetClass3Index());
+				RoyStdData.RefreshData(RoyStdData.GetClass1Index(),RoyStdData.GetClass2Index(),RoyStdData.GetClass3Index(),true);
 
 			vNXString strs = RoyStdData.GetFirstClassNames();
 			UI_EnumSetValues(enumFirstName, strs);
@@ -341,9 +341,14 @@ int TYStandPart::apply_cb()
 			if(err)
 			{
 				char msg[132] = "";
-				UF_get_fail_message(err,msg);
-				UF_free_string_array(error_status.n_parts, error_status.file_names);
-				UF_free(error_status.statuses);
+				//err = UF_ASSEM_add_part_to_assembly(workPart->Tag(),desName,"Entire Part",NULL,org,csys,-1,&instance,&error_status);
+				err = UF_ASSEM_add_part_to_assembly(workPart->Tag(),desName,NULL,NULL,org,csys,-1,&instance,&error_status);
+                if (err)
+                {
+					UF_get_fail_message(err,msg);
+					UF_free_string_array(error_status.n_parts, error_status.file_names);
+					UF_free(error_status.statuses);
+                }
 				std_occ = NULL_TAG;
 			}
 			else

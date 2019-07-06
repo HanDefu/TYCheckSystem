@@ -36,7 +36,7 @@ public:
 	StandardPartData();
 	~StandardPartData();
 	void InitalData( const char* rootDir, const char *mainRegFile );
-	void RefreshData(int class1idx=0,int class2idx=0, int class3idx=0);
+	void RefreshData(int class1idx=0,int class2idx=0, int class3idx=0, bool forceRefresh = false);
 	StlNXStringVectorVector GetCurrentExpValues( );
 
 	StlNXStringVector GetFirstClassNames( );

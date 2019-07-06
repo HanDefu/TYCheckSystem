@@ -69,9 +69,9 @@ void StandardPartData::InitalData( const char* rootDir, const char *mainRegFile 
 	m_lastUIExpressions.clear();
 }
 
-void StandardPartData::RefreshData(int class1idx,int class2idx, int class3idx)
+void StandardPartData::RefreshData(int class1idx,int class2idx, int class3idx, bool forceRefresh)
 {
-	if( class1idx!= currentclass1idx || class2idx!= currentclass2idx || class3idx!= currentclass3idx)
+	if( forceRefresh || class1idx!= currentclass1idx || class2idx!= currentclass2idx || class3idx!= currentclass3idx)
 	{
 		Load_Level_2_Data(class1idx);
 		Load_Level_3_Data(class2idx,class3idx);
