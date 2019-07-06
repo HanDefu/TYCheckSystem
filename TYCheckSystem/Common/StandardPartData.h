@@ -6,18 +6,13 @@
 #include <uf.h>
 #include <NXOpen/NXString.hxx>
 #include "Com.h"
+#include "TY_Def.h"
 
 using namespace std;
 using namespace NXOpen;
 
 #define SPECPARAMETER_OTHER_LINES 3
 
-typedef std::vector<tag_t> StlTagVector;
-typedef std::vector<double> StlDoubleVector;
-typedef std::vector<logical> StlLogicalVector;
-typedef std::vector<NXString> StlNXStringVector;
-typedef std::vector<StlNXStringVector> StlNXStringVectorVector;
-typedef std::vector<StlLogicalVector> StlLogicalVectorVector;
 
 struct standardName
 {

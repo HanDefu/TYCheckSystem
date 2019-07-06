@@ -40,6 +40,17 @@ typedef std::vector<NXString> vNXString;
 typedef std::vector<NXString>::iterator itvNXString;
 typedef std::vector<vNXString> vvNXString;
 
+
+
+
+typedef std::vector<tag_t> StlTagVector;
+typedef std::vector<double> StlDoubleVector;
+typedef std::vector<logical> StlLogicalVector;
+typedef std::vector<NXString> StlNXStringVector;
+typedef std::vector<StlNXStringVector> StlNXStringVectorVector;
+typedef std::vector<StlLogicalVector> StlLogicalVectorVector;
+
+
 #define TY_STR_LEN 256
 #define MAX_FSPEC_BUFSIZE 256
 #define TY_GAP_DIS 0.1 //Ðü¿Õ¼ì²â

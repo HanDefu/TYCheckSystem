@@ -39,6 +39,7 @@
 #include <NXOpen/Annotations_DraftingNoteBuilder.hxx>
 #include <NXOpen/Annotations_AnnotationManager.hxx>
 #include "Com_UG.h"
+#include<uf_group.h>
 
 using namespace NXOpen;
 
@@ -1383,19 +1384,11 @@ static void EditLableNote(  tag_t orgNote, vNXString text )
 	}
 }
 
-int GZ_SetDrawingNoteInformation( tag_t part, tag_t group, double scale, NXString& DrawingNO )
+int GZ_SetDrawingNoteInformation( tag_t thisBody, tag_t group, double scale, NXString& DrawingNO )
 {
-	/*int n = 0;
+	int n = 0;
 	tag_t *members = NULL;
-	int defineIndex = 0;
-	for( int idx = 0; idx < BodiesDefined.size(); ++idx )
-	{
-		if( 0 == strcmp(BodiesDefined[idx].DrawingNO.GetLocaleText(),DrawingNO.GetLocaleText()))
-		{
-			defineIndex = idx;
-			break;
-		}
-	}
+
 	UF_GROUP_ask_group_data(group, &members, &n);
 	for( int idx = 0; idx < n; ++idx )
 	{
@@ -1406,50 +1399,55 @@ int GZ_SetDrawingNoteInformation( tag_t part, tag_t group, double scale, NXStrin
 		{
 			char note_name[MAX_ENTITY_NAME_SIZE+1]="";
 			UF_OBJ_ask_name(members[idx],note_name);
-			if( 0 == strcmp("技术说明",note_name) )
+			if( 0 == strcmp("TECHREQ",note_name) )
+			{
+				StlNXStringVector techRequs;
+				TYCOM_GetObjectAttributeLong(thisBody, ATTR_TYCOM_PROPERTY_TECH_REQUIREMENT, techRequs);
+				//tech = multiline_string0->GetValue();
+				EditLableNote(members[idx],techRequs);
+			}
+			else if( 0 == strcmp("PARTNAME",note_name) )
 			{
 				StlNXStringVector tech;
-				tech = BodiesDefined[defineIndex].tech;
+
+				char name1[256],name2[256];
+				TYCOM_GetObjectStringAttribute( thisBody, ATTR_TYCOM_PROPERTY_SOLID_NAME, name1);
+				TYCOM_GetObjectStringAttribute( thisBody, ATTR_TYCOM_PROPERTY_SOLID_NAME2, name2);
+
+				tech.push_back(NXString(name1)+NXString(name2));
 				//tech = multiline_string0->GetValue();
 				EditLableNote(members[idx],tech);
 			}
-			else if( 0 == strcmp("日期",note_name) )
+			else if( 0 == strcmp("DATE",note_name) )
 			{
 				StlNXStringVector tech;
-				NXString projName = DesignDate->GetProperties()->GetString("Value");
-				tech.push_back(projName);
+				NXString date = GetDateStr();
+				tech.push_back(date);
 				EditLableNote(members[idx],tech);
 			}
-			else if( 0 == strcmp("图名",note_name) )
+			else if( 0 == strcmp("MATERIAL",note_name) )
 			{
 				StlNXStringVector tech;
-				//NXString projName = drawingName->GetProperties()->GetString("Value");
-				NXString projName = BodiesDefined[defineIndex].DrawingName;
-				tech.push_back(projName);
+				char mat[256];
+				TYCOM_GetObjectStringAttribute( thisBody, ATTR_TYCOM_PROPERTY_MATERIAL, mat);
+				tech.push_back(mat);
 				EditLableNote(members[idx],tech);
 			}
-			else if( 0 == strcmp("图号",note_name) )
+			else if( 0 == strcmp("DRAWNO",note_name) )
 			{
 				StlNXStringVector tech;
-				//NXString projName = drawingNO->GetProperties()->GetString("Value");
-				tech.push_back(DrawingNO);
+				tech.push_back("DRAWNO");
 				EditLableNote(members[idx],tech);;
 			}
-			else if( 0 == strcmp("工程名称",note_name) )
+			else if( 0 == strcmp("HEATPROCESS",note_name) )
 			{
 				StlNXStringVector tech;
-				NXString projName = projectName->GetProperties()->GetString("Value");
-				tech.push_back(projName);
+				char heat[256];
+				TYCOM_GetObjectStringAttribute( thisBody, ATTR_TYCOM_PROPERTY_HEAT_PROCESS, heat);
+				tech.push_back(heat);
 				EditLableNote(members[idx],tech);
 			}
-			else if( 0 == strcmp("工程编号",note_name) )
-			{
-				StlNXStringVector tech;
-				NXString projNO = projectNO->GetProperties()->GetString("Value");
-				tech.push_back(projNO);
-				EditLableNote(members[idx],tech);
-			}
-			else if( 0 == strcmp("比例",note_name) )
+			else if( 0 == strcmp("SCALE",note_name) )
 			{
 				StlNXStringVector tech;
 				char str[32]="";
@@ -1459,7 +1457,7 @@ int GZ_SetDrawingNoteInformation( tag_t part, tag_t group, double scale, NXStrin
 			}
 		}
 	}
-	UF_free(members);*/
+	UF_free(members);
 	return 0;
 }
 
@@ -1472,7 +1470,15 @@ int TY_AutoDrafting()
 		char inputfile[UF_CFI_MAX_PATH_NAME_SIZE]="";
 		char outputfile[UF_CFI_MAX_PATH_NAME_SIZE]="";
 		tag_t disp = UF_PART_ask_display_part();
-        NXString savepath("E:\\Project\\WetTang\\Test");
+
+		char filePath[MAX_FSPEC_BUFSIZE] = "";
+		char namestr[MAX_FSPEC_BUFSIZE] = "";
+		char part_fspec1[MAX_FSPEC_BUFSIZE] = "";
+		UF_PART_ask_part_name(disp,part_fspec1);
+		uc4576(part_fspec1, 2, filePath, namestr);
+
+
+        NXString savepath(filePath);
 
 		vtag_t allBodies;
 		TYCOM_GetCurrentPartSolidBodies(allBodies);
@@ -1511,7 +1517,7 @@ int TY_AutoDrafting()
 			//char viewName[133]="";
 			GetTopViewProjectDirection( disp, refNames[idx], direction );
             tag_t group = CreateDrawingViewDWG(disp,view,viewl,viewr,refNames[idx],NXString("frame"),NXString("钢材"),viewbound,scale);
-            GZ_SetDrawingNoteInformation(newpart,group,scale,refNames[idx]);
+            GZ_SetDrawingNoteInformation(allBodies[idx],group,scale,refNames[idx]);
             RY_DWG_create_demention(disp,view,scale,direction);
 			for( int i = 0; i< 3; i++)
 				viewldir[0][i] = direction[0][i];
