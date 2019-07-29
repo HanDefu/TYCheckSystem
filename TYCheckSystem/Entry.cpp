@@ -49,7 +49,7 @@ extern "C" DllExport void  ufusr(char *param, int *retcod, int param_len)
 {
 	try
 	{
-#ifndef ROYAL_DEBUG
+#ifndef TY_DEBUG
 
 		TYRegister::Show_TYRegister();//注册机相关
 
@@ -59,64 +59,67 @@ extern "C" DllExport void  ufusr(char *param, int *retcod, int param_len)
 			return;
 		}
 
-#endif  // ROYAL_DEBUG
+#endif  // TYCOM_DEBUG
 
 		if(InitCheck() == false)
 			return;
 
 		UF_initialize();
 
-		if(strcmp(param, "CUSTOM_TY_ADD_PROPERTY") == 0)
+		if(strcmp(param, "CUSTOM_TY_ADD_PROPERTY") == 0)//添加属性
 		{
 			 TYProperty::Show_TYProperty();
 		}
 
-		if(strcmp(param, "CUSTOM_TY_COLOR_TOOL") == 0)
+		if(strcmp(param, "CUSTOM_TY_COLOR_TOOL") == 0)//着色
 		{
 			TYColor::Show_TYColor();
 		}
 
-		if(strcmp(param, "CUSTOM_TY_STAND_PART") == 0)
+		if(strcmp(param, "CUSTOM_TY_STAND_PART") == 0)//标准件
 		{
 			TYStandPart::Show_TYStandPart();
 		}
 
-		if(strcmp(param, "CUSTOM_TY_AUTO_DRAFTING") == 0)
+		if(strcmp(param, "CUSTOM_TY_AUTO_DRAFTING") == 0)//自动出图
 		{
 			TY_CMD_AutoDrafting();
 		}
 
-		if(strcmp(param, "CUSTOM_TY_BOM") == 0)
+		if(strcmp(param, "CUSTOM_TY_BOM") == 0)//BOM
 		{
 			TY_CMD_Bom();
 		}
 
-		if(strcmp(param, "CUSTOM_TY_BAIKEXIAN") == 0)
+		if(strcmp(param, "CUSTOM_TY_BAIKEXIAN") == 0)//百刻线
 		{
 			TYBaiWeiXian::Show_TYBaiWeiXian();
 		}
 
-		if(strcmp(param, "CUSTOM_TY_CHECK_XUANKONG") == 0)
+		if(strcmp(param, "CUSTOM_TY_CHECK_XUANKONG") == 0)//悬空检测
 		{
 			TYCheckGap::Show_TYCheckGap();
 		}
 
-		if(strcmp(param, "CUSTOM_TY_CHECK_INTERSECT") == 0)
+		if(strcmp(param, "CUSTOM_TY_CHECK_INTERSECT") == 0)//干涉检测
 		{
 			TYCheckInterference::Show_TYCheckInterference();
 		}
 
-		if(strcmp(param, "CUSTOM_TY_CREATE_HOLE") == 0)
+		if(strcmp(param, "CUSTOM_TY_CREATE_HOLE") == 0)//自动引孔
 		{
 			TYHole::Show_TYHole();
 		}
-
-		if(strcmp(param, "CUSTOM_TY_PRINT") == 0)
+		if(strcmp(param, "CUSTOM_TY_TEXT_MARK") == 0)//刻字和镜像刻字
+		{
+			TYTextMark::Show_TYTextMark();
+		}
+		if(strcmp(param, "CUSTOM_TY_PRINT") == 0)//批量打印
 		{
 			TYPrint::Show_TYPrint();
 		}
 
-		if(strcmp(param, "CUSTOM_TY_EXPORT_DWG") == 0)
+		if(strcmp(param, "CUSTOM_TY_EXPORT_DWG") == 0)//导出dwg
 		{
 			TY_CMD_ExportDwg();
 		}
@@ -177,17 +180,17 @@ extern "C" DllExport void ufusr_cleanup(void)
 
 bool InitCheck()
 {
-	char * env = getenv("ROYAL_STANDARD_DIR");
+	char * env = getenv("TY_STANDARD_DIR");
 	if (env == 0)
 	{
-		uc1601("没有环境变量ROYAL_STANDARD_DIR",1);
+		uc1601("没有环境变量TY_STANDARD_DIR",1);
 		return false;
 	}
 
 	env = getenv("UGII_USER_DIR");
 	if (env == 0)
 	{
-		uc1601("没有环境变量ROYAL_STANDARD_DIR",1);
+		uc1601("没有环境变量TY_STANDARD_DIR",1);
 		return false;
 	}
 }

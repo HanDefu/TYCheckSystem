@@ -13,8 +13,8 @@
 //
 //==============================================================================
 
-#ifndef ENTRY_H_INCLUDED
-#define ENTRY_H_INCLUDED
+#ifndef ENTTYCOM_H_INCLUDED
+#define ENTTYCOM_H_INCLUDED
 
 #include <uf_defs.h>
 #endif //GETPOINT_H_INCLUDED

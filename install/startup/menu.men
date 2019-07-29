@@ -4,71 +4,71 @@ VERSION 120
 EDIT UG_GATEWAY_MAIN_MENUBAR
 
 TOP_MENU
-    CASCADE_BUTTON CUSTOM_WT
+    CASCADE_BUTTON CUSTOM_TY
     LABEL 威唐检具系统
 END_OF_TOP_MENU
 
 MENU CUSTOM_TY
     
-	BUTTON CUSTOM_TY_ADD_PROPERTY
+    BUTTON CUSTOM_TY_ADD_PROPERTY
     LABEL 添加属性
     BITMAP attribute_object
-    ACTIONS TY.dll
+    ACTIONS TYCheckSystem.dll
 	
 	BUTTON CUSTOM_TY_COLOR_TOOL
     LABEL 着色
     BITMAP color_random_display
-    ACTIONS TY.dll
+    ACTIONS TYCheckSystem.dll
 	
 	BUTTON CUSTOM_TY_STAND_PART
     LABEL 标准件库
     BITMAP standard_option_sc
-    ACTIONS TY.dll
+    ACTIONS TYCheckSystem.dll
 	
 	BUTTON CUSTOM_TY_AUTO_DRAFTING
     LABEL 自动出图
     BITMAP edit_drafting_object_associativity
-    ACTIONS TY.dll
+    ACTIONS TYCheckSystem.dll
 	
 	BUTTON CUSTOM_TY_BOM
     LABEL 自动BOM
     BITMAP table_export
-    ACTIONS TY.dll
+    ACTIONS TYCheckSystem.dll
 	
 	BUTTON CUSTOM_TY_TEXT_MARK
     LABEL 刻字和镜像刻字
     BITMAP planar_text_lc
-    ACTIONS TY.dll
+    ACTIONS TYCheckSystem.dll
 	
 	BUTTON CUSTOM_TY_BAIKEXIAN
     LABEL 百位线
     BITMAP grid_options_lc
-    ACTIONS TY.dll
+    ACTIONS TYCheckSystem.dll
 	
 	BUTTON CUSTOM_TY_CHECK_XUANKONG
     LABEL 悬空检测
     BITMAP mw_parting_check
-    ACTIONS TY.dll
+    ACTIONS TYCheckSystem.dll
 	
 	BUTTON CUSTOM_TY_CHECK_INTERSECT
     LABEL 干涉检测
     BITMAP interference_highlight_lc
-    ACTIONS TY.dll
+    ACTIONS TYCheckSystem.dll
 	
 	BUTTON CUSTOM_TY_CREATE_HOLE
     LABEL 自动引孔
     BITMAP tfe_hole_counterbore_sc
-    ACTIONS TY.dll
+    ACTIONS TYCheckSystem.dll
 	
 	BUTTON CUSTOM_TY_PRINT
     LABEL 批量打印
     BITMAP print_lc
-    ACTIONS TY.dll
+    ACTIONS TYCheckSystem.dll
 	
     BUTTON CUSTOM_TY_EXPORT_DWG
     LABEL 批量导出DWG
     BITMAP restore_auto_text
-    ACTIONS TY.dll
+    ACTIONS TYCheckSystem.dll
 	
 	
 END_OF_MENU

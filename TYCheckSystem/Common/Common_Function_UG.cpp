@@ -113,7 +113,7 @@ extern UI *theUI;
 
 
 //This function get the length of input curve.
-int CF_CurveGetLength(tag_t curve, double &len)
+int TYCOM_CurveGetLength(tag_t curve, double &len)
 {
 	if(curve == NULL_TAG)
 		return 1;
@@ -136,12 +136,12 @@ int CF_CurveGetLength(tag_t curve, double &len)
 }
 
 //This function get the length of input curve between two input parms.
-int CF_CurveGetLengthAccordParms(tag_t curve, double startParm, double endParm, double &len)
+int TYCOM_CurveGetLengthAccordParms(tag_t curve, double startParm, double endParm, double &len)
 {
 	if (curve == NULL_TAG)
 		return 1;
 	double lenAll = 0;
-    CF_CurveGetLength(curve, lenAll);
+    TYCOM_CurveGetLength(curve, lenAll);
 
 	UF_EVAL_p_t evaluator = NULL;
 	double limits[2] = {0.0, 0.0};
@@ -153,7 +153,7 @@ int CF_CurveGetLengthAccordParms(tag_t curve, double startParm, double endParm, 
 }
 
 //This function get the start and end points of input curve.
-int CF_CurveGetStartEndPoints(tag_t curve, double start[3], double end[3])
+int TYCOM_CurveGetStartEndPoints(tag_t curve, double start[3], double end[3])
 {
 	UF_EVAL_p_t evaluator = NULL;
 	double limits[2] = {0.0, 0.0};
@@ -166,7 +166,7 @@ int CF_CurveGetStartEndPoints(tag_t curve, double start[3], double end[3])
 }
 
 //This funcion check whether the input point is on the curve.
-bool CF_CurveCheckPointOnCurve(tag_t curve, double pnt[3])
+bool TYCOM_CurveCheckPointOnCurve(tag_t curve, double pnt[3])
 {
 	UF_EVAL_p_t evaluator = NULL;
 	double limits[2] = {0.0, 0.0};
@@ -182,7 +182,7 @@ bool CF_CurveCheckPointOnCurve(tag_t curve, double pnt[3])
 }
 
 //This function check whether the input edge is the edge of input face.
-bool CF_EdgeCheckOnFace(tag_t edgeToCheck, tag_t face)
+bool TYCOM_EdgeCheckOnFace(tag_t edgeToCheck, tag_t face)
 {
 	uf_list_p_t edge_list;
 	UF_MODL_ask_face_edges(face, &edge_list);
@@ -203,7 +203,7 @@ bool CF_EdgeCheckOnFace(tag_t edgeToCheck, tag_t face)
 }
 
 //This function get the minimum distance of two input objects. And outpur two points.
-int CF_AskMinimumDist(tag_t obj1, tag_t obj2, double &dis, double *pnt1, double *pnt2)
+int TYCOM_AskMinimumDist(tag_t obj1, tag_t obj2, double &dis, double *pnt1, double *pnt2)
 {
 	double pt_on_obj1 [3] = {0.0, 0.0, 0.0}, pt_on_obj2 [3] = {0.0, 0.0, 0.0};
 	double guess1[3] = {0.0, 0.0, 0.0}, guess2[3] = {0.0, 0.0, 0.0};
@@ -225,7 +225,7 @@ int CF_AskMinimumDist(tag_t obj1, tag_t obj2, double &dis, double *pnt1, double 
 
 //This function get the minimum distance of input object and input guess point. 
 //And return the result point on the input object.
-int CF_AskMinimumDist(tag_t obj1, double inutpnt[3], double &dis, double *pnt1)
+int TYCOM_AskMinimumDist(tag_t obj1, double inutpnt[3], double &dis, double *pnt1)
 {
 	double pt_on_obj1 [3] = {0.0, 0.0, 0.0}, pt_on_obj2 [3] = {0.0, 0.0, 0.0};
 	double guess1[3] = {0.0, 0.0, 0.0};
@@ -245,7 +245,7 @@ typedef int (* AskMaximumDist)(unsigned int obj1, double guess1[3], double mtx1[
 	                                    unsigned int obj2, double guess2[3], double mtx2[16],
 										bool isexact, double pt1[3], double pt2[3]);
 //This function get the max distance of two input objects. And return the two result points.
-int CF_AskMaxDist(tag_t obj1, tag_t obj2, double &dis, double *pnt1, double *pnt2 )
+int TYCOM_AskMaxDist(tag_t obj1, tag_t obj2, double &dis, double *pnt1, double *pnt2 )
 {
 	static HINSTANCE hInst = NULL;
 	AskMaximumDist GetMaxDist = NULL;
@@ -298,7 +298,7 @@ int UF_AskFaceArea(tag_t face, double *area )
 }
 
 //This function get the tags from list and put then in a vector.
-int CF_AskListItems(uf_list_p_t  &list, vtag_t & listTags)
+int TYCOM_AskListItems(uf_list_p_t  &list, vtag_t & listTags)
 {
 	int count = 0;
 	UF_MODL_ask_list_count(list, &count);
@@ -313,7 +313,7 @@ int CF_AskListItems(uf_list_p_t  &list, vtag_t & listTags)
 
 //This function get the tags from list and put then in a vector.
 //Then delete the input list.
-int CF_AskListItemsAndDelete(uf_list_p_t  &list, vtag_t & listTags)
+int TYCOM_AskListItemsAndDelete(uf_list_p_t  &list, vtag_t & listTags)
 {
 	int count = 0;
 	UF_MODL_ask_list_count(list, &count);
@@ -330,7 +330,7 @@ int CF_AskListItemsAndDelete(uf_list_p_t  &list, vtag_t & listTags)
 }
 
 //This function get the common edge of two faces.
-int CF_AskFaceFaceEdges(tag_t face1, tag_t face2, vtag_t &edges)
+int TYCOM_AskFaceFaceEdges(tag_t face1, tag_t face2, vtag_t &edges)
 {
 	int ret = 0;
 	if(face1 == NULL_TAG || face2 == NULL_TAG)
@@ -367,7 +367,7 @@ int CF_AskFaceFaceEdges(tag_t face1, tag_t face2, vtag_t &edges)
 	return 0;
 }
 
-int CF_AskEdgeEdgeFace(tag_t edge1, tag_t edge2, tag_t &face)
+int TYCOM_AskEdgeEdgeFace(tag_t edge1, tag_t edge2, tag_t &face)
 {
     int ret = 1;
     logical found = false;
@@ -407,7 +407,7 @@ int CF_AskEdgeEdgeFace(tag_t edge1, tag_t edge2, tag_t &face)
 }
 
 //This function trim a solid body, and keep the result body which is near to the input reference object.
-int CF_BodyTrimAndReferenceObj(tag_t body, tag_t tool,tag_t &frec, tag_t reference )
+int TYCOM_BodyTrimAndReferenceObj(tag_t body, tag_t tool,tag_t &frec, tag_t reference )
 {
 	if(body == NULL_TAG || tool == NULL_TAG)
 		return 1;
@@ -422,14 +422,14 @@ int CF_BodyTrimAndReferenceObj(tag_t body, tag_t tool,tag_t &frec, tag_t referen
 	}
 
 	double dis1 = 0, dis2 = 0;
-	CF_AskMinimumDist(body, reference, dis1);
+	TYCOM_AskMinimumDist(body, reference, dis1);
 	UF_MODL_trim_body(body, tool, 0, &frec);
-	CF_AskMinimumDist(body, reference, dis2);
+	TYCOM_AskMinimumDist(body, reference, dis2);
 	if(MATH_is_less2(dis2, dis1, tol))
 	{
 		vtag_t tags;
 		tags.push_back(frec);
-		CF_DeleteFrecs(tags);
+		TYCOM_DeleteFrecs(tags);
 		UF_MODL_trim_body(body, tool, 1, &frec);
 	}
 	return 0;
@@ -437,7 +437,7 @@ int CF_BodyTrimAndReferenceObj(tag_t body, tag_t tool,tag_t &frec, tag_t referen
 
 //This function extend a input line by input value.
 //You can choose to just extend start or end part of this line.
-int CF_CurveExtendCurve(tag_t line, bool extendStart, bool extendEnd, double value)
+int TYCOM_CurveExtendCurve(tag_t line, bool extendStart, bool extendEnd, double value)
 {
 	double tol = 0.0;
 	UF_MODL_ask_distance_tolerance(&tol);
@@ -445,7 +445,7 @@ int CF_CurveExtendCurve(tag_t line, bool extendStart, bool extendEnd, double val
 		return 1;
 	
 	UF_CURVE_line_t data;
-	CF_CurveGetStartEndPoints(line, data.start_point, data.end_point);
+	TYCOM_CurveGetStartEndPoints(line, data.start_point, data.end_point);
 	double dis = 0, scale = 1;
 	UF_VEC3_distance(data.start_point, data.end_point, &dis);
 	scale  = value/dis;
@@ -482,7 +482,7 @@ int CF_CurveExtendCurve(tag_t line, bool extendStart, bool extendEnd, double val
 
 //This function get the intersection point of input curve and another object.
 //If there are more than one points, the input ref point is help to output the closeest intersection to this point.
-int CF_CurveGetObjectIntersectPoint(tag_t curve, tag_t object, double pnt[3], double *ref)
+int TYCOM_CurveGetObjectIntersectPoint(tag_t curve, tag_t object, double pnt[3], double *ref)
 {
 	if(curve == NULL_TAG || object == NULL_TAG)
 		return -1;
@@ -501,7 +501,7 @@ int CF_CurveGetObjectIntersectPoint(tag_t curve, tag_t object, double pnt[3], do
 }
 
 //This function get the normal of mid point of input face.
-int CF_FaceAskMidPointNormal(tag_t face, double normal[3])
+int TYCOM_FaceAskMidPointNormal(tag_t face, double normal[3])
 {
 	if(face == NULL_TAG)
 		return -1;
@@ -520,7 +520,7 @@ int CF_FaceAskMidPointNormal(tag_t face, double normal[3])
 }
 
 //This function get the normal of mid point of input face.
-int CF_FaceAskMidPointNormal(tag_t face, double normal[3], double point[3])
+int TYCOM_FaceAskMidPointNormal(tag_t face, double normal[3], double point[3])
 {
 	if(face == NULL_TAG)
 		return -1;
@@ -538,7 +538,7 @@ int CF_FaceAskMidPointNormal(tag_t face, double normal[3], double point[3])
 }
 
 //This function get the limits of input curve.
-int CF_CurveGetLimits(tag_t curve, double limit[2])
+int TYCOM_CurveGetLimits(tag_t curve, double limit[2])
 {
 	UF_EVAL_p_t evaluator = NULL;
 	double limits[2] = {0.0, 0.0};
@@ -549,7 +549,7 @@ int CF_CurveGetLimits(tag_t curve, double limit[2])
 }
 
 //This function get the parm from a input point.
-int CF_CurveGetParmFromPoint(tag_t curve, double pnt[3], double &parm)
+int TYCOM_CurveGetParmFromPoint(tag_t curve, double pnt[3], double &parm)
 {
 	UF_EVAL_p_t evaluator = NULL;
 	double limits[2] = {0.0, 0.0};
@@ -561,7 +561,7 @@ int CF_CurveGetParmFromPoint(tag_t curve, double pnt[3], double &parm)
 }
 
 //This function get the point from input curve and related parm.
-int CF_CurveGetPointFromParm(tag_t curve, double parm, double pnt[3])
+int TYCOM_CurveGetPointFromParm(tag_t curve, double parm, double pnt[3])
 {
 	UF_EVAL_p_t evaluator = NULL;
 	double limits[2] = {0.0, 0.0};
@@ -574,7 +574,7 @@ int CF_CurveGetPointFromParm(tag_t curve, double parm, double pnt[3])
 
 //small cycle --- 1, else -1
 //This function help to check input checkParm is between parm1 and parm2.
-bool CF_CurveIsInParm(double parm1, double parm2, double checkParm)
+bool TYCOM_CurveIsInParm(double parm1, double parm2, double checkParm)
 {
 	double value = (checkParm - parm1) * (checkParm - parm2);
 	if(value  > 0 ) 
@@ -584,7 +584,7 @@ bool CF_CurveIsInParm(double parm1, double parm2, double checkParm)
 }
 
 //This function help the check whether checkParm1 and checkParm2 are contain the zero point of input a closed curve.
-bool CF_CurveIsKuaiYue(double parm1, double parm2, double checkParm1, double checkParm2, int isSmall)
+bool TYCOM_CurveIsKuaiYue(double parm1, double parm2, double checkParm1, double checkParm2, int isSmall)
 {
 	double value = fabs(checkParm1 - checkParm2);
 	double value1 = fabs(parm1 - parm2);
@@ -605,12 +605,12 @@ bool CF_CurveIsKuaiYue(double parm1, double parm2, double checkParm1, double che
 }
 
 //This function help to check whether the input curve is closed.
-bool CF_CurveIsClosed(tag_t curve)
+bool TYCOM_CurveIsClosed(tag_t curve)
 {
 	double tol = 0.0;
 	UF_MODL_ask_distance_tolerance(&tol);
 	double start[3] = {0,0,0},end[3] = {0,0,0};
-	CF_CurveGetStartEndPoints(curve, start, end);
+	TYCOM_CurveGetStartEndPoints(curve, start, end);
 	double dis = 0;
 	UF_VEC3_distance(start, end, &dis);
 	int closed = UF_MODL_ask_curve_closed(curve);
@@ -621,7 +621,7 @@ bool CF_CurveIsClosed(tag_t curve)
 }
 
 //This function transform a point along a direction with input distance.
-int CF_TransPnt(Point3d &pnt, double dir[3], double dis)
+int TYCOM_TransPnt(Point3d &pnt, double dir[3], double dis)
 {
 	//UF_VEC3_add
 	double magnitude = 0;
@@ -640,7 +640,7 @@ int CF_TransPnt(Point3d &pnt, double dir[3], double dis)
 
 //This function create a plane at the related parm of a curve.
 //The plane normal is the tangent of curve.
-int CF_CreatePlaneAccordingToParm(tag_t curve,  double parm, tag_t &planeTag)
+int TYCOM_CreatePlaneAccordingToParm(tag_t curve,  double parm, tag_t &planeTag)
 {
 	UF_EVAL_p_t evaluator = NULL;
 	double normal[3] = {0.0, 0.0, 0.0},
@@ -655,7 +655,7 @@ int CF_CreatePlaneAccordingToParm(tag_t curve,  double parm, tag_t &planeTag)
 	return 0;
 }
 
-int CF_GetDisplayPartFeatures(vtag_t &feats)
+int TYCOM_GetDisplayPartFeatures(vtag_t &feats)
 {
 	tag_t part = UF_PART_ask_display_part();
 	if(part == NULL_TAG)
@@ -670,7 +670,7 @@ int CF_GetDisplayPartFeatures(vtag_t &feats)
 	return 0;
 }
 
-int CF_GetWorkPartFeatures(vtag_t &feats)
+int TYCOM_GetWorkPartFeatures(vtag_t &feats)
 {
 	tag_t part = UF_ASSEM_ask_work_part();
 	if(part == NULL_TAG)
@@ -685,7 +685,7 @@ int CF_GetWorkPartFeatures(vtag_t &feats)
 	return 0;
 }
 
-int CF_ask_line_endpt( tag_t line_id,  double *start_p, double *end_p )
+int TYCOM_ask_line_endpt( tag_t line_id,  double *start_p, double *end_p )
 {
 	int irc = 0;
 	double start_parm = 0.0, end_parm = 0.0, torsion = 0.0, rad_of_cur = 0.0,
@@ -704,7 +704,7 @@ int CF_ask_line_endpt( tag_t line_id,  double *start_p, double *end_p )
 	return( irc );
 }
 
-int CF_is_curve_adjacent( tag_t edge1, tag_t edge2,  int *is_adj , int *start)
+int TYCOM_is_curve_adjacent( tag_t edge1, tag_t edge2,  int *is_adj , int *start)
 {
 	if (edge1 == edge2)
 	{
@@ -719,8 +719,8 @@ int CF_is_curve_adjacent( tag_t edge1, tag_t edge2,  int *is_adj , int *start)
 
 	*is_adj = 0;
 
-	if( (irc = CF_ask_line_endpt( edge1, pt1, pt2 )) ) return( irc );
-	if( (irc = CF_ask_line_endpt( edge2, pt3, pt4 )) ) return( irc );
+	if( (irc = TYCOM_ask_line_endpt( edge1, pt1, pt2 )) ) return( irc );
+	if( (irc = TYCOM_ask_line_endpt( edge2, pt3, pt4 )) ) return( irc );
 
 	UF_VEC3_distance( pt1, pt3, &dis1 );
 	UF_VEC3_distance( pt1, pt4, &dis2 );
@@ -749,7 +749,7 @@ int CF_is_curve_adjacent( tag_t edge1, tag_t edge2,  int *is_adj , int *start)
 }
 
 //This function delete all input features in vector.
-int CF_DeleteFrecs(vtag_t &tags)
+int TYCOM_DeleteFrecs(vtag_t &tags)
 {
 	uf_list_p_t frecList = NULL;
 	UF_MODL_create_list(&frecList);
@@ -760,7 +760,7 @@ int CF_DeleteFrecs(vtag_t &tags)
 	return 0;
 }
 
-int CF_GetCurrentPartSolidBodies(vtag_t &bodies)
+int TYCOM_GetCurrentPartSolidBodies(vtag_t &bodies)
 {
 	int type = 0, subtype = 0;
 	tag_t part = UF_PART_ask_display_part();
@@ -778,7 +778,7 @@ int CF_GetCurrentPartSolidBodies(vtag_t &bodies)
 	return 0;
 }
 
-int CF_GetCurrentPartSolidBodies2(vtag_t &bodies)
+int TYCOM_GetCurrentPartSolidBodies2(vtag_t &bodies)
 {
 	int type = 0, subtype = 0;
 	tag_t part = UF_ASSEM_ask_work_part();
@@ -796,7 +796,7 @@ int CF_GetCurrentPartSolidBodies2(vtag_t &bodies)
 	return 0;
 }
 
-int CF_GetPartSolidBodies(tag_t part, vtag_t &bodies)
+int TYCOM_GetPartSolidBodies(tag_t part, vtag_t &bodies)
 {
 	int type = 0, subtype = 0;
 	if(part == NULL_TAG)
@@ -813,7 +813,7 @@ int CF_GetPartSolidBodies(tag_t part, vtag_t &bodies)
 	return 0;
 }
 
-int CF_GetCurrentPartFaces(vtag_t &faces)
+int TYCOM_GetCurrentPartFaces(vtag_t &faces)
 {
 	int type = 0, subtype = 0;
 	tag_t part = UF_PART_ask_display_part();
@@ -831,7 +831,7 @@ int CF_GetCurrentPartFaces(vtag_t &faces)
 	return 0;
 }
 
-int CF_GetCurrentPartEdges(vtag_t &edges)
+int TYCOM_GetCurrentPartEdges(vtag_t &edges)
 {
 	int type = 0, subtype = 0;
 	tag_t part = UF_PART_ask_display_part();
@@ -849,7 +849,7 @@ int CF_GetCurrentPartEdges(vtag_t &edges)
 	return 0;
 }
 
-int CF_GetCurrentPartArcs(vtag_t &arcs)
+int TYCOM_GetCurrentPartArcs(vtag_t &arcs)
 {
 	tag_t part = UF_PART_ask_display_part();
 	if(part == NULL_TAG)
@@ -865,7 +865,7 @@ int CF_GetCurrentPartArcs(vtag_t &arcs)
 }
 
 //通过颜色区分的形式 红色为起始 绿色为结束
-int CF_GetPlanarFaces(vtag_t &faces, vtag_t &planarFaces, tag_t &planar, tag_t &planarend)
+int TYCOM_GetPlanarFaces(vtag_t &faces, vtag_t &planarFaces, tag_t &planar, tag_t &planarend)
 {
 	int type = 0;
 	UF_OBJ_disp_props_t disp_props;
@@ -903,7 +903,7 @@ int CF_GetPlanarFaces(vtag_t &faces, vtag_t &planarFaces, tag_t &planar, tag_t &
 	return 0;
 }
 
-int CF_GetPlanarFaces(vtag_t &faces, vtag_t &planarFaces)
+int TYCOM_GetPlanarFaces(vtag_t &faces, vtag_t &planarFaces)
 {
 	int type = 0;
 	UF_OBJ_disp_props_t disp_props;
@@ -918,7 +918,7 @@ int CF_GetPlanarFaces(vtag_t &faces, vtag_t &planarFaces)
 	return 0;
 }
 
-int CF_RemovePlanarFaces(vtag_t &faces)
+int TYCOM_RemovePlanarFaces(vtag_t &faces)
 {
 	int type = 0;
 	UF_OBJ_disp_props_t disp_props;
@@ -934,11 +934,11 @@ int CF_RemovePlanarFaces(vtag_t &faces)
 	return 0;
 }
 
-int CF_GetAdjFaces(tag_t seedFace, vtag_t & faces)
+int TYCOM_GetAdjFaces(tag_t seedFace, vtag_t & faces)
 {
 	uf_list_p_t adjacent_faces = NULL;
 	UF_MODL_ask_adjac_faces(seedFace, &adjacent_faces);
-	CF_AskListItemsAndDelete(adjacent_faces, faces);
+	TYCOM_AskListItemsAndDelete(adjacent_faces, faces);
 	return 0;
 }
 
@@ -947,10 +947,10 @@ int CF_GetAdjFaces(tag_t seedFace, vtag_t & faces)
       UF_MODL_CYLINDRICAL_FACE
 	  UF_MODL_TOROIDAL_FACE
 */
-int CF_GetAdjFacesWithType(tag_t seedFace, int facetype, tag_t & face, vtag_t &allfaces)
+int TYCOM_GetAdjFacesWithType(tag_t seedFace, int facetype, tag_t & face, vtag_t &allfaces)
 {
 	vtag_t allAdjFaces;
-	CF_GetAdjFaces(seedFace, allAdjFaces);
+	TYCOM_GetAdjFaces(seedFace, allAdjFaces);
 	int type = 0;
 	for(int i = 0; i < (int)allAdjFaces.size(); i++)
 	{
@@ -974,7 +974,7 @@ int CF_GetAdjFacesWithType(tag_t seedFace, int facetype, tag_t & face, vtag_t &a
 	return 0;
 }
 
-int CF_GetArcEdge(vtag_t &edges, tag_t &edge)
+int TYCOM_GetArcEdge(vtag_t &edges, tag_t &edge)
 {
 	int edge_type = 0;
     for(int i = 0; i < (int)edges.size(); i++)
@@ -1133,17 +1133,17 @@ int GetArcRad(tag_t curve, double &rad)
 	return 0;
 }
 
-int CF_CreateLineWithExtendTwoSide(Point3d start, Point3d end, tag_t &line)
+int TYCOM_CreateLineWithExtendTwoSide(Point3d start, Point3d end, tag_t &line)
 {
 	UF_CURVE_line_t line_coords;
 	memcpy(line_coords.start_point,&start, sizeof(double)*3);
 	memcpy(line_coords.end_point,&end, sizeof(double)*3);
 	UF_CURVE_create_line(&line_coords, &line);
-	CF_CurveExtendCurve(line, true, true);
+	TYCOM_CurveExtendCurve(line, true, true);
 	return 0;
 }
 
-int CF_GetLineLineClosestPoint(tag_t line1, tag_t line2, double pnt[3])
+int TYCOM_GetLineLineClosestPoint(tag_t line1, tag_t line2, double pnt[3])
 {
     if(line1 == 0 || line2 == 0)
 		return -1;
@@ -1151,13 +1151,13 @@ int CF_GetLineLineClosestPoint(tag_t line1, tag_t line2, double pnt[3])
 	double dis = 0;
 	double pnt1[3] ={0,0,0}, pnt2[3] = {0,0,0};
 	//第一种方法 对于两个线段近似相交 计算不准
-	/*if(CF_CurveGetObjectIntersectPoint(line1, line2, pnt) == 0)
+	/*if(TYCOM_CurveGetObjectIntersectPoint(line1, line2, pnt) == 0)
 	{
         return 1;
 	}
 	else
 	{*/
-        CF_AskMinimumDist(line1, line2, dis, pnt1, pnt2);
+        TYCOM_AskMinimumDist(line1, line2, dis, pnt1, pnt2);
 		pnt[0] = (pnt1[0] + pnt2[0])/2.0;
 		pnt[1] = (pnt1[1] + pnt2[1])/2.0;
 		pnt[2] = (pnt1[2] + pnt2[2])/2.0;
@@ -1176,7 +1176,7 @@ bool isPointEqual(Point3d a, Point3d b, double tol)
 	return false;
 }
 
-int CF_SortArcsByName(vtag_t m_arcs)
+int TYCOM_SortArcsByName(vtag_t m_arcs)
 {
 
 	char namei[UF_OBJ_NAME_LEN+1] = "", namej[UF_OBJ_NAME_LEN+1] = "";
@@ -1200,7 +1200,7 @@ int CF_SortArcsByName(vtag_t m_arcs)
 return 0;
 }
 
-bool CF_IsTwoEdgeParall(tag_t edge1, tag_t edge2)
+bool TYCOM_IsTwoEdgeParall(tag_t edge1, tag_t edge2)
 {
 	UF_EVAL_p_t evaluator = 0;
 	UF_EVAL_initialize(edge1, &evaluator);
@@ -1261,7 +1261,7 @@ bool CF_IsTwoEdgeParall(tag_t edge1, tag_t edge2)
 }
 
 
-bool CF_IsTwoEdgePerpendicular(tag_t edge1, tag_t edge2)
+bool TYCOM_IsTwoEdgePerpendicular(tag_t edge1, tag_t edge2)
 {
 	UF_EVAL_p_t evaluator = 0;
 	
@@ -1315,97 +1315,6 @@ bool CF_IsTwoEdgePerpendicular(tag_t edge1, tag_t edge2)
 	return is_perpendicular;
 }
 
-/*
-int CF_SplitBody(tag_t &solid, Plane * plane1, vtag_t &splitBodies)
-{
-	int errorCode = 0;
-	Session *theSession = Session::GetSession();
-	Part * workPart = theSession->Parts()->Work();
-
-	Features::SplitBody *nullFeatures_Feature(NULL);
-	Features::SplitBodyBuilder *splitBodyBuilder = 0;
-    splitBodyBuilder = workPart->Features()->CreateSplitBodyBuilder(nullFeatures_Feature);
-
-	NXOpen::ScCollector * collector = workPart->ScCollectors()->CreateCollector();
-
-	TaggedObject * tagobj = NXOpen::NXObjectManager::Get(solid);
-	if(NULL == (dynamic_cast<Body*> (tagobj)))
-		return 1;
-
-	std::vector<NXOpen::Body *>  bodies(1);
-	bodies[0] = (Body *)tagobj;
-	BodyDumbRule * bodyRule = workPart->ScRuleFactory()->CreateRuleBodyDumb(bodies);
-	
-    std::vector<NXOpen::SelectionIntentRule *> rules1(1);
-    rules1[0] = bodyRule;
-    collector->ReplaceRules(rules1, false);
-
-	splitBodyBuilder->SetTargetBodyCollector(collector);
-
-	//plane
-	splitBodyBuilder->BooleanTool()->FacePlaneTool()->SetToolPlane(plane1);
-	splitBodyBuilder->BooleanTool()->SetToolOption(NXOpen::GeometricUtilities::BooleanToolBuilder::BooleanToolTypeNewPlane);
-
-	NXOpen::NXObject *nXObject2;
-	try
-	{
-		vtag_t vfeats;
-		uf_list_p_t solidfeatures = NULL;
-	    errorCode = UF_MODL_ask_body_feats(solid, &solidfeatures);
-	    CF_AskListItemsAndDelete(solidfeatures, vfeats);
-		char *featName = 0;
-
-        nXObject2 = splitBodyBuilder->Commit();
-		tag_t featureBody = 0;
-		UF_MODL_ask_feat_body(nXObject2->Tag(), &featureBody);
-
-		UF_MODL_ask_feat_name(nXObject2->Tag(), &featName);
-		if(featureBody != solid)
-		{
-			double dis1 = 0, dis2 = 0;
-			CF_AskMaxDist(featureBody, plane1->Tag(), dis1);
-			CF_AskMaxDist(solid, plane1->Tag(), dis2);
-
-			if(dis1 > dis2)
-			{
-				splitBodies.push_back(solid);
-			    solid = featureBody;
-			}
-			else
-			{
-				splitBodies.push_back(featureBody);
-			}
-		}
-		else
-		{
-			Features::SplitBody * pfrec = dynamic_cast<Features::SplitBody*> (nXObject2);
-
-			std::vector<NXOpen::Body *> bodies = pfrec->GetBodies();
-			if(bodies.size() == 2)
-			{
-				double dis1 = 0, dis2 = 0;
-			    CF_AskMaxDist(bodies[0]->Tag(), plane1->Tag(), dis1);
-			    CF_AskMaxDist(bodies[1]->Tag(), plane1->Tag(), dis2);
-				if(dis1 > dis2)
-				    splitBodies.push_back(bodies[1]->Tag());
-				else
-					splitBodies.push_back(bodies[0]->Tag());
-			}
-		}	
-	}
-	catch(exception& ex)
-	{
-		//---- Enter your exception handling code here -----
-		const char * mesg = ex.what();
-		errorCode = 1;
-		//errorCode = 1;
-		//CutSolid2018::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
-	}
-	splitBodyBuilder->Destroy();
-
-	return errorCode;
-}*/
-
 extern void UF_map_wcs2abs    /* Map point from Absolute coordinates to */
                 /* Work coordinate system coordinates     */
 (
@@ -1444,8 +1353,1553 @@ extern void UF_map_abs2wcs    /* Map point from Work coordinate system  */
     point[2] = wcs_point[2];
 }
 
+
+int TYCOM_GetMirrorBodiesForOneBody1(tag_t seedBody, vtag_t &mirrorBodies)
+{
+	if(seedBody == 0)
+		return -1;
+
+	vtag_t allBodies;
+	TYCOM_GetCurrentPartSolidBodies2(allBodies);
+
+
+	return TYCOM_GetMirrorBodiesForOneBody1(seedBody,allBodies,mirrorBodies);
+}
+
+int TYCOM_GetMirrorBodiesForOneBody1(tag_t seedBody, vtag_t& allBodies, vtag_t &mirrorBodies)
+{
+	if(seedBody == 0)
+		return -1;
+
+	char attriValue[128] = "";
+	int has = USER_ask_obj_string_attr( seedBody , ATTR_TYCOM_MIRROR_OBJ , attriValue );
+	if(!has)
+		return -2;
+
+	for(int i = 0; i < allBodies.size(); i++)
+	{
+		if(allBodies[i] == seedBody)
+			continue;
+
+		char attriValue2[128] = "";
+	    int has2 = USER_ask_obj_string_attr( allBodies[i] , ATTR_TYCOM_MIRROR_OBJ , attriValue2 );
+		if(!has2)
+			continue;
+
+		if(strcmp(attriValue, attriValue2) == 0)
+			mirrorBodies.push_back(allBodies[i]);
+	}
+
+	return 0;
+}
+
+void AddTagToVector( tag_t objTag,vtag_t &vecList )
+{
+    vtag_t::iterator itr = find(vecList.begin(),vecList.end(),objTag);
+    if( itr == vecList.end() )
+    {
+        vecList.push_back(objTag);
+    }
+}
+
+int TYCOM_GetGoupBodiesForOneBody(tag_t seedBody, vtag_t& allBodies, vtag_t &groupBodies)
+{
+    int type = 3;
+    vtag_t sameBodies;
+    vtag_t weldBodies;
+    TYCOM_GetWeldBodiesForOneBody(seedBody,allBodies,groupBodies);
+    if( groupBodies.size() > 0 )
+        type = 2;
+    TYCOM_GetSameBodiesForOneBody(seedBody,allBodies,sameBodies);
+    if( sameBodies.size() > 0 )
+        type = 1; //可能是焊接后相同件
+    //sameBodies.push_back(seedBody);
+    AddTagToVector(seedBody,sameBodies);
+    for( int idx = 0; idx < sameBodies.size(); ++idx )
+    {
+        vtag_t mirrorBodies;
+        TYCOM_GetMirrorBodiesForOneBody1(sameBodies[idx],allBodies,mirrorBodies);
+        AddTagToVector(sameBodies[idx],groupBodies);
+        for( int jdx = 0; jdx < mirrorBodies.size(); ++jdx )
+        {
+            type = 0; //可能是焊接后镜像件
+            AddTagToVector(mirrorBodies[jdx],groupBodies);
+        }
+    }
+    if( 2 == type )
+    {
+        AddTagToVector(seedBody,groupBodies);//单个焊接件
+    }
+    return type;
+}
+
+int TYCOM_GetMirrorBodiesForOneBody(tag_t seedBody, vtag_t& allBodies, vtag_t &mirrorBodies)
+{
+    int type = -1;
+    char attriValue[128] = "";
+	if(seedBody == 0)
+		return -1;
+
+    char attributes[][256]={ATTR_TYCOM_MIRROR_OBJ,ATTR_TYCOM_SAME_OBJ,ATTR_TYCOM_WELD_OBJ};
+    for( int idx = 0; idx < 3; ++idx )
+    {
+        int has = USER_ask_obj_string_attr( seedBody , attributes[idx] , attriValue );
+        {
+            if( has )
+            {
+                type = idx;
+                for(int i = 0; i < allBodies.size(); i++)
+                {
+                    if(allBodies[i] == seedBody)
+                        continue;
+
+                    char attriValue2[128] = "";
+                    int has2 = USER_ask_obj_string_attr( allBodies[i] , attributes[idx] , attriValue2 );
+                    if(!has2)
+                        continue;
+
+                    if(strcmp(attriValue, attriValue2) == 0)
+                        mirrorBodies.push_back(allBodies[i]);
+                }
+                break;
+            }
+        }
+    }
+	return type;
+}
+
+int TYCOM_GetSameBodiesForOneBody(tag_t seedBody, vtag_t &sameBodies)
+{
+	if(seedBody == 0)
+		return -1;
+
+	vtag_t allBodies;
+	TYCOM_GetCurrentPartSolidBodies2(allBodies);
+
+
+	return TYCOM_GetSameBodiesForOneBody(seedBody,allBodies,sameBodies);
+}
+
+int TYCOM_GetSameBodiesForOneBody(tag_t seedBody, vtag_t& allBodies, vtag_t &sameBodies)
+{
+	if(seedBody == 0)
+		return -1;
+
+	char attriValue[128] = "";
+	int has = USER_ask_obj_string_attr( seedBody , ATTR_TYCOM_SAME_OBJ , attriValue );
+	if(!has)
+		return -2;
+
+	for(int i = 0; i < allBodies.size(); i++)
+	{
+		if(allBodies[i] == seedBody)
+			continue;
+
+		char attriValue2[128] = "";
+	    int has2 = USER_ask_obj_string_attr( allBodies[i] , ATTR_TYCOM_SAME_OBJ , attriValue2 );
+		if(!has2)
+			continue;
+
+		if(strcmp(attriValue, attriValue2) == 0)
+			sameBodies.push_back(allBodies[i]);
+	}
+
+	return 0;
+}
+
+int TYCOM_GetWeldBodiesForOneBody(tag_t seedBody, vtag_t &weldBodies)
+{
+	if(seedBody == 0)
+		return -1;
+
+	vtag_t allBodies;
+	TYCOM_GetCurrentPartSolidBodies2(allBodies);
+
+
+	return TYCOM_GetWeldBodiesForOneBody(seedBody,allBodies,weldBodies);
+}
+
+int TYCOM_GetWeldBodiesForOneBody(tag_t seedBody, vtag_t& allBodies, vtag_t &weldBodies)
+{
+	if(seedBody == 0)
+		return -1;
+
+	char attriValue[128] = "";
+	int has = USER_ask_obj_string_attr( seedBody , ATTR_TYCOM_WELD_OBJ , attriValue );
+	if(!has)
+		return -2;
+
+	for(int i = 0; i < allBodies.size(); i++)
+	{
+		if(allBodies[i] == seedBody)
+			continue;
+
+		char attriValue2[128] = "";
+	    int has2 = USER_ask_obj_string_attr( allBodies[i] , ATTR_TYCOM_WELD_OBJ , attriValue2 );
+		if(!has2)
+			continue;
+
+		if(strcmp(attriValue, attriValue2) == 0)
+			weldBodies.push_back(allBodies[i]);
+	}
+
+	return 0;
+}
+
+int TYCOM_GetGroupSelIndexs(NXString gruopNumber, vint &selIndexs)
+{
+	vtag_t bodies;
+	TYCOM_GetCurrentPartSolidBodies2(bodies);
+	for(int i = 0; i < bodies.size(); i++)
+	{
+		char value[128] = "";
+
+		int has = USER_ask_obj_string_attr(bodies[i], ATTR_TYCOM_PROPERTY_GROUP_NUMBER, value);
+		if(has)
+		{
+			NXString str(value);
+			if(strcmp(str.GetText(), gruopNumber.GetText()) ==0)
+			{
+				int selIndex = 0;
+				int has2 = EF_ask_obj_integer_attr_Ori(bodies[i], ATTR_TYCOM_PROPERTY_GROUP_SUBINDEX, &selIndex);
+
+				if(vFind(selIndexs,selIndex) == -1)
+					selIndexs.push_back(selIndex);
+			}
+		}
+	}
+	return 0;
+}
+
+
+
+typedef int (* NXEXPORT_ASSY_clone_set_log_cb)(void *pCallBack, void *data);
+//This function get the max distance of two input objects. And return the two result points.
+int NXFUN_ASSY_clone_set_no_log()
+{
+	static HINSTANCE hInst = NULL;
+	NXEXPORT_ASSY_clone_set_log_cb ASSYclonesetlogcb = NULL;
+	if(hInst == NULL)
+	{
+		hInst=LoadLibraryA("libassy.dll");
+		ASSYclonesetlogcb =(NXEXPORT_ASSY_clone_set_log_cb)GetProcAddress(hInst,"?ASSY_clone_set_log_cb@@YAHP6AHPEAXPEBDPEAD@Z0@Z");
+	}
+	else
+		ASSYclonesetlogcb =(NXEXPORT_ASSY_clone_set_log_cb)GetProcAddress(hInst,"?ASSY_clone_set_log_cb@@YAHP6AHPEAXPEBDPEAD@Z0@Z");
+	if(ASSYclonesetlogcb == NULL)
+		return -2;
+
+
+	int error = ASSYclonesetlogcb(NULL,NULL);
+	return 0;
+}
+
+NXOpen::Xform * TYCOM_CreateXForm(NXOpen::Point3d origin1,  NXOpen::Vector3d xDirection1, NXOpen::Vector3d yDirection1)
+{
+    NXOpen::Session *theSession = NXOpen::Session::GetSession();
+    NXOpen::Part *workPart(theSession->Parts()->Work());
+    
+    NXOpen::Xform *xform1 = 0;
+    xform1 = workPart->Xforms()->CreateXform(origin1, xDirection1, yDirection1, NXOpen::SmartObject::UpdateOptionAfterModeling, 1.0);
+    return xform1;
+}
+
+NXOpen::CartesianCoordinateSystem * TYCOM_CreateCoordinateSystem(NXOpen::Xform *xform)
+{
+    NXOpen::Session *theSession = NXOpen::Session::GetSession();
+    NXOpen::Part *workPart(theSession->Parts()->Work());
+    
+    NXOpen::CartesianCoordinateSystem *cartesianCoordinateSystem1 = 0;
+    cartesianCoordinateSystem1 = workPart->CoordinateSystems()->CreateCoordinateSystem(xform, NXOpen::SmartObject::UpdateOptionAfterModeling);
+	return cartesianCoordinateSystem1;
+}
+
+
+
+double TYCOM_GetBodyVolume(tag_t solbody)
+{
+	double volume = 0.0;
+	double area1 = 0.0, area2 = 0.0, area3 = 0.0;
+
+	int  response = 2, type = 1, unit = 3, accuracy =  1, count = 0, zero = 0, i = 0;
+	double  acc_val[11] = {.000001,0,0,0,0,0,0,0,0,0,0};
+	double  density = 1.0, massprop[47], massprop_stat[13];
+
+	int err = UF_MODL_ask_mass_props_3d(&solbody, 1, type, unit, density, accuracy, acc_val,
+		massprop, massprop_stat);
+	volume = massprop[1];
+	//area1 = massprop[0]*100;
+	return volume;
+}
+
+NXOpen::Xform * TYCOM_CreateXFormWithThreePoint(NXOpen::Point3d pnt0, NXOpen::Point3d pnt1, NXOpen::Point3d pnt2)
+{
+	NXOpen::Session *theSession = NXOpen::Session::GetSession();
+	NXOpen::Part *workPart(theSession->Parts()->Work());
+
+	NXOpen::Point *point1, *point2, *point3;
+    point1 = workPart->Points()->CreatePoint(pnt0);
+	point2 = workPart->Points()->CreatePoint(pnt1);
+	point3 = workPart->Points()->CreatePoint(pnt2);
+
+	
+	NXOpen::Xform *xform4;
+	xform4 = workPart->Xforms()->CreateXform(point1, point2, point3, NXOpen::SmartObject::UpdateOptionAfterModeling, 1.0);
+
+	return xform4;
+}
+
+NXOpen::Xform * TYCOM_CreateXFormWithOriuginXYDirection(NXOpen::Point3d origin10, NXOpen::Vector3d xDirection9, NXOpen::Vector3d yDirection9)
+{
+	NXOpen::Session *theSession = NXOpen::Session::GetSession();
+	NXOpen::Part *workPart(theSession->Parts()->Work());
+
+	NXOpen::Xform *xform9;
+	xform9 = workPart->Xforms()->CreateXform(origin10, xDirection9, yDirection9, NXOpen::SmartObject::UpdateOptionWithinModeling, 1.0);
+	return xform9;
+}
+
+NXOpen::CartesianCoordinateSystem * TYCOM_CreateCSYCAccordingToXform(NXOpen::Xform *xform)
+{
+	NXOpen::Session *theSession = NXOpen::Session::GetSession();
+	NXOpen::Part *workPart(theSession->Parts()->Work());
+	NXOpen::CartesianCoordinateSystem *cartesianCoordinateSystem1;
+    cartesianCoordinateSystem1 = workPart->CoordinateSystems()->CreateCoordinateSystem(xform, NXOpen::SmartObject::UpdateOptionAfterModeling);
+
+	return cartesianCoordinateSystem1;
+}
+
+NXOpen::Matrix3x3 TYCOM_MatrixConvert(double matrix[9])
+{
+	NXOpen::Matrix3x3 matrix1;
+
+	matrix1.Xx = matrix[0];
+    matrix1.Xy = matrix[1];
+    matrix1.Xz = matrix[2];
+    matrix1.Yx = matrix[3];
+    matrix1.Yy = matrix[4];
+    matrix1.Yz = matrix[5];
+    matrix1.Zx = matrix[6];
+    matrix1.Zy = matrix[7];
+    matrix1.Zz = matrix[8];
+
+	return matrix1;
+}
+
+int TYCOM_GetCSYSMatrix(tag_t csys, double matrix_values[9])
+{
+	tag_t  matrix_id = 0;
+	double csys_origin[3] = {0};
+	int ret = UF_CSYS_ask_csys_info(csys, &matrix_id, csys_origin);
+	ret = UF_CSYS_ask_matrix_values(matrix_id, matrix_values);
+	return ret;
+}
+
+int TYCOM_GetCSYSOri(tag_t csys, double csys_origin[3])
+{
+	tag_t  matrix_id = 0;
+	int ret = UF_CSYS_ask_csys_info(csys, &matrix_id, csys_origin);
+	return ret;
+}
+
+int TYCOM_SetViewToCsys(NXOpen::CartesianCoordinateSystem * csys)
+{
+	if(csys == 0)
+		return -1;
+
+	NXOpen::Session *theSession = NXOpen::Session::GetSession();
+	NXOpen::Part *workPart(theSession->Parts()->Work());
+
+	double matrix_values[9] = {0};
+	TYCOM_GetCSYSMatrix(csys->Tag(), matrix_values);
+
+	NXOpen::Matrix3x3 mx1 = TYCOM_MatrixConvert(matrix_values);
+	workPart->ModelingViews()->WorkView()->Orient(mx1);
+	return 0;
+}
+
+
+int TYCOM_MoveObject_CSYS_CSYS(tag_t body, tag_t fromCsys,  tag_t toCsys)
+{
+	if(body == 0 || fromCsys == 0 || toCsys == 0)
+		return -1;
+
+    NXOpen::Session *theSession = NXOpen::Session::GetSession();
+    NXOpen::Part *workPart(theSession->Parts()->Work());
+    
+    NXOpen::Features::MoveObject *nullNXOpen_Features_MoveObject(NULL);
+    
+    NXOpen::Features::MoveObjectBuilder *moveObjectBuilder1;
+    moveObjectBuilder1 = workPart->BaseFeatures()->CreateMoveObjectBuilder(nullNXOpen_Features_MoveObject);
+
+	moveObjectBuilder1->SetMoveObjectResult(Features::MoveObjectBuilder::MoveObjectResultOptionsMoveOriginal);
+    moveObjectBuilder1->TransformMotion()->SetOption(NXOpen::GeometricUtilities::ModlMotion::OptionsCsysToCsys);
+    
+	TaggedObject * tagobj = NXOpen::NXObjectManager::Get(body);
+	if(NULL == (dynamic_cast<Body*> (tagobj)))
+		return 1;
+
+    bool added1;
+    added1 = moveObjectBuilder1->ObjectToMoveObject()->Add((Body *)tagobj);
+
+    moveObjectBuilder1->SetLayerOption(NXOpen::Features::MoveObjectBuilder::LayerOptionTypeOriginal);
+    
+    
+    
+	TaggedObject * pcsys1 = NXOpen::NXObjectManager::Get(fromCsys);
+	NXOpen::CartesianCoordinateSystem * ppcsys1 = dynamic_cast<NXOpen::CartesianCoordinateSystem *>(pcsys1);
+	if(ppcsys1 == 0)
+		return -1;
+    
+    moveObjectBuilder1->TransformMotion()->SetFromCsys(ppcsys1);
+    
+
+	TaggedObject * pcsys2 = NXOpen::NXObjectManager::Get(toCsys);
+	NXOpen::CartesianCoordinateSystem * ppcsys2 = dynamic_cast<NXOpen::CartesianCoordinateSystem *>(pcsys2);
+	if(ppcsys2 == 0)
+		return -1;
+    
+    moveObjectBuilder1->TransformMotion()->SetToCsys(ppcsys2);
+    
+    NXOpen::NXObject *nXObject1;
+    nXObject1 = moveObjectBuilder1->Commit();
+    
+    std::vector<NXOpen::NXObject *> objects1;
+    objects1 = moveObjectBuilder1->GetCommittedObjects();
+    
+    moveObjectBuilder1->Destroy();
+	return 0;
+ }
+
+int TYCOM_askFaceArea(tag_t face, double &area)
+{
+	if(face == 0)
+		return -1;
+	int err = 0;
+
+	int  response = 2, unit = 3, accuracy =  1, count = 0;
+	double  acc_val[11] = {.01,0,0,0,0,0,0,0,0,0,0};
+	double  density = 1.0, massprop[47], massprop_stat[13];
+
+	tag_t sheet =  NULL_TAG;
+	UF_MODL_extract_face(face, 0, &sheet);
+	if(sheet != NULL_TAG)
+	{
+		err = UF_MODL_ask_mass_props_3d(&sheet, 1, 2, unit, density, accuracy, acc_val,
+			massprop, massprop_stat);
+		area += massprop[0]*100;
+	}
+	UF_OBJ_delete_object(sheet);
+	return 0;
+}
+
+int TYCOM_GetFalseBodysFromTrueBody(tag_t bodyTag, vtag_t &objlist)
+{
+	tag_t partocc = UF_ASSEM_ask_part_occurrence(bodyTag);
+	tag_t partPro = 0;
+	if(partocc != 0)
+		partPro = UF_ASSEM_ask_prototype_of_occ( partocc ) ;
+	//UF_ASSEM_set_work_part(partPro);
+
+	tag_t ref_set = NULL_TAG ;
+	int n_members = 0;
+	tag_t * members = NULL;
+
+  	UF_OBJ_cycle_by_name_and_type(partPro,"FALSE",UF_reference_set_type, TRUE, &ref_set);
+ 	
+    UF_ASSEM_ask_ref_set_members( ref_set , & n_members , & members ) ;
+
+	tag_t *body_occ = 0;
+	int num_occ = 0;
+	for( int i = 0 ; i < n_members ; i ++ )
+    {
+		int type = 0, subtype = 0;
+        UF_OBJ_ask_type_and_subtype( members[ i ] , & type , & subtype ) ;
+        if (type == UF_solid_type && subtype == UF_solid_body_subtype &&
+ 		     UF_OBJ_ALIVE == UF_OBJ_ask_status( members[ i ] ) )
+		{
+			objlist.push_back(members[i]);
+		}
+	}
+	UF_free( members ) ;
+	return 0;
+}
+
+int TYCOM_GetFalseBodysAndWaveLink(tag_t linkbodyTag, tag_t tobodyTag, vtag_t &objlist)
+{
+	tag_t to_part_occ,target_pro;
+
+	tag_t from_part_occ = UF_ASSEM_ask_part_occurrence(linkbodyTag);
+
+	tag_t partPro = 0;
+	if(from_part_occ != 0)
+		partPro = UF_ASSEM_ask_prototype_of_occ( from_part_occ );
+
+	if (UF_ASSEM_is_occurrence(tobodyTag))
+	{
+		to_part_occ=UF_ASSEM_ask_part_occurrence(tobodyTag);
+ 		target_pro=UF_ASSEM_ask_prototype_of_occ(tobodyTag);
+	}
+	else
+	{
+		target_pro=tobodyTag;
+		to_part_occ=NULL_TAG;
+	}
+
+	tag_t ref_set = NULL_TAG ;
+	int num_mebers = 0;
+	tag_t * mebers = NULL;
+	char refset_name[MAX_ENTITY_NAME_SIZE+1] ;
+	double origin[3] ;
+	double csys_matrix[9] ;
+
+  	UF_OBJ_cycle_by_name_and_type(partPro,"FALSE",UF_reference_set_type, TRUE, &ref_set);
+    UF_ASSEM_ask_ref_set_data(ref_set,refset_name,origin,csys_matrix,&num_mebers,&mebers);
+
+	for (int i=0;i<num_mebers;i++)
+ 	{
+		int type,subtype,err;
+		tag_t xform=NULL_TAG;
+		int num_results;
+		tag_t *resultbodies;
+		int   result[1];
+		tag_t feat_waved = 0;
+		tag_t body_waved = 0;
+
+ 		if (UF_OBJ_ask_type_and_subtype(mebers[i],&type,&subtype)==0
+ 			&&type==UF_solid_type&&subtype==UF_solid_body_subtype)
+ 		{
+			//UF_CALL(UF_ASSEM_set_work_part(tem_workpart));
+			
+ 			UF_SO_create_xform_assy_ctxt(target_pro,from_part_occ,to_part_occ,&xform);
+
+ 			UF_WAVE_create_linked_body(mebers[i],xform,target_pro,TRUE, &feat_waved);
+			
+			UF_MODL_ask_feat_body(feat_waved,&body_waved);
+			objlist.push_back(body_waved);
+			
+			//UF_CALL(UF_ASSEM_set_work_part(tem_workpart));
+			/*UF_MODL_check_interference(target_pro,1,&body_waved,result);
+			if( result[0]==1 )
+			{
+				err=UF_MODL_subtract_bodies(target_pro,body_waved,&num_results,&resultbodies);
+				if (err)
+				{
+					UF_OBJ_delete_object(body_waved);
+				}
+				UF_free(resultbodies);
+			}
+			else
+			{
+				UF_OBJ_delete_object(body_waved);
+			}*/
+ 		}
+	}
+	UF_free(mebers);
+	return 0;
+}
+
+int TYCOM_GetFalseBodys(tag_t linkbodyTag, tag_t tobodyTag)
+{
+	tag_t to_part_occ,target_pro;
+
+	tag_t from_part_occ = UF_ASSEM_ask_part_occurrence(linkbodyTag);
+
+	tag_t partPro = 0;
+	if(from_part_occ != 0)
+		partPro = UF_ASSEM_ask_prototype_of_occ( from_part_occ ) ;
+
+	if (UF_ASSEM_is_occurrence(tobodyTag))
+	{
+		target_pro=UF_ASSEM_ask_part_occurrence(tobodyTag);
+	}
+	else
+	{
+		target_pro=tobodyTag;
+		to_part_occ=NULL_TAG;
+	}
+
+	tag_t ref_set = NULL_TAG ;
+	int num_mebers = 0;
+	tag_t * mebers = NULL;
+	char refset_name[MAX_ENTITY_NAME_SIZE+1] ;
+	double origin[3] ;
+	double csys_matrix[9] ;
+
+  	UF_OBJ_cycle_by_name_and_type(partPro,"FALSE",UF_reference_set_type, TRUE, &ref_set);
+    UF_ASSEM_ask_ref_set_data(ref_set,refset_name,origin,csys_matrix,&num_mebers,&mebers);
+
+	for (int i=0;i<num_mebers;i++)
+ 	{
+		int type,subtype,err;
+		tag_t xform=NULL_TAG;
+		int num_results;
+		tag_t *resultbodies;
+		int   result[1];
+		tag_t feat_waved = 0;
+		tag_t body_waved = 0;
+
+ 		if (UF_OBJ_ask_type_and_subtype(mebers[i],&type,&subtype)==0
+ 			&&type==UF_solid_type&&subtype==UF_solid_body_subtype)
+ 		{
+			//UF_CALL(UF_ASSEM_set_work_part(tem_workpart));
+			
+ 			UF_SO_create_xform_assy_ctxt(target_pro,from_part_occ,to_part_occ,&xform);
+
+ 			UF_WAVE_create_linked_body(mebers[i],xform,target_pro,TRUE, &feat_waved);
+			
+			UF_MODL_ask_feat_body(feat_waved,&body_waved);
+			
+			//UF_CALL(UF_ASSEM_set_work_part(tem_workpart));
+			UF_MODL_check_interference(target_pro,1,&body_waved,result);
+			if( result[0]==1 )
+			{
+				err=UF_MODL_subtract_bodies(target_pro,body_waved,&num_results,&resultbodies);
+				if (err)
+				{
+					UF_OBJ_delete_object(body_waved);
+				}
+				UF_free(resultbodies);
+			}
+			else
+			{
+				UF_OBJ_delete_object(body_waved);
+			}
+ 		}
+	}
+	UF_free(mebers);
+	return 0;
+}
+
+
+int TYCOM_WaveLinkBody(tag_t bodyToLink, tag_t targetPartBody, tag_t &body_waved)
+{
+	tag_t to_part_occ,target_pro;
+
+	tag_t from_part_occ = UF_ASSEM_ask_part_occurrence(bodyToLink);
+
+	tag_t partPro = 0;
+	if(from_part_occ != 0)
+		partPro = UF_ASSEM_ask_prototype_of_occ( from_part_occ );
+
+	if (UF_ASSEM_is_occurrence(targetPartBody))
+	{
+		to_part_occ=UF_ASSEM_ask_part_occurrence(targetPartBody);
+ 		target_pro=UF_ASSEM_ask_prototype_of_occ(targetPartBody);
+	}
+	else
+	{
+		target_pro=targetPartBody;
+		to_part_occ=NULL_TAG;
+	}
+
+	tag_t xform=NULL_TAG;
+	int   result[1];
+	tag_t feat_waved = 0;
+
+	if (UF_ASSEM_is_occurrence(bodyToLink))
+	{
+		bodyToLink=UF_ASSEM_ask_prototype_of_occ(bodyToLink);
+	}
+
+	UF_SO_create_xform_assy_ctxt(target_pro,from_part_occ,to_part_occ,&xform);
+	UF_WAVE_create_linked_body(bodyToLink,xform,target_pro,TRUE, &feat_waved);
+	UF_MODL_ask_feat_body(feat_waved,&body_waved);
+
+	return 0;
+}
+
+int TYCOM_WaveLinkCurve(tag_t curveToLink, tag_t targetPartObject, tag_t &Curve_waved)
+{
+	tag_t to_part_occ,target_pro;
+
+	tag_t from_part_occ = UF_ASSEM_ask_part_occurrence(curveToLink);
+
+	tag_t partPro = 0;
+	if(from_part_occ != 0)
+		partPro = UF_ASSEM_ask_prototype_of_occ( from_part_occ );
+
+	if (UF_ASSEM_is_occurrence(targetPartObject))
+	{
+		to_part_occ=UF_ASSEM_ask_part_occurrence(targetPartObject);
+ 		target_pro=UF_ASSEM_ask_prototype_of_occ(targetPartObject);
+	}
+	else
+	{
+		target_pro=targetPartObject;
+		to_part_occ=NULL_TAG;
+	}
+
+	tag_t xform=NULL_TAG;
+	int   result[1];
+	tag_t feat_waved = 0;
+
+	if (UF_ASSEM_is_occurrence(curveToLink))
+	{
+		curveToLink=UF_ASSEM_ask_prototype_of_occ(curveToLink);
+	}
+
+	UF_SO_create_xform_assy_ctxt(target_pro,from_part_occ,to_part_occ,&xform);
+	UF_WAVE_create_linked_curve(curveToLink,xform,target_pro,TRUE, &feat_waved);
+	UF_MODL_ask_feat_body(feat_waved,&Curve_waved);
+
+	return 0;
+}
+
+int TYCOM_WaveLinkDatum(tag_t datumplanetolink, tag_t targetPartObject, tag_t &plane_waved)
+{
+	tag_t to_part_occ,target_pro;
+
+	tag_t from_part_occ = UF_ASSEM_ask_part_occurrence(datumplanetolink);
+
+	tag_t partPro = 0;
+	if(from_part_occ != 0)
+		partPro = UF_ASSEM_ask_prototype_of_occ( from_part_occ );
+
+	if (UF_ASSEM_is_occurrence(targetPartObject))
+	{
+		to_part_occ=UF_ASSEM_ask_part_occurrence(targetPartObject);
+ 		target_pro=UF_ASSEM_ask_prototype_of_occ(targetPartObject);
+	}
+	else
+	{
+		target_pro=targetPartObject;
+		to_part_occ=NULL_TAG;
+	}
+
+	tag_t xform=NULL_TAG;
+	int   result[1];
+	tag_t feat_waved = 0;
+
+	if (UF_ASSEM_is_occurrence(datumplanetolink))
+	{
+		datumplanetolink=UF_ASSEM_ask_prototype_of_occ(datumplanetolink);
+	}
+
+	UF_SO_create_xform_assy_ctxt(target_pro,from_part_occ,to_part_occ,&xform);
+	UF_WAVE_create_linked_datum(datumplanetolink,xform,target_pro, &feat_waved);
+	UF_WAVE_ask_linked_feature_geom(feat_waved,&plane_waved);
+
+	return 0;
+}
+
+tag_t TYCOM_CreateLine( double startpoint[3],double endpoint[3] )
+{
+	tag_t lineTag = NULL_TAG;
+	UF_CURVE_line_t line_coords;
+	line_coords.start_point[0] = startpoint[0];
+	line_coords.start_point[1] = startpoint[1];
+	line_coords.start_point[2] = startpoint[2];
+	line_coords.end_point[0] = endpoint[0];
+	line_coords.end_point[1] = endpoint[1];
+	line_coords.end_point[2] = endpoint[2];
+	UF_CURVE_create_line(&line_coords, &lineTag);
+	return lineTag;
+}
+typedef int (* NXEXPORT_PRINT_WIN_get_printers)(char***printers);
+//This function get the max distance of two input objects. And return the two result points.
+int NXFUN_PRINT_WIN_get_printers(char***printers)
+{
+	static HINSTANCE hInst = NULL;
+	NXEXPORT_PRINT_WIN_get_printers getPrinters = NULL;
+	if(hInst == NULL)
+	{
+		hInst=LoadLibraryA("libpartdisp.dll");
+		getPrinters =(NXEXPORT_PRINT_WIN_get_printers)GetProcAddress(hInst,"?PRINT_WIN_get_printers@@YAHPEAPEAPEAD@Z");
+	}
+	else
+		getPrinters =(NXEXPORT_PRINT_WIN_get_printers)GetProcAddress(hInst,"?PRINT_WIN_get_printers@@YAHPEAPEAPEAD@Z");
+	if(getPrinters == NULL)
+		return -2;
+
+
+	int num = getPrinters(printers);
+	return num;
+}
+
+tag_t TYCOM_GetPartForOccurenceBody(tag_t solidBody)
+{
+	if(UF_ASSEM_is_occurrence(solidBody))
+	{
+		tag_t part_tag = NULL_TAG;
+		//tag_t partocc = UF_ASSEM_ask_part_occurrence(solidBody);
+		tag_t solidBody1 = UF_ASSEM_ask_prototype_of_occ( solidBody ) ;
+		UF_OBJ_ask_owning_part(solidBody1,&part_tag);
+		return part_tag;
+	}
+
+	return solidBody;
+}
+
+tag_t TYCOM_Prototype(tag_t intag)
+{
+	if(intag == 0)
+		return 0;
+	if(UF_ASSEM_is_occurrence(intag))
+		return UF_ASSEM_ask_prototype_of_occ( intag ) ;
+	return intag;
+}
+
+tag_t TYCOM_ask_occ_of_entity( tag_t entity )
+{
+	int num = 0;
+	tag_t *occs = NULL;
+	tag_t occ = NULL_TAG;
+	num = UF_ASSEM_ask_occs_of_entity(entity,&occs);
+	if( num > 0 )
+	{
+		occ = occs[0];
+	}
+	UF_free(occs);
+	return occ;
+}
+
+
+int TYCOM_ImportParasolid(NXString fileName)
+{
+	NXOpen::Session *theSession = NXOpen::Session::GetSession();
+	NXOpen::Part *workPart(theSession->Parts()->Work());
+	NXOpen::Part *displayPart(theSession->Parts()->Display());
+
+	NXOpen::Importer *importer1;
+	importer1 = workPart->ImportManager()->CreateParasolidImporter();
+
+	importer1->SetFileName(fileName);
+
+	NXOpen::NXObject *nXObject1;
+	nXObject1 = importer1->Commit();
+
+	importer1->Destroy();
+
+	return 0;
+}
+
+#define PRINTDefaultSettingPath "Software\\FinePrint Software\\pdfFactory5\\FinePrinters\\pdfFactory Pro\\DocInfo\\"
+int TYCOM_SetPrintPDFName( const char* fileName)
+{
+	int irc = 0;
+	HKEY hKEY;
+	string SubKey = string(PRINTDefaultSettingPath);
+	CString str(fileName);
+	int wlen=wcslen(str)*2;
+	char *pElementText = new char[wlen];
+	WideCharToMultiByte(CP_ACP,NULL,str,-1,pElementText,wlen+2,NULL,NULL);
+
+	if(ERROR_SUCCESS == RegOpenKeyExA(HKEY_CURRENT_USER, SubKey.c_str(), 0, KEY_SET_VALUE, &hKEY))
+	{
+		CString title("Title");
+		irc =::RegSetValueExA(hKEY,"Title",0,REG_SZ,(unsigned char*)pElementText,wlen);
+	}
+	else
+	{
+		irc = ::RegCreateKeyA(HKEY_CURRENT_USER, SubKey.c_str(), &hKEY);
+		CString title("Title");
+		irc =::RegSetValueExA(hKEY,"Title",0,REG_SZ,(unsigned char*)pElementText,wlen);
+	}
+	::RegCloseKey(hKEY);
+
+	return irc;
+}
+
+int TYCOM_GetAllSplinesInPart( const tag_t partTag, vtag_t & splines )
+{
+	splines.clear();
+	tag_t parttagPRo = TYCOM_Prototype(partTag);
+	tag_t tN = NULL_TAG;
+	tag_t tN1 = NULL_TAG;
+	tag_t holeTable = NULL_TAG;
+
+	//UF_initialize();
+	UF_OBJ_cycle_objs_in_part( parttagPRo, UF_spline_type, &tN);
+	while( NULL_TAG != tN )
+	{
+		int type = 0;
+		int subType = 0;
+		UF_OBJ_ask_type_and_subtype( tN, &type, &subType );
+		if(  UF_spline_type == subType || UF_spline_subtype == subType )//UF_tabular_note_type
+		{
+			splines.push_back(tN);
+		}
+		UF_OBJ_cycle_objs_in_part( parttagPRo, UF_spline_type, &tN);
+	}
+	UF_OBJ_cycle_objs_in_part( parttagPRo, UF_line_type, &tN1);
+	while( NULL_TAG != tN1 )
+	{
+		splines.push_back(tN1);
+		UF_OBJ_cycle_objs_in_part( parttagPRo, UF_spline_type, &tN1);
+	}
+
+	return 0;
+}
+
+void CreateReferenceSet(vtag_t bodies,NXString& refsetName)
+{
+	int ret = 0;
+	NXOpen::Session *theSession = NXOpen::Session::GetSession();
+	NXOpen::Part *workPart(theSession->Parts()->Work());
+    tag_t refset = NULL_TAG;
+    NXOpen::Session::UndoMarkId markId5;
+	markId5 = theSession->SetUndoMark(NXOpen::Session::MarkVisibilityVisible, "Create Reference Set");
+    std::vector<NXOpen::NXObject *> components1;
+    NXOpen::ReferenceSet *referenceSet1;
+	/*for( int idx = 0; idx < bodies.size(); ++idx )
+	{
+		if( 0 == type )
+		{
+			NXOpen::Body *body1(dynamic_cast<NXOpen::Body *>(NXOpen::NXObjectManager::Get(bodies[idx])));
+			components1.push_back(body1);
+		}
+		else
+		{
+			NXOpen::Line *line1(dynamic_cast<NXOpen::Line *>(NXOpen::NXObjectManager::Get(bodies[idx])));
+			components1.push_back(line1);
+		}
+			
+	}*/
+    try
+    {
+        UF_OBJ_cycle_by_name_and_type(workPart->Tag(), refsetName.GetText(),UF_reference_set_type, FALSE, &refset);
+        if( refset != NULL_TAG )
+        {
+            referenceSet1 = (ReferenceSet *)NXObjectManager::Get(refset);	
+        }
+        else
+        {
+            referenceSet1 = workPart->CreateReferenceSet();
+            referenceSet1->SetName(refsetName);
+        }
+        for( int idx = 0; idx < bodies.size(); ++idx )
+        {
+            ret = UF_ASSEM_add_ref_set_members(referenceSet1->Tag(),1,&bodies[idx]);
+        }
+        //referenceSet1->AddObjectsToReferenceSet(components1);
+        int nErrs3;
+        nErrs3 = theSession->UpdateManager()->DoUpdate(markId5);
+    }
+    catch(exception ex)
+    {
+    }
+}
+
+int TYCOM_DraftingPreferences_SetShowLineWidth(bool show)
+{
+	NXOpen::Session *theSession = NXOpen::Session::GetSession();
+	NXOpen::Part *workPart(theSession->Parts()->Work());
+	NXOpen::Part *displayPart(theSession->Parts()->Display());
+	// ----------------------------------------------
+	//   Menu: 首选项(P)->可视化(V)...
+	// ----------------------------------------------
+	workPart->Preferences()->LineVisualization()->SetShowWidths(show);
+	return 0;
+}
+
+bool TYCOM_DraftingPreferences_GetShowLineWidth()
+{
+	NXOpen::Session *theSession = NXOpen::Session::GetSession();
+	NXOpen::Part *workPart(theSession->Parts()->Work());
+	NXOpen::Part *displayPart(theSession->Parts()->Display());
+	// ----------------------------------------------
+	//   Menu: 首选项(P)->可视化(V)...
+	// ----------------------------------------------
+	return workPart->Preferences()->LineVisualization()->ShowWidths();
+}
+
+int TYCOM_OffsetFace(tag_t faceID, double dis)
+{
+	NXOpen::Session *theSession = NXOpen::Session::GetSession();
+	NXOpen::Part *workPart(theSession->Parts()->Work());
+
+	NXOpen::Features::Feature *nullNXOpen_Features_Feature(NULL);
+
+	NXOpen::Features::OffsetFaceBuilder *offsetFaceBuilder1;
+	offsetFaceBuilder1 = workPart->Features()->CreateOffsetFaceBuilder(nullNXOpen_Features_Feature);
+
+	char cdis[32] = "";
+	sprintf(cdis, "%.3f", dis);
+	offsetFaceBuilder1->Distance()->SetRightHandSide(cdis);
+
+	std::vector<NXOpen::Face *> faces1(1);
+
+	TaggedObject * pobj = NXOpen::NXObjectManager::Get(faceID);
+	NXOpen::Face *face1 =  dynamic_cast<NXOpen::Face*> (pobj);
+
+
+	faces1[0] = face1;
+	NXOpen::FaceDumbRule *faceDumbRule1;
+	faceDumbRule1 = workPart->ScRuleFactory()->CreateRuleFaceDumb(faces1);
+
+	std::vector<NXOpen::SelectionIntentRule *> rules1(1);
+	rules1[0] = faceDumbRule1;
+	offsetFaceBuilder1->FaceCollector()->ReplaceRules(rules1, false);
+
+	NXOpen::NXObject *nXObject1;
+	nXObject1 = offsetFaceBuilder1->Commit();
+
+	NXOpen::Expression *expression1(offsetFaceBuilder1->Distance());
+	offsetFaceBuilder1->Destroy();
+	return 0;
+}
+
+int Roy_ask_obj_string_attr( tag_t obj , const char *title , char *string )
+{
+	UF_ATTR_value_t  value ;
+	strcpy( string , "" ) ;
+	if( obj == NULL_TAG ) 
+		return 1 ;
+	if( UF_ASSEM_is_occurrence( obj ))
+	{
+		obj = UF_ASSEM_ask_prototype_of_occ ( obj ) ;
+	}
+
+	UF_ATTR_read_value( obj, (char*)title, UF_ATTR_any, &value );
+	if( value.type == UF_ATTR_string ) 
+	{
+		strcpy( string , value.value.string ) ;
+		UF_free(value.value.string) ;
+	}
+	else 
+	{
+		return -1 ;
+	}
+	return 0 ;
+} 
+
+
 /*
-int CF_SolidIntersect(tag_t first, tag_t second, tag_t &resolid)
+int TYCOM_ExtrudeReplaceCurve(tag_t extrudeFeature, tag_t newCurve)
+{
+    NXOpen::Session *theSession = NXOpen::Session::GetSession();
+    NXOpen::Part *workPart(theSession->Parts()->Work());
+
+    NXOpen::TaggedObject *object = NXOpen::NXObjectManager::Get(extrudeFeature);
+    Features::Feature *extrude1 = dynamic_cast<Features::Feature *>(object);
+    NXOpen::Features::ExtrudeBuilder *extrudeBuilder1;
+    extrudeBuilder1 = workPart->Features()->CreateExtrudeBuilder(extrude1);
+    NXOpen::Section *section1;
+    section1 = extrudeBuilder1->Section();
+    extrudeBuilder1->AllowSelfIntersectingSection(true);
+  
+    NXOpen::Unit *unit1;
+    unit1 = extrudeBuilder1->Draft()->FrontDraftAngle()->Units();
+    section1->SetDistanceTolerance(0.01);
+    section1->SetChainingTolerance(0.0095);
+    NXOpen::NXObject *nullNXOpen_NXObject(NULL);
+	section1->Clear();
+    std::vector<NXOpen::IBaseCurve *> curves1(1);
+    
+	NXOpen::TaggedObject *object1 = NXOpen::NXObjectManager::Get(newCurve);
+	Curve *pCurve= dynamic_cast<Curve *>(object1);
+
+    curves1[0] = pCurve;
+    NXOpen::CurveDumbRule *curveDumbRule1;
+    curveDumbRule1 = workPart->ScRuleFactory()->CreateRuleBaseCurveDumb(curves1);
+    section1->AllowSelfIntersection(true);
+    std::vector<NXOpen::SelectionIntentRule *> rules1(1);
+    rules1[0] = curveDumbRule1;
+    NXOpen::Point3d helpPoint1(102.024472401989, 109.145404160179, 0.0);
+    section1->AddToSection(rules1, pCurve, nullNXOpen_NXObject, nullNXOpen_NXObject, helpPoint1, NXOpen::Section::ModeCreate, false);
+    
+    NXOpen::Features::Feature *feature1;
+    feature1 = extrudeBuilder1->CommitFeature();
+    extrudeBuilder1->Destroy();
+    return 0;
+
+}
+
+//替换workpart内的曲线
+
+int TYCOM_ExtrudeReplaceCurvesWorkPart(tag_t extrudeFeature, vtag_t newCurves)
+{
+    NXOpen::Session *theSession = NXOpen::Session::GetSession();
+    NXOpen::Part *workPart(theSession->Parts()->Work());
+
+    NXOpen::TaggedObject *object = NXOpen::NXObjectManager::Get(extrudeFeature);
+    Features::Feature *extrude1 = dynamic_cast<Features::Feature *>(object);
+    NXOpen::Features::ExtrudeBuilder *extrudeBuilder1;
+    extrudeBuilder1 = workPart->Features()->CreateExtrudeBuilder(extrude1);
+    NXOpen::Section *section1;
+    section1 = extrudeBuilder1->Section();
+    extrudeBuilder1->AllowSelfIntersectingSection(true);
+  
+    NXOpen::Unit *unit1;
+    unit1 = extrudeBuilder1->Draft()->FrontDraftAngle()->Units();
+    NXOpen::NXObject *nullNXOpen_NXObject(NULL);
+	section1->Clear();
+
+
+    std::vector<NXOpen::IBaseCurve *> curves1;
+	Curve *firstcurve=0;
+	for(int i = 0; i < newCurves.size(); i++)
+	{
+		NXOpen::TaggedObject *object1 = NXOpen::NXObjectManager::Get(newCurves[i]);
+	    Curve *pCurve= dynamic_cast<Curve *>(object1);
+		curves1.push_back(pCurve);
+		if(i == 0)
+			firstcurve = pCurve;
+	}
+	
+    NXOpen::CurveDumbRule *curveDumbRule1;
+    curveDumbRule1 = workPart->ScRuleFactory()->CreateRuleBaseCurveDumb(curves1);
+    section1->AllowSelfIntersection(true);
+    std::vector<NXOpen::SelectionIntentRule *> rules1(1);
+    rules1[0] = curveDumbRule1;
+    NXOpen::Point3d helpPoint1(102.024472401989, 109.145404160179, 0.0);
+    section1->AddToSection(rules1, firstcurve, nullNXOpen_NXObject, nullNXOpen_NXObject, helpPoint1, NXOpen::Section::ModeCreate, false);
+    
+    NXOpen::Features::Feature *feature1;
+    feature1 = extrudeBuilder1->CommitFeature();
+    extrudeBuilder1->Destroy();
+    return 0;
+}
+
+
+
+//替换装配内其他part的曲线
+
+int TYCOM_ExtrudeReplaceCurvesOtherPart(tag_t extrudeFeature, vtag_t newCurves)
+{
+    NXOpen::Session *theSession = NXOpen::Session::GetSession();
+    NXOpen::Part *workPart(theSession->Parts()->Work());
+
+    NXOpen::TaggedObject *object = NXOpen::NXObjectManager::Get(extrudeFeature);
+    Features::Feature *extrude1 = dynamic_cast<Features::Feature *>(object);
+    NXOpen::Features::ExtrudeBuilder *extrudeBuilder1;
+    extrudeBuilder1 = workPart->Features()->CreateExtrudeBuilder(extrude1);
+    NXOpen::Section *section1;
+    section1 = extrudeBuilder1->Section();
+    extrudeBuilder1->AllowSelfIntersectingSection(true);
+  
+    NXOpen::Unit *unit1;
+    unit1 = extrudeBuilder1->Draft()->FrontDraftAngle()->Units();
+    NXOpen::NXObject *nullNXOpen_NXObject(NULL);
+	section1->Clear();
+
+
+
+	//处理装配curve
+	NXOpen::Features::Feature *nullNXOpen_Features_Feature(NULL);
+	NXOpen::Features::CompositeCurveBuilder *compositeCurveBuilder1;
+    compositeCurveBuilder1 = workPart->Features()->CreateCompositeCurveBuilder(nullNXOpen_Features_Feature);
+    
+    NXOpen::Section *section2;
+    section2 = compositeCurveBuilder1->Section();
+    compositeCurveBuilder1->SetAssociative(true);
+    compositeCurveBuilder1->SetParentPart(NXOpen::Features::CompositeCurveBuilder::PartTypeOtherPart);
+    compositeCurveBuilder1->SetAllowSelfIntersection(true);
+    section2->SetAllowedEntityTypes(NXOpen::Section::AllowTypesOnlyCurves);
+    section2->SetAllowRefCrvs(false);
+    compositeCurveBuilder1->SetFixAtCurrentTimestamp(true);
+    
+	std::vector<NXOpen::IBaseCurve *> curves1;
+	Curve *firstcurve=0;
+	for(int i = 0; i < newCurves.size(); i++)
+	{
+		NXOpen::TaggedObject *object1 = NXOpen::NXObjectManager::Get(newCurves[i]);
+	    Curve *pCurve= dynamic_cast<Curve *>(object1);
+		curves1.push_back(pCurve);
+		if(i == 0)
+			firstcurve = pCurve;
+	}
+    NXOpen::CurveDumbRule *curveDumbRule1;
+    curveDumbRule1 = workPart->ScRuleFactory()->CreateRuleBaseCurveDumb(curves1);
+    
+    std::vector<NXOpen::SelectionIntentRule *> rules1(1);
+    rules1[0] = curveDumbRule1;
+    NXOpen::Point3d helpPoint1(0, 0, 0.0);
+    section2->AddToSection(rules1, firstcurve, nullNXOpen_NXObject, nullNXOpen_NXObject, helpPoint1, NXOpen::Section::ModeEdit, false);
+    
+    NXOpen::Features::Feature *feature1;
+    feature1 = compositeCurveBuilder1->CommitCreateOnTheFly();
+
+
+
+	std::vector<NXOpen::Features::Feature *> features1(1);
+    NXOpen::Features::CompositeCurve *compositeCurve2(dynamic_cast<NXOpen::Features::CompositeCurve *>(feature1));
+    features1[0] = compositeCurve2;
+    NXOpen::CurveFeatureRule *curveFeatureRule1;
+    curveFeatureRule1 = workPart->ScRuleFactory()->CreateRuleCurveFeature(features1);
+    
+    section1->AllowSelfIntersection(true);
+    
+    std::vector<NXOpen::SelectionIntentRule *> rules2(1);
+    rules2[0] = curveFeatureRule1;
+    NXOpen::Point3d helpPoint2(0, 0, 0.0);
+    section1->AddToSection(rules2, firstcurve, nullNXOpen_NXObject, nullNXOpen_NXObject, helpPoint2, NXOpen::Section::ModeCreate, false);
+   
+	
+    NXOpen::Features::Feature *feature2;
+    feature2 = extrudeBuilder1->CommitFeature();
+    extrudeBuilder1->Destroy();
+    return 0;
+}
+int TYCOM_ExtrudeReplaceCurves(tag_t extrudeFeature, vtag_t newCurves)
+{
+	if(extrudeFeature == 0 || newCurves.size() == 0)
+		return -1;
+
+	tag_t workPart = UF_ASSEM_ask_work_part();//包含了extrudeFeature
+	tag_t partTag2 = UF_ASSEM_ask_part_occurrence(newCurves[0]);
+	if(partTag2 != 0)
+		partTag2 = UF_ASSEM_ask_prototype_of_occ ( partTag2 ) ;
+	else
+		partTag2 = UF_PART_ask_display_part();
+
+	int errorCode = 0;
+	try
+	{
+		if(workPart == partTag2)
+			errorCode = TYCOM_ExtrudeReplaceCurvesWorkPart(extrudeFeature, newCurves);
+		else
+			errorCode = TYCOM_ExtrudeReplaceCurvesOtherPart(extrudeFeature, newCurves);
+	}
+	catch(exception& ex)
+	{
+		//---- Enter your exception handling code here -----
+		const char * mesg = ex.what();
+		errorCode = 1;
+		
+		//errorCode = 1;
+		//CutSolid2018::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
+	}
+	return errorCode;
+}
+int TYCOM_ProjectCurveToPlane(tag_t curve, tag_t plane, tag_t &feat)
+{
+    NXOpen::Session *theSession = NXOpen::Session::GetSession();
+    NXOpen::Part *workPart(theSession->Parts()->Work());
+
+    NXOpen::Features::Feature *nullNXOpen_Features_Feature(NULL);
+    
+    NXOpen::Features::ProjectCurveBuilder *projectCurveBuilder1;
+    projectCurveBuilder1 = workPart->Features()->CreateProjectCurveBuilder(nullNXOpen_Features_Feature);
+    
+
+	double plane_point[3]= {0.0, 0.0, 0.0}, plane_normal[3]= {0.0, 0.0, 0.0};
+	int ret = UF_MODL_ask_plane(plane, plane_point, plane_normal);
+	Point3d origin1(plane_point[0], plane_point[1], plane_point[2]);
+	Vector3d normal1(plane_normal[0], plane_normal[1], plane_normal[2]);
+	Plane *plane1;
+	plane1 = workPart->Planes()->CreatePlane(origin1, normal1, SmartObject::UpdateOptionWithinModeling);
+    
+    projectCurveBuilder1->CurveFitData()->SetTolerance(0.01);
+    
+    projectCurveBuilder1->CurveFitData()->SetAngleTolerance(0.5);
+    
+    projectCurveBuilder1->SectionToProject()->SetDistanceTolerance(0.01);
+    projectCurveBuilder1->SectionToProject()->SetChainingTolerance(0.0095);
+    
+    projectCurveBuilder1->SectionToProject()->SetAngleTolerance(0.5);
+    
+    projectCurveBuilder1->SectionToProject()->SetAllowedEntityTypes(NXOpen::Section::AllowTypesCurvesAndPoints);
+
+    
+    std::vector<NXOpen::IBaseCurve *> curves1(1);
+	TaggedObject * tagobj = NXOpen::NXObjectManager::Get(curve);
+	Line* line1 = dynamic_cast<Line*> (tagobj);
+    curves1[0] = line1;
+    NXOpen::CurveDumbRule *curveDumbRule1;
+    curveDumbRule1 = workPart->ScRuleFactory()->CreateRuleBaseCurveDumb(curves1);
+    
+    projectCurveBuilder1->SectionToProject()->AllowSelfIntersection(true);
+    
+    std::vector<NXOpen::SelectionIntentRule *> rules1(1);
+    rules1[0] = curveDumbRule1;
+    NXOpen::NXObject *nullNXOpen_NXObject(NULL);
+    NXOpen::Point3d helpPoint1(0, 0, 0);
+    projectCurveBuilder1->SectionToProject()->AddToSection(rules1, line1, nullNXOpen_NXObject, nullNXOpen_NXObject, helpPoint1, NXOpen::Section::ModeCreate, false);
+    
+   
+    
+    projectCurveBuilder1->SetPlaneToProjectTo(plane1);
+    
+    NXOpen::NXObject *nXObject1 = 0;
+    nXObject1 = projectCurveBuilder1->Commit();
+	if(nXObject1)
+	feat = nXObject1->Tag();
+    
+    projectCurveBuilder1->Destroy();
+    return 0;
+}
+
+int TYCOM_Plot
+(
+    vtag_t &sheets,
+	NXOpen::PrintBuilder::PaperSize ps,//NXOpen::PrintBuilder::PaperSizeA4
+	NXOpen::PrintBuilder::OrientationOption orientation,//NXOpen::PrintBuilder::OrientationOptionLandscape
+	char * printer//"Canon MG7700 series Printer WS"
+)
+{
+    NXOpen::Session *theSession = NXOpen::Session::GetSession();
+    NXOpen::Part *workPart(theSession->Parts()->Work());
+    
+    NXOpen::PrintBuilder *printBuilder1;
+    printBuilder1 = workPart->PlotManager()->CreatePrintBuilder();
+    
+    printBuilder1->SetCopies(1);
+    printBuilder1->SetThinWidth(1.0);
+    printBuilder1->SetNormalWidth(2.0);
+    printBuilder1->SetThickWidth(3.0);
+    printBuilder1->SetWidth2ScaleFactor(1.0);
+    printBuilder1->SetWidth3ScaleFactor(1.0);
+    printBuilder1->SetWidth4ScaleFactor(1.0);
+    printBuilder1->SetWidth5ScaleFactor(2.0);
+    printBuilder1->SetWidth6ScaleFactor(2.0);
+    printBuilder1->SetWidth7ScaleFactor(3.0);
+    printBuilder1->SetWidth8ScaleFactor(3.0);
+    printBuilder1->SetWidth9ScaleFactor(3.0);
+    printBuilder1->SetOutput(NXOpen::PrintBuilder::OutputOptionWireframeBlackWhite);
+    printBuilder1->SetRasterImages(true);
+    
+	std::vector<NXOpen::NXObject *> sheets1;
+	for(int i = 0; i < sheets.size(); i++)
+	{
+		TaggedObject * tagobj = NXOpen::NXObjectManager::Get(sheets[i]);
+		Drawings::DrawingSheet *drawingSheet = dynamic_cast<NXOpen::Drawings::DrawingSheet *>(tagobj);
+		sheets1.push_back(drawingSheet);
+	}
+    printBuilder1->SourceBuilder()->SetSheets(sheets1);
+
+	printBuilder1->SetPaper(ps);
+	printBuilder1->SetOrientation(orientation);
+    printBuilder1->SetPrinterText(printer);
+    //NXOpen::PrintBuilder::PaperSize paper1;
+    //paper1 = printBuilder1->Paper();
+    
+    NXOpen::NXObject *nXObject1;
+    nXObject1 = printBuilder1->Commit();
+    printBuilder1->Destroy();
+   
+	return 0;
+}
+
+int TYCOM_Plot_Single
+(
+    tag_t sheet,
+	NXOpen::PrintBuilder::PaperSize ps,//NXOpen::PrintBuilder::PaperSizeA4
+	NXOpen::PrintBuilder::OrientationOption orientation,//NXOpen::PrintBuilder::OrientationOptionLandscape
+	char * printer//"Canon MG7700 series Printer WS"
+)
+{
+	//UG打印线条的粗细是这样设置的
+	//UG 默认有Plot Customer Width 1--9 9个宽度比例可以设置
+	//分别对应的是0.13 0.18 0.25.2.00九个宽度
+	//这几个宽度可以通过Plot Customer Width给个不同的任意宽度的比例关系得到 所有的任意宽度参数
+	//所以我们用的是虚线0.35 实线 0.7 那么分别对应Plot Customer Width  4 和 Plot Customer Width 6
+	//为了区别明显 我们只要把Plot Customer Width 4设置成1 Plot Customer Width 设置成 5或者更大
+	//再打印效果就出来了。因为这样0.35还是0.35  0.7已经变成0.7*5 = 3.5了 是十倍的宽度
+	//----这个必须要打勾 否则上面第一段说的比例是不起作用的
+	//另外关于ug图上制图空间显示的线条宽度是不是需要根据实际需要显示，可以在首选项--》可视化--》直线
+	//下面打勾显示线宽实现。
+	//
+    NXOpen::Session *theSession = NXOpen::Session::GetSession();
+    NXOpen::Part *workPart(theSession->Parts()->Work());
+    
+    NXOpen::PrintBuilder *printBuilder1;
+    printBuilder1 = workPart->PlotManager()->CreatePrintBuilder();
+    
+    printBuilder1->SetCopies(1);
+    printBuilder1->SetThinWidth(1.0);
+    printBuilder1->SetNormalWidth(5.0);
+    printBuilder1->SetThickWidth(6.0);
+	printBuilder1->SetWidth1ScaleFactor(1.0);
+    printBuilder1->SetWidth2ScaleFactor(1.0);
+    printBuilder1->SetWidth3ScaleFactor(1.0);
+    printBuilder1->SetWidth4ScaleFactor(1.0);
+    printBuilder1->SetWidth5ScaleFactor(3.0);//实线用的是0.7 对应的是这个 设置宽一点
+    printBuilder1->SetWidth6ScaleFactor(3.0);
+    printBuilder1->SetWidth7ScaleFactor(3.0);
+    printBuilder1->SetWidth8ScaleFactor(3.0);
+    printBuilder1->SetWidth9ScaleFactor(3.0);
+    printBuilder1->SetOutput(NXOpen::PrintBuilder::OutputOptionWireframeBlackWhite);
+    printBuilder1->SetRasterImages(true);
+    
+	std::vector<NXOpen::NXObject *> sheets1;
+	TaggedObject * tagobj = NXOpen::NXObjectManager::Get(sheet);
+	Drawings::DrawingSheet *drawingSheet = dynamic_cast<NXOpen::Drawings::DrawingSheet *>(tagobj);
+	sheets1.push_back(drawingSheet);
+
+    printBuilder1->SourceBuilder()->SetSheets(sheets1);
+
+	printBuilder1->SetPaper(ps);
+	printBuilder1->SetOrientation(orientation);
+    printBuilder1->SetPrinterText(printer);
+    //NXOpen::PrintBuilder::PaperSize paper1;
+    //paper1 = printBuilder1->Paper();
+    
+    NXOpen::NXObject *nXObject1;
+    nXObject1 = printBuilder1->Commit();
+    printBuilder1->Destroy();
+   
+	return 0;
+}
+
+int TYCOM_AddObjectToReferenceSet(tag_t part, vtag_t objs, NXString refsetname)
+{
+	if(part == 0)
+		return -1;
+	if(objs.size()  == 0)
+		return -1;
+
+	part = TYCOM_Prototype(part);
+
+	TaggedObject * tagobj = NXOpen::NXObjectManager::Get(part);
+	NXOpen::Part *ppart =  dynamic_cast<NXOpen::Part*> (tagobj);
+	if(ppart == NULL)
+		return -2;
+
+	std::vector<NXOpen::NXObject *> components;
+	for(int i = 0; i < objs.size(); i++)
+	{
+		TaggedObject * pobj = NXOpen::NXObjectManager::Get(objs[i]);
+    	NXOpen::NXObject *nxobj =  dynamic_cast<NXOpen::NXObject*> (pobj);
+		if(nxobj != NULL)
+			components.push_back(nxobj);
+	}
+
+	std::vector<NXOpen::ReferenceSet *> refsets = ppart->GetAllReferenceSets();
+	if(refsets.size() == 1)
+		refsets[0]->AddObjectsToReferenceSet(components);
+	else
+	{
+		//for(int i = 0; i < refsets.size(); i++)
+		//{
+		//	NXString name1 = refsets[i]->Name();
+		//	const char * name2 = refsetname.GetLocaleText();
+		//	if(strcmp(name1, name2) ==0 )
+		//	{
+		//		refsets[i]->AddObjectsToReferenceSet(components);
+		//			return 0;
+		//	}
+		//}
+	}
+	
+
+	return 1;
+
+
+	//NXOpen::Session *theSession = NXOpen::Session::GetSession();
+    //NXOpen::Part *workPart(theSession->Parts()->Work());
+}
+int TYCOM_CreateDatumPlane(NXOpen::Point3d origin, NXOpen::Vector3d & normal, tag_t &plane)
+{
+    NXOpen::Session *theSession = NXOpen::Session::GetSession();
+    NXOpen::Part *workPart(theSession->Parts()->Work());
+   
+    NXOpen::Features::DatumPlaneBuilder *datumPlaneBuilder1;
+    datumPlaneBuilder1 = workPart->Features()->CreateDatumPlaneBuilder(0);
+    
+    NXOpen::Plane *plane1;
+    plane1 = datumPlaneBuilder1->GetPlane();
+    
+    plane1->SetOrigin(origin);
+	plane1->SetNormal(normal);
+    
+    plane1->Evaluate();
+    plane1->SetFlip(false);
+    plane1->SetReverseSide(false);
+
+    datumPlaneBuilder1->SetResizeDuringUpdate(true);
+    
+    NXOpen::Features::Feature *feature1;
+    feature1 = datumPlaneBuilder1->CommitFeature();
+    
+    NXOpen::Features::DatumPlaneFeature *datumPlaneFeature1(dynamic_cast<NXOpen::Features::DatumPlaneFeature *>(feature1));
+    NXOpen::DatumPlane *datumPlane1;
+    datumPlane1 = datumPlaneFeature1->DatumPlane();
+    datumPlaneBuilder1->Destroy();
+	plane = datumPlane1->Tag();
+	return 0;
+}
+int TYCOM_SplitBody(tag_t &solid, Plane * plane1, vtag_t &splitBodies)
+{
+	int errorCode = 0;
+	Session *theSession = Session::GetSession();
+	Part * workPart = theSession->Parts()->Work();
+
+	Features::SplitBody *nullFeatures_Feature(NULL);
+	Features::SplitBodyBuilder *splitBodyBuilder = 0;
+    splitBodyBuilder = workPart->Features()->CreateSplitBodyBuilder(nullFeatures_Feature);
+
+	NXOpen::ScCollector * collector = workPart->ScCollectors()->CreateCollector();
+
+	TaggedObject * tagobj = NXOpen::NXObjectManager::Get(solid);
+	if(NULL == (dynamic_cast<Body*> (tagobj)))
+		return 1;
+
+	std::vector<NXOpen::Body *>  bodies(1);
+	bodies[0] = (Body *)tagobj;
+	BodyDumbRule * bodyRule = workPart->ScRuleFactory()->CreateRuleBodyDumb(bodies);
+	
+    std::vector<NXOpen::SelectionIntentRule *> rules1(1);
+    rules1[0] = bodyRule;
+    collector->ReplaceRules(rules1, false);
+
+	splitBodyBuilder->SetTargetBodyCollector(collector);
+
+	//plane
+	splitBodyBuilder->BooleanTool()->FacePlaneTool()->SetToolPlane(plane1);
+	splitBodyBuilder->BooleanTool()->SetToolOption(NXOpen::GeometricUtilities::BooleanToolBuilder::BooleanToolTypeNewPlane);
+
+	NXOpen::NXObject *nXObject2;
+	try
+	{
+		vtag_t vfeats;
+		uf_list_p_t solidfeatures = NULL;
+	    errorCode = UF_MODL_ask_body_feats(solid, &solidfeatures);
+	    TYCOM_AskListItemsAndDelete(solidfeatures, vfeats);
+		char *featName = 0;
+
+        nXObject2 = splitBodyBuilder->Commit();
+		tag_t featureBody = 0;
+		UF_MODL_ask_feat_body(nXObject2->Tag(), &featureBody);
+
+		UF_MODL_ask_feat_name(nXObject2->Tag(), &featName);
+		if(featureBody != solid)
+		{
+			double dis1 = 0, dis2 = 0;
+			TYCOM_AskMaxDist(featureBody, plane1->Tag(), dis1);
+			TYCOM_AskMaxDist(solid, plane1->Tag(), dis2);
+
+			if(dis1 > dis2)
+			{
+				splitBodies.push_back(solid);
+			    solid = featureBody;
+			}
+			else
+			{
+				splitBodies.push_back(featureBody);
+			}
+		}
+		else
+		{
+			Features::SplitBody * pfrec = dynamic_cast<Features::SplitBody*> (nXObject2);
+
+			std::vector<NXOpen::Body *> bodies = pfrec->GetBodies();
+			if(bodies.size() == 2)
+			{
+				double dis1 = 0, dis2 = 0;
+			    TYCOM_AskMaxDist(bodies[0]->Tag(), plane1->Tag(), dis1);
+			    TYCOM_AskMaxDist(bodies[1]->Tag(), plane1->Tag(), dis2);
+				if(dis1 > dis2)
+				    splitBodies.push_back(bodies[1]->Tag());
+				else
+					splitBodies.push_back(bodies[0]->Tag());
+			}
+		}	
+	}
+	catch(exception& ex)
+	{
+		//---- Enter your exception handling code here -----
+		const char * mesg = ex.what();
+		errorCode = 1;
+		//errorCode = 1;
+		//CutSolid2018::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
+	}
+	splitBodyBuilder->Destroy();
+
+	return errorCode;
+}
+int TYCOM_SolidIntersect(tag_t first, tag_t second, tag_t &resolid)
 {
 	Session *theSession = Session::GetSession();
 	Part * workPart = theSession->Parts()->Work();
@@ -1499,10 +2953,9 @@ int CF_SolidIntersect(tag_t first, tag_t second, tag_t &resolid)
 	booleanBuilder1->Destroy(); 
 
 	return errorCode;
-}*/
+}
 
-/*
-int CF_SolidSubtruct(tag_t first, tag_t second)
+int TYCOM_SolidSubtruct(tag_t first, tag_t second)
 {
 	Session *theSession = Session::GetSession();
 	Part * workPart = theSession->Parts()->Work();
@@ -1559,11 +3012,8 @@ int CF_SolidSubtruct(tag_t first, tag_t second)
 	booleanBuilder1->Destroy();
 	return errorCode;
 }
-*/
 
-
-/*
-int CF_InstanceGeometry(vtag_t &bodies, tag_t plane, bool associate)
+int TYCOM_InstanceGeometry(vtag_t &bodies, tag_t plane, bool associate)
 {
 	if(bodies.size() == 0)
 		return -1;
@@ -1614,10 +3064,10 @@ int CF_InstanceGeometry(vtag_t &bodies, tag_t plane, bool associate)
 
 
 	vtag_t bodies1,bodies2;
-	CF_GetCurrentPartSolidBodies2(bodies1);
+	TYCOM_GetCurrentPartSolidBodies2(bodies1);
 	Features::Feature *feature1;
 	feature1 = geomcopyBuilder1->CommitFeature();
-	CF_GetCurrentPartSolidBodies2(bodies2);
+	TYCOM_GetCurrentPartSolidBodies2(bodies2);
 	//std::vector<NXOpen::NXObject *> objs = feature1->GetEntities();
 	//tag_t body = NULL_TAG;
 	//tag_t feat = feature1->Tag();
@@ -1630,10 +3080,8 @@ int CF_InstanceGeometry(vtag_t &bodies, tag_t plane, bool associate)
 	geomcopyBuilder1->Destroy();
 
 	return 0;
-}*/
-
-/*
-int CF_InstanceGeometry2(tag_t body, tag_t plane, bool associate, tag_t &outbody)
+}
+int TYCOM_InstanceGeometry2(tag_t body, tag_t plane, bool associate, tag_t &outbody)
 {
 	if(body == 0)
 		return -1;
@@ -1694,10 +3142,10 @@ int CF_InstanceGeometry2(tag_t body, tag_t plane, bool associate, tag_t &outbody
 
 
 	vtag_t bodies1,bodies2;
-	CF_GetCurrentPartSolidBodies2(bodies1);
+	TYCOM_GetCurrentPartSolidBodies2(bodies1);
 	Features::Feature *feature1;
 	feature1 = geomcopyBuilder1->CommitFeature();
-	CF_GetCurrentPartSolidBodies2(bodies2);
+	TYCOM_GetCurrentPartSolidBodies2(bodies2);
 
 	for (int i = 0; i < bodies2.size(); i++)
 	{
@@ -1712,227 +3160,8 @@ int CF_InstanceGeometry2(tag_t body, tag_t plane, bool associate, tag_t &outbody
 	UF_OBJ_set_blank_status(plane1->Tag(),UF_OBJ_BLANKED);
 
 	return 0;
-}*/
-
-int RY_GetMirrorBodiesForOneBody1(tag_t seedBody, vtag_t &mirrorBodies)
-{
-	if(seedBody == 0)
-		return -1;
-
-	vtag_t allBodies;
-	CF_GetCurrentPartSolidBodies2(allBodies);
-
-
-	return RY_GetMirrorBodiesForOneBody1(seedBody,allBodies,mirrorBodies);
 }
-
-int RY_GetMirrorBodiesForOneBody1(tag_t seedBody, vtag_t& allBodies, vtag_t &mirrorBodies)
-{
-	if(seedBody == 0)
-		return -1;
-
-	char attriValue[128] = "";
-	int has = USER_ask_obj_string_attr( seedBody , ATTR_ROYAL_MIRROR_OBJ , attriValue );
-	if(!has)
-		return -2;
-
-	for(int i = 0; i < allBodies.size(); i++)
-	{
-		if(allBodies[i] == seedBody)
-			continue;
-
-		char attriValue2[128] = "";
-	    int has2 = USER_ask_obj_string_attr( allBodies[i] , ATTR_ROYAL_MIRROR_OBJ , attriValue2 );
-		if(!has2)
-			continue;
-
-		if(strcmp(attriValue, attriValue2) == 0)
-			mirrorBodies.push_back(allBodies[i]);
-	}
-
-	return 0;
-}
-
-void AddTagToVector( tag_t objTag,vtag_t &vecList )
-{
-    vtag_t::iterator itr = find(vecList.begin(),vecList.end(),objTag);
-    if( itr == vecList.end() )
-    {
-        vecList.push_back(objTag);
-    }
-}
-
-int RY_GetGoupBodiesForOneBody(tag_t seedBody, vtag_t& allBodies, vtag_t &groupBodies)
-{
-    int type = 3;
-    vtag_t sameBodies;
-    vtag_t weldBodies;
-    RY_GetWeldBodiesForOneBody(seedBody,allBodies,groupBodies);
-    if( groupBodies.size() > 0 )
-        type = 2;
-    RY_GetSameBodiesForOneBody(seedBody,allBodies,sameBodies);
-    if( sameBodies.size() > 0 )
-        type = 1; //可能是焊接后相同件
-    //sameBodies.push_back(seedBody);
-    AddTagToVector(seedBody,sameBodies);
-    for( int idx = 0; idx < sameBodies.size(); ++idx )
-    {
-        vtag_t mirrorBodies;
-        RY_GetMirrorBodiesForOneBody1(sameBodies[idx],allBodies,mirrorBodies);
-        AddTagToVector(sameBodies[idx],groupBodies);
-        for( int jdx = 0; jdx < mirrorBodies.size(); ++jdx )
-        {
-            type = 0; //可能是焊接后镜像件
-            AddTagToVector(mirrorBodies[jdx],groupBodies);
-        }
-    }
-    if( 2 == type )
-    {
-        AddTagToVector(seedBody,groupBodies);//单个焊接件
-    }
-    return type;
-}
-
-int RY_GetMirrorBodiesForOneBody(tag_t seedBody, vtag_t& allBodies, vtag_t &mirrorBodies)
-{
-    int type = -1;
-    char attriValue[128] = "";
-	if(seedBody == 0)
-		return -1;
-
-    char attributes[][256]={ATTR_ROYAL_MIRROR_OBJ,ATTR_ROYAL_SAME_OBJ,ATTR_ROYAL_WELD_OBJ};
-    for( int idx = 0; idx < 3; ++idx )
-    {
-        int has = USER_ask_obj_string_attr( seedBody , attributes[idx] , attriValue );
-        {
-            if( has )
-            {
-                type = idx;
-                for(int i = 0; i < allBodies.size(); i++)
-                {
-                    if(allBodies[i] == seedBody)
-                        continue;
-
-                    char attriValue2[128] = "";
-                    int has2 = USER_ask_obj_string_attr( allBodies[i] , attributes[idx] , attriValue2 );
-                    if(!has2)
-                        continue;
-
-                    if(strcmp(attriValue, attriValue2) == 0)
-                        mirrorBodies.push_back(allBodies[i]);
-                }
-                break;
-            }
-        }
-    }
-	return type;
-}
-
-int RY_GetSameBodiesForOneBody(tag_t seedBody, vtag_t &sameBodies)
-{
-	if(seedBody == 0)
-		return -1;
-
-	vtag_t allBodies;
-	CF_GetCurrentPartSolidBodies2(allBodies);
-
-
-	return RY_GetSameBodiesForOneBody(seedBody,allBodies,sameBodies);
-}
-
-int RY_GetSameBodiesForOneBody(tag_t seedBody, vtag_t& allBodies, vtag_t &sameBodies)
-{
-	if(seedBody == 0)
-		return -1;
-
-	char attriValue[128] = "";
-	int has = USER_ask_obj_string_attr( seedBody , ATTR_ROYAL_SAME_OBJ , attriValue );
-	if(!has)
-		return -2;
-
-	for(int i = 0; i < allBodies.size(); i++)
-	{
-		if(allBodies[i] == seedBody)
-			continue;
-
-		char attriValue2[128] = "";
-	    int has2 = USER_ask_obj_string_attr( allBodies[i] , ATTR_ROYAL_SAME_OBJ , attriValue2 );
-		if(!has2)
-			continue;
-
-		if(strcmp(attriValue, attriValue2) == 0)
-			sameBodies.push_back(allBodies[i]);
-	}
-
-	return 0;
-}
-
-int RY_GetWeldBodiesForOneBody(tag_t seedBody, vtag_t &weldBodies)
-{
-	if(seedBody == 0)
-		return -1;
-
-	vtag_t allBodies;
-	CF_GetCurrentPartSolidBodies2(allBodies);
-
-
-	return RY_GetWeldBodiesForOneBody(seedBody,allBodies,weldBodies);
-}
-
-int RY_GetWeldBodiesForOneBody(tag_t seedBody, vtag_t& allBodies, vtag_t &weldBodies)
-{
-	if(seedBody == 0)
-		return -1;
-
-	char attriValue[128] = "";
-	int has = USER_ask_obj_string_attr( seedBody , ATTR_ROYAL_WELD_OBJ , attriValue );
-	if(!has)
-		return -2;
-
-	for(int i = 0; i < allBodies.size(); i++)
-	{
-		if(allBodies[i] == seedBody)
-			continue;
-
-		char attriValue2[128] = "";
-	    int has2 = USER_ask_obj_string_attr( allBodies[i] , ATTR_ROYAL_WELD_OBJ , attriValue2 );
-		if(!has2)
-			continue;
-
-		if(strcmp(attriValue, attriValue2) == 0)
-			weldBodies.push_back(allBodies[i]);
-	}
-
-	return 0;
-}
-
-int RY_GetGroupSelIndexs(NXString gruopNumber, vint &selIndexs)
-{
-	vtag_t bodies;
-	CF_GetCurrentPartSolidBodies2(bodies);
-	for(int i = 0; i < bodies.size(); i++)
-	{
-		char value[128] = "";
-
-		int has = USER_ask_obj_string_attr(bodies[i], ATTR_ROYAL_PROPERTY_GROUP_NUMBER, value);
-		if(has)
-		{
-			NXString str(value);
-			if(strcmp(str.GetText(), gruopNumber.GetText()) ==0)
-			{
-				int selIndex = 0;
-				int has2 = EF_ask_obj_integer_attr_Ori(bodies[i], ATTR_ROYAL_PROPERTY_GROUP_SUBINDEX, &selIndex);
-
-				if(vFind(selIndexs,selIndex) == -1)
-					selIndexs.push_back(selIndex);
-			}
-		}
-	}
-	return 0;
-}
-
-/*
-int Royal_set_obj_attr_Long2(tag_t obj, NXString title, NXString &value)
+int TYCOM_set_obj_attr_Long2(tag_t obj, NXString title, NXString &value)
 {
     NXOpen::Session *theSession = NXOpen::Session::GetSession();
     NXOpen::Part *workPart(theSession->Parts()->Work());
@@ -1970,7 +3199,7 @@ int Royal_set_obj_attr_Long2(tag_t obj, NXString title, NXString &value)
     return 0;
 }
 
-int Royal_set_obj_attr_Long(tag_t obj, NXString title, NXString &value)
+int TYCOM_set_obj_attr_Long(tag_t obj, NXString title, NXString &value)
 {
     NXOpen::Session *theSession = NXOpen::Session::GetSession();
     NXOpen::Part *workPart(theSession->Parts()->Work());
@@ -2006,10 +3235,8 @@ int Royal_set_obj_attr_Long(tag_t obj, NXString title, NXString &value)
     attributePropertiesBuilder1->Destroy();
 
 	return 0;
-}*/
-
-/*
-logical Royal_get_obj_attr_Long2(tag_t obj, NXString title, NXString &value)
+}
+logical TYCOM_get_obj_attr_Long2(tag_t obj, NXString title, NXString &value)
 {
     logical has = false;
     if(obj == NULL_TAG)
@@ -2026,10 +3253,8 @@ logical Royal_get_obj_attr_Long2(tag_t obj, NXString title, NXString &value)
         value = values;
     UF_free(values);
     return has;
-}*/
-
-/*
-int Royal_get_obj_attr_Long(tag_t obj, NXString title, NXString &value)
+}
+int TYCOM_get_obj_attr_Long(tag_t obj, NXString title, NXString &value)
 {
     NXOpen::Session *theSession = NXOpen::Session::GetSession();
     NXOpen::Part *workPart(theSession->Parts()->Work());
@@ -2048,10 +3273,8 @@ int Royal_get_obj_attr_Long(tag_t obj, NXString title, NXString &value)
  //   const char * cstr2 = info.StringValue.GetText();
 	////以上两种方法都可以拿到属性
 	return 0;
-}*/
-
-/*
-int Royal_ProjectCurveToFace(tag_t curve, tag_t face, tag_t &proFeature)
+}
+int TYCOM_ProjectCurveToFace(tag_t curve, tag_t face, tag_t &proFeature)
 {
     NXOpen::Session *theSession = NXOpen::Session::GetSession();
     NXOpen::Part *workPart(theSession->Parts()->Work());
@@ -2108,10 +3331,8 @@ int Royal_ProjectCurveToFace(tag_t curve, tag_t face, tag_t &proFeature)
     projectCurveBuilder1->Destroy();
 
 	return 0;
-}*/
-
-/*
-int Royal_ExtrudeFromCurveWithOffset(tag_t curve, double height, double width, double normal[3],  tag_t &feat)
+}
+int TYCOM_ExtrudeFromCurveWithOffset(tag_t curve, double height, double width, double normal[3],  tag_t &feat)
 {
     NXOpen::Session *theSession = NXOpen::Session::GetSession();
     NXOpen::Part *workPart(theSession->Parts()->Work());
@@ -2196,10 +3417,8 @@ int Royal_ExtrudeFromCurveWithOffset(tag_t curve, double height, double width, d
     
 	return 0;
 }
-*/
 
-/*
-int Royal_Champher(tag_t edge, double angle, double dist, tag_t &feat)
+int TYCOM_Champher(tag_t edge, double angle, double dist, tag_t &feat)
 {
 	NXOpen::Session *theSession = NXOpen::Session::GetSession();
 	NXOpen::Part *workPart(theSession->Parts()->Work());
@@ -2244,51 +3463,8 @@ int Royal_Champher(tag_t edge, double angle, double dist, tag_t &feat)
 	chamferBuilder1->Destroy();
 
 	return 0;
-}*/
-
-typedef int (* NXEXPORT_ASSY_clone_set_log_cb)(void *pCallBack, void *data);
-//This function get the max distance of two input objects. And return the two result points.
-int NXFUN_ASSY_clone_set_no_log()
-{
-	static HINSTANCE hInst = NULL;
-	NXEXPORT_ASSY_clone_set_log_cb ASSYclonesetlogcb = NULL;
-	if(hInst == NULL)
-	{
-		hInst=LoadLibraryA("libassy.dll");
-		ASSYclonesetlogcb =(NXEXPORT_ASSY_clone_set_log_cb)GetProcAddress(hInst,"?ASSY_clone_set_log_cb@@YAHP6AHPEAXPEBDPEAD@Z0@Z");
-	}
-	else
-		ASSYclonesetlogcb =(NXEXPORT_ASSY_clone_set_log_cb)GetProcAddress(hInst,"?ASSY_clone_set_log_cb@@YAHP6AHPEAXPEBDPEAD@Z0@Z");
-	if(ASSYclonesetlogcb == NULL)
-		return -2;
-
-
-	int error = ASSYclonesetlogcb(NULL,NULL);
-	return 0;
 }
-
-NXOpen::Xform * RY_CreateXForm(NXOpen::Point3d origin1,  NXOpen::Vector3d xDirection1, NXOpen::Vector3d yDirection1)
-{
-    NXOpen::Session *theSession = NXOpen::Session::GetSession();
-    NXOpen::Part *workPart(theSession->Parts()->Work());
-    
-    NXOpen::Xform *xform1 = 0;
-    xform1 = workPart->Xforms()->CreateXform(origin1, xDirection1, yDirection1, NXOpen::SmartObject::UpdateOptionAfterModeling, 1.0);
-    return xform1;
-}
-
-NXOpen::CartesianCoordinateSystem * RY_CreateCoordinateSystem(NXOpen::Xform *xform)
-{
-    NXOpen::Session *theSession = NXOpen::Session::GetSession();
-    NXOpen::Part *workPart(theSession->Parts()->Work());
-    
-    NXOpen::CartesianCoordinateSystem *cartesianCoordinateSystem1 = 0;
-    cartesianCoordinateSystem1 = workPart->CoordinateSystems()->CreateCoordinateSystem(xform, NXOpen::SmartObject::UpdateOptionAfterModeling);
-	return cartesianCoordinateSystem1;
-}
-
-/*
-int RY_ImportPart(NXOpen::CartesianCoordinateSystem *ccs, NXString fileName, NXOpen::Point3d destinationPoint1)
+int TYCOM_ImportPart(NXOpen::CartesianCoordinateSystem *ccs, NXString fileName, NXOpen::Point3d destinationPoint1)
 {
     NXOpen::Session *theSession = NXOpen::Session::GetSession();
     NXOpen::Part *workPart(theSession->Parts()->Work());
@@ -2320,10 +3496,9 @@ int RY_ImportPart(NXOpen::CartesianCoordinateSystem *ccs, NXString fileName, NXO
     partImporter1->Destroy();
 
 	return 0;
-}*/
+}
 
-/*
-int RY_SetText(tag_t text, NXString str, double height)
+int TYCOM_SetText(tag_t text, NXString str, double height)
 {
     if (strlen(str.GetLocaleText()) == 0)
 	{
@@ -2362,111 +3537,8 @@ int RY_SetText(tag_t text, NXString str, double height)
         //throw NXException::Create("Create or edit of a Feature was recorded in History Mode but playback is in History-Free Mode.");
    // }
 	return 0;
-}*/
-
-double RY_GetBodyVolume(tag_t solbody)
-{
-	double volume = 0.0;
-	double area1 = 0.0, area2 = 0.0, area3 = 0.0;
-
-	int  response = 2, type = 1, unit = 3, accuracy =  1, count = 0, zero = 0, i = 0;
-	double  acc_val[11] = {.000001,0,0,0,0,0,0,0,0,0,0};
-	double  density = 1.0, massprop[47], massprop_stat[13];
-
-	int err = UF_MODL_ask_mass_props_3d(&solbody, 1, type, unit, density, accuracy, acc_val,
-		massprop, massprop_stat);
-	volume = massprop[1];
-	//area1 = massprop[0]*100;
-	return volume;
 }
-
-NXOpen::Xform * RY_CreateXFormWithThreePoint(NXOpen::Point3d pnt0, NXOpen::Point3d pnt1, NXOpen::Point3d pnt2)
-{
-	NXOpen::Session *theSession = NXOpen::Session::GetSession();
-	NXOpen::Part *workPart(theSession->Parts()->Work());
-
-	NXOpen::Point *point1, *point2, *point3;
-    point1 = workPart->Points()->CreatePoint(pnt0);
-	point2 = workPart->Points()->CreatePoint(pnt1);
-	point3 = workPart->Points()->CreatePoint(pnt2);
-
-	
-	NXOpen::Xform *xform4;
-	xform4 = workPart->Xforms()->CreateXform(point1, point2, point3, NXOpen::SmartObject::UpdateOptionAfterModeling, 1.0);
-
-	return xform4;
-}
-
-NXOpen::Xform * RY_CreateXFormWithOriuginXYDirection(NXOpen::Point3d origin10, NXOpen::Vector3d xDirection9, NXOpen::Vector3d yDirection9)
-{
-	NXOpen::Session *theSession = NXOpen::Session::GetSession();
-	NXOpen::Part *workPart(theSession->Parts()->Work());
-
-	NXOpen::Xform *xform9;
-	xform9 = workPart->Xforms()->CreateXform(origin10, xDirection9, yDirection9, NXOpen::SmartObject::UpdateOptionWithinModeling, 1.0);
-	return xform9;
-}
-
-NXOpen::CartesianCoordinateSystem * RY_CreateCSYCAccordingToXform(NXOpen::Xform *xform)
-{
-	NXOpen::Session *theSession = NXOpen::Session::GetSession();
-	NXOpen::Part *workPart(theSession->Parts()->Work());
-	NXOpen::CartesianCoordinateSystem *cartesianCoordinateSystem1;
-    cartesianCoordinateSystem1 = workPart->CoordinateSystems()->CreateCoordinateSystem(xform, NXOpen::SmartObject::UpdateOptionAfterModeling);
-
-	return cartesianCoordinateSystem1;
-}
-
-NXOpen::Matrix3x3 RY_MatrixConvert(double matrix[9])
-{
-	NXOpen::Matrix3x3 matrix1;
-
-	matrix1.Xx = matrix[0];
-    matrix1.Xy = matrix[1];
-    matrix1.Xz = matrix[2];
-    matrix1.Yx = matrix[3];
-    matrix1.Yy = matrix[4];
-    matrix1.Yz = matrix[5];
-    matrix1.Zx = matrix[6];
-    matrix1.Zy = matrix[7];
-    matrix1.Zz = matrix[8];
-
-	return matrix1;
-}
-
-int RY_GetCSYSMatrix(tag_t csys, double matrix_values[9])
-{
-	tag_t  matrix_id = 0;
-	double csys_origin[3] = {0};
-	int ret = UF_CSYS_ask_csys_info(csys, &matrix_id, csys_origin);
-	ret = UF_CSYS_ask_matrix_values(matrix_id, matrix_values);
-	return ret;
-}
-
-int RY_GetCSYSOri(tag_t csys, double csys_origin[3])
-{
-	tag_t  matrix_id = 0;
-	int ret = UF_CSYS_ask_csys_info(csys, &matrix_id, csys_origin);
-	return ret;
-}
-
-int RY_SetViewToCsys(NXOpen::CartesianCoordinateSystem * csys)
-{
-	if(csys == 0)
-		return -1;
-
-	NXOpen::Session *theSession = NXOpen::Session::GetSession();
-	NXOpen::Part *workPart(theSession->Parts()->Work());
-
-	double matrix_values[9] = {0};
-	RY_GetCSYSMatrix(csys->Tag(), matrix_values);
-
-	NXOpen::Matrix3x3 mx1 = RY_MatrixConvert(matrix_values);
-	workPart->ModelingViews()->WorkView()->Orient(mx1);
-	return 0;
-}
-/*
-int RY_CreateBoxWithCSYS_ForBody(tag_t solidBody, tag_t csys, NXOpen::Point3d pnt0, tag_t &boxFeat)
+int TYCOM_CreateBoxWithCSYS_ForBody(tag_t solidBody, tag_t csys, NXOpen::Point3d pnt0, tag_t &boxFeat)
 {
     NXOpen::Session *theSession = NXOpen::Session::GetSession();
     NXOpen::Part *workPart(theSession->Parts()->Work());
@@ -2531,14 +3603,14 @@ int RY_CreateBoxWithCSYS_ForBody(tag_t solidBody, tag_t csys, NXOpen::Point3d pn
 	toolingBoxBuilder1->CsysSelection()->SetValue(ppcsys);
     
 	double matrix_values[9] = {0};
-	RY_GetCSYSMatrix(csys, matrix_values);
+	TYCOM_GetCSYSMatrix(csys, matrix_values);
 
-    NXOpen::Matrix3x3 matrix1  = RY_MatrixConvert(matrix_values);
+    NXOpen::Matrix3x3 matrix1  = TYCOM_MatrixConvert(matrix_values);
 
     //NXOpen::Point3d position1(11.9597518106377, -17.8300103442615, -148.707482295917);
 
 	double pnt3[3] = {0};
-	RY_GetCSYSOri(csys, pnt3);
+	TYCOM_GetCSYSOri(csys, pnt3);
 	NXOpen::Point3d position1(pnt3[0], pnt3[1], pnt3[2]);
     toolingBoxBuilder1->SetBoxMatrixAndPosition(matrix1, position1);
     
@@ -2548,270 +3620,16 @@ int RY_CreateBoxWithCSYS_ForBody(tag_t solidBody, tag_t csys, NXOpen::Point3d pn
     nXObject1 = toolingBoxBuilder1->Commit();
    
     toolingBoxBuilder1->Destroy();
-}*/
-
-int RY_MoveObject_CSYS_CSYS(tag_t body, tag_t fromCsys,  tag_t toCsys)
-{
-	if(body == 0 || fromCsys == 0 || toCsys == 0)
-		return -1;
-
-    NXOpen::Session *theSession = NXOpen::Session::GetSession();
-    NXOpen::Part *workPart(theSession->Parts()->Work());
-    
-    NXOpen::Features::MoveObject *nullNXOpen_Features_MoveObject(NULL);
-    
-    NXOpen::Features::MoveObjectBuilder *moveObjectBuilder1;
-    moveObjectBuilder1 = workPart->BaseFeatures()->CreateMoveObjectBuilder(nullNXOpen_Features_MoveObject);
-
-	moveObjectBuilder1->SetMoveObjectResult(Features::MoveObjectBuilder::MoveObjectResultOptionsMoveOriginal);
-    moveObjectBuilder1->TransformMotion()->SetOption(NXOpen::GeometricUtilities::ModlMotion::OptionsCsysToCsys);
-    
-	TaggedObject * tagobj = NXOpen::NXObjectManager::Get(body);
-	if(NULL == (dynamic_cast<Body*> (tagobj)))
-		return 1;
-
-    bool added1;
-    added1 = moveObjectBuilder1->ObjectToMoveObject()->Add((Body *)tagobj);
-
-    moveObjectBuilder1->SetLayerOption(NXOpen::Features::MoveObjectBuilder::LayerOptionTypeOriginal);
-    
-    
-    
-	TaggedObject * pcsys1 = NXOpen::NXObjectManager::Get(fromCsys);
-	NXOpen::CartesianCoordinateSystem * ppcsys1 = dynamic_cast<NXOpen::CartesianCoordinateSystem *>(pcsys1);
-	if(ppcsys1 == 0)
-		return -1;
-    
-    moveObjectBuilder1->TransformMotion()->SetFromCsys(ppcsys1);
-    
-
-	TaggedObject * pcsys2 = NXOpen::NXObjectManager::Get(toCsys);
-	NXOpen::CartesianCoordinateSystem * ppcsys2 = dynamic_cast<NXOpen::CartesianCoordinateSystem *>(pcsys2);
-	if(ppcsys2 == 0)
-		return -1;
-    
-    moveObjectBuilder1->TransformMotion()->SetToCsys(ppcsys2);
-    
-    NXOpen::NXObject *nXObject1;
-    nXObject1 = moveObjectBuilder1->Commit();
-    
-    std::vector<NXOpen::NXObject *> objects1;
-    objects1 = moveObjectBuilder1->GetCommittedObjects();
-    
-    moveObjectBuilder1->Destroy();
-	return 0;
- }
-
-int RY_askFaceArea(tag_t face, double &area)
-{
-	if(face == 0)
-		return -1;
-	int err = 0;
-
-	int  response = 2, unit = 3, accuracy =  1, count = 0;
-	double  acc_val[11] = {.01,0,0,0,0,0,0,0,0,0,0};
-	double  density = 1.0, massprop[47], massprop_stat[13];
-
-	tag_t sheet =  NULL_TAG;
-	UF_MODL_extract_face(face, 0, &sheet);
-	if(sheet != NULL_TAG)
-	{
-		err = UF_MODL_ask_mass_props_3d(&sheet, 1, 2, unit, density, accuracy, acc_val,
-			massprop, massprop_stat);
-		area += massprop[0]*100;
-	}
-	UF_OBJ_delete_object(sheet);
-	return 0;
 }
-
-int RY_GetFalseBodysFromTrueBody(tag_t bodyTag, vtag_t &objlist)
-{
-	tag_t partocc = UF_ASSEM_ask_part_occurrence(bodyTag);
-	tag_t partPro = 0;
-	if(partocc != 0)
-		partPro = UF_ASSEM_ask_prototype_of_occ( partocc ) ;
-	//UF_ASSEM_set_work_part(partPro);
-
-	tag_t ref_set = NULL_TAG ;
-	int n_members = 0;
-	tag_t * members = NULL;
-
-  	UF_OBJ_cycle_by_name_and_type(partPro,"FALSE",UF_reference_set_type, TRUE, &ref_set);
- 	
-    UF_ASSEM_ask_ref_set_members( ref_set , & n_members , & members ) ;
-
-	tag_t *body_occ = 0;
-	int num_occ = 0;
-	for( int i = 0 ; i < n_members ; i ++ )
-    {
-		int type = 0, subtype = 0;
-        UF_OBJ_ask_type_and_subtype( members[ i ] , & type , & subtype ) ;
-        if (type == UF_solid_type && subtype == UF_solid_body_subtype &&
- 		     UF_OBJ_ALIVE == UF_OBJ_ask_status( members[ i ] ) )
-		{
-			objlist.push_back(members[i]);
-		}
-	}
-	UF_free( members ) ;
-	return 0;
-}
-
-int RY_GetFalseBodysAndWaveLink(tag_t linkbodyTag, tag_t tobodyTag, vtag_t &objlist)
-{
-	tag_t to_part_occ,target_pro;
-
-	tag_t from_part_occ = UF_ASSEM_ask_part_occurrence(linkbodyTag);
-
-	tag_t partPro = 0;
-	if(from_part_occ != 0)
-		partPro = UF_ASSEM_ask_prototype_of_occ( from_part_occ );
-
-	if (UF_ASSEM_is_occurrence(tobodyTag))
-	{
-		to_part_occ=UF_ASSEM_ask_part_occurrence(tobodyTag);
- 		target_pro=UF_ASSEM_ask_prototype_of_occ(tobodyTag);
-	}
-	else
-	{
-		target_pro=tobodyTag;
-		to_part_occ=NULL_TAG;
-	}
-
-	tag_t ref_set = NULL_TAG ;
-	int num_mebers = 0;
-	tag_t * mebers = NULL;
-	char refset_name[MAX_ENTITY_NAME_SIZE+1] ;
-	double origin[3] ;
-	double csys_matrix[9] ;
-
-  	UF_OBJ_cycle_by_name_and_type(partPro,"FALSE",UF_reference_set_type, TRUE, &ref_set);
-    UF_ASSEM_ask_ref_set_data(ref_set,refset_name,origin,csys_matrix,&num_mebers,&mebers);
-
-	for (int i=0;i<num_mebers;i++)
- 	{
-		int type,subtype,err;
-		tag_t xform=NULL_TAG;
-		int num_results;
-		tag_t *resultbodies;
-		int   result[1];
-		tag_t feat_waved = 0;
-		tag_t body_waved = 0;
-
- 		if (UF_OBJ_ask_type_and_subtype(mebers[i],&type,&subtype)==0
- 			&&type==UF_solid_type&&subtype==UF_solid_body_subtype)
- 		{
-			//UF_CALL(UF_ASSEM_set_work_part(tem_workpart));
-			
- 			UF_SO_create_xform_assy_ctxt(target_pro,from_part_occ,to_part_occ,&xform);
-
- 			UF_WAVE_create_linked_body(mebers[i],xform,target_pro,TRUE, &feat_waved);
-			
-			UF_MODL_ask_feat_body(feat_waved,&body_waved);
-			objlist.push_back(body_waved);
-			
-			//UF_CALL(UF_ASSEM_set_work_part(tem_workpart));
-			/*UF_MODL_check_interference(target_pro,1,&body_waved,result);
-			if( result[0]==1 )
-			{
-				err=UF_MODL_subtract_bodies(target_pro,body_waved,&num_results,&resultbodies);
-				if (err)
-				{
-					UF_OBJ_delete_object(body_waved);
-				}
-				UF_free(resultbodies);
-			}
-			else
-			{
-				UF_OBJ_delete_object(body_waved);
-			}*/
- 		}
-	}
-	UF_free(mebers);
-	return 0;
-}
-
-int RY_GetFalseBodys(tag_t linkbodyTag, tag_t tobodyTag)
-{
-	tag_t to_part_occ,target_pro;
-
-	tag_t from_part_occ = UF_ASSEM_ask_part_occurrence(linkbodyTag);
-
-	tag_t partPro = 0;
-	if(from_part_occ != 0)
-		partPro = UF_ASSEM_ask_prototype_of_occ( from_part_occ ) ;
-
-	if (UF_ASSEM_is_occurrence(tobodyTag))
-	{
-		target_pro=UF_ASSEM_ask_part_occurrence(tobodyTag);
-	}
-	else
-	{
-		target_pro=tobodyTag;
-		to_part_occ=NULL_TAG;
-	}
-
-	tag_t ref_set = NULL_TAG ;
-	int num_mebers = 0;
-	tag_t * mebers = NULL;
-	char refset_name[MAX_ENTITY_NAME_SIZE+1] ;
-	double origin[3] ;
-	double csys_matrix[9] ;
-
-  	UF_OBJ_cycle_by_name_and_type(partPro,"FALSE",UF_reference_set_type, TRUE, &ref_set);
-    UF_ASSEM_ask_ref_set_data(ref_set,refset_name,origin,csys_matrix,&num_mebers,&mebers);
-
-	for (int i=0;i<num_mebers;i++)
- 	{
-		int type,subtype,err;
-		tag_t xform=NULL_TAG;
-		int num_results;
-		tag_t *resultbodies;
-		int   result[1];
-		tag_t feat_waved = 0;
-		tag_t body_waved = 0;
-
- 		if (UF_OBJ_ask_type_and_subtype(mebers[i],&type,&subtype)==0
- 			&&type==UF_solid_type&&subtype==UF_solid_body_subtype)
- 		{
-			//UF_CALL(UF_ASSEM_set_work_part(tem_workpart));
-			
- 			UF_SO_create_xform_assy_ctxt(target_pro,from_part_occ,to_part_occ,&xform);
-
- 			UF_WAVE_create_linked_body(mebers[i],xform,target_pro,TRUE, &feat_waved);
-			
-			UF_MODL_ask_feat_body(feat_waved,&body_waved);
-			
-			//UF_CALL(UF_ASSEM_set_work_part(tem_workpart));
-			UF_MODL_check_interference(target_pro,1,&body_waved,result);
-			if( result[0]==1 )
-			{
-				err=UF_MODL_subtract_bodies(target_pro,body_waved,&num_results,&resultbodies);
-				if (err)
-				{
-					UF_OBJ_delete_object(body_waved);
-				}
-				UF_free(resultbodies);
-			}
-			else
-			{
-				UF_OBJ_delete_object(body_waved);
-			}
- 		}
-	}
-	UF_free(mebers);
-	return 0;
-}
-
-/*
 int GetSplineAttachedToBody(const tag_t body, const vtag_t& allSplines, vtag_t& curSplines)
 {
 	curSplines.clear();
-	tag_t proBody = RY_Prototype(body);
+	tag_t proBody = TYCOM_Prototype(body);
 	for( int idx = 0; idx < allSplines.size(); ++idx )
 	{
 		char handle[UF_ATTR_MAX_STRING_BUFSIZE+1]="";
 		tag_t proSpline = allSplines[idx];
-		int irc = USER_ask_obj_string_attr(proSpline,ATTR_RY_TEXT_SPLINE_BODY_HANDLE,handle);
+		int irc = USER_ask_obj_string_attr(proSpline,ATTR_TYCOM_TEXT_SPLINE_BODY_HANDLE,handle);
 		if( 1 == irc )
 		{
 			tag_t recTag = UF_TAG_ask_tag_of_handle(handle);
@@ -2823,11 +3641,8 @@ int GetSplineAttachedToBody(const tag_t body, const vtag_t& allSplines, vtag_t& 
 	}
 	return curSplines.size();
 }
-*/
 
-
-/*
-void RY_WaveLinkSplinesToWorkPart(vtag_t& splines, logical Associative, logical Hideoriginal,logical addlineRef)
+void TYCOM_WaveLinkSplinesToWorkPart(vtag_t& splines, logical Associative, logical Hideoriginal,logical addlineRef)
 {
 	NXOpen::Session *theSession = NXOpen::Session::GetSession();
     NXOpen::Part *workPart(theSession->Parts()->Work());
@@ -2933,16 +3748,14 @@ void RY_WaveLinkSplinesToWorkPart(vtag_t& splines, logical Associative, logical 
 		}
 		CreateReferenceSet(curves,NXString("MODEL"));
         if( addlineRef )
-            CreateReferenceSet(curves,NXString(ATTR_ROYAL_DRAWING_REFERENCE_SET));
+            CreateReferenceSet(curves,NXString(ATTR_TYCOM_DRAWING_REFERENCE_SET));
 		UF_free(eids);
 		UF_free(source);
 		UF_free(linkgeos);
 	}
     waveLinkBuilder1->Destroy();
-}*/
-
-/*
-tag_t RY_WaveLinkBodyToWorkPart2( vtag_t& bodies, vtag_t& allSplines, logical Associative, logical Hideoriginal,logical addlineRef)
+}
+tag_t TYCOM_WaveLinkBodyToWorkPart2( vtag_t& bodies, vtag_t& allSplines, logical Associative, logical Hideoriginal,logical addlineRef)
 {
 	NXOpen::Session *theSession = NXOpen::Session::GetSession();
     NXOpen::Part *workPart(theSession->Parts()->Work());
@@ -3022,18 +3835,15 @@ tag_t RY_WaveLinkBodyToWorkPart2( vtag_t& bodies, vtag_t& allSplines, logical As
 		}
 		if(cursplines.size() > 0)
 		{
-			RY_WaveLinkSplinesToWorkPart(cursplines,Associative,Hideoriginal,addlineRef);
+			TYCOM_WaveLinkSplinesToWorkPart(cursplines,Associative,Hideoriginal,addlineRef);
 		}
 	}
 
     return nXObject1->Tag();
 
 }
-*/
 
-
-/*
-int RY_SubtractInAssembly(tag_t targetBody, tag_t toolBody)
+int TYCOM_SubtractInAssembly(tag_t targetBody, tag_t toolBody)
 {
     NXOpen::Session *theSession = NXOpen::Session::GetSession();
     NXOpen::Part *workPart(theSession->Parts()->Work());
@@ -3143,10 +3953,8 @@ int RY_SubtractInAssembly(tag_t targetBody, tag_t toolBody)
     waveLinkRepository1->Destroy();
 	return 0;
 }
-*/
 
-/*
-int RY_WaveLinkBodyToWorkPart(tag_t body)
+int TYCOM_WaveLinkBodyToWorkPart(tag_t body)
 {
 
 	NXOpen::Session *theSession = NXOpen::Session::GetSession();
@@ -3205,852 +4013,3 @@ int RY_WaveLinkBodyToWorkPart(tag_t body)
 
 	return 0;
 }*/
-
-int RY_WaveLinkBody(tag_t bodyToLink, tag_t targetPartBody, tag_t &body_waved)
-{
-	tag_t to_part_occ,target_pro;
-
-	tag_t from_part_occ = UF_ASSEM_ask_part_occurrence(bodyToLink);
-
-	tag_t partPro = 0;
-	if(from_part_occ != 0)
-		partPro = UF_ASSEM_ask_prototype_of_occ( from_part_occ );
-
-	if (UF_ASSEM_is_occurrence(targetPartBody))
-	{
-		to_part_occ=UF_ASSEM_ask_part_occurrence(targetPartBody);
- 		target_pro=UF_ASSEM_ask_prototype_of_occ(targetPartBody);
-	}
-	else
-	{
-		target_pro=targetPartBody;
-		to_part_occ=NULL_TAG;
-	}
-
-	tag_t xform=NULL_TAG;
-	int   result[1];
-	tag_t feat_waved = 0;
-
-	if (UF_ASSEM_is_occurrence(bodyToLink))
-	{
-		bodyToLink=UF_ASSEM_ask_prototype_of_occ(bodyToLink);
-	}
-
-	UF_SO_create_xform_assy_ctxt(target_pro,from_part_occ,to_part_occ,&xform);
-	UF_WAVE_create_linked_body(bodyToLink,xform,target_pro,TRUE, &feat_waved);
-	UF_MODL_ask_feat_body(feat_waved,&body_waved);
-
-	return 0;
-}
-
-int RY_WaveLinkCurve(tag_t curveToLink, tag_t targetPartObject, tag_t &Curve_waved)
-{
-	tag_t to_part_occ,target_pro;
-
-	tag_t from_part_occ = UF_ASSEM_ask_part_occurrence(curveToLink);
-
-	tag_t partPro = 0;
-	if(from_part_occ != 0)
-		partPro = UF_ASSEM_ask_prototype_of_occ( from_part_occ );
-
-	if (UF_ASSEM_is_occurrence(targetPartObject))
-	{
-		to_part_occ=UF_ASSEM_ask_part_occurrence(targetPartObject);
- 		target_pro=UF_ASSEM_ask_prototype_of_occ(targetPartObject);
-	}
-	else
-	{
-		target_pro=targetPartObject;
-		to_part_occ=NULL_TAG;
-	}
-
-	tag_t xform=NULL_TAG;
-	int   result[1];
-	tag_t feat_waved = 0;
-
-	if (UF_ASSEM_is_occurrence(curveToLink))
-	{
-		curveToLink=UF_ASSEM_ask_prototype_of_occ(curveToLink);
-	}
-
-	UF_SO_create_xform_assy_ctxt(target_pro,from_part_occ,to_part_occ,&xform);
-	UF_WAVE_create_linked_curve(curveToLink,xform,target_pro,TRUE, &feat_waved);
-	UF_MODL_ask_feat_body(feat_waved,&Curve_waved);
-
-	return 0;
-}
-
-int RY_WaveLinkDatum(tag_t datumplanetolink, tag_t targetPartObject, tag_t &plane_waved)
-{
-	tag_t to_part_occ,target_pro;
-
-	tag_t from_part_occ = UF_ASSEM_ask_part_occurrence(datumplanetolink);
-
-	tag_t partPro = 0;
-	if(from_part_occ != 0)
-		partPro = UF_ASSEM_ask_prototype_of_occ( from_part_occ );
-
-	if (UF_ASSEM_is_occurrence(targetPartObject))
-	{
-		to_part_occ=UF_ASSEM_ask_part_occurrence(targetPartObject);
- 		target_pro=UF_ASSEM_ask_prototype_of_occ(targetPartObject);
-	}
-	else
-	{
-		target_pro=targetPartObject;
-		to_part_occ=NULL_TAG;
-	}
-
-	tag_t xform=NULL_TAG;
-	int   result[1];
-	tag_t feat_waved = 0;
-
-	if (UF_ASSEM_is_occurrence(datumplanetolink))
-	{
-		datumplanetolink=UF_ASSEM_ask_prototype_of_occ(datumplanetolink);
-	}
-
-	UF_SO_create_xform_assy_ctxt(target_pro,from_part_occ,to_part_occ,&xform);
-	UF_WAVE_create_linked_datum(datumplanetolink,xform,target_pro, &feat_waved);
-	UF_WAVE_ask_linked_feature_geom(feat_waved,&plane_waved);
-
-	return 0;
-}
-
-/*
-int Royal_ExtrudeReplaceCurve(tag_t extrudeFeature, tag_t newCurve)
-{
-    NXOpen::Session *theSession = NXOpen::Session::GetSession();
-    NXOpen::Part *workPart(theSession->Parts()->Work());
-
-    NXOpen::TaggedObject *object = NXOpen::NXObjectManager::Get(extrudeFeature);
-    Features::Feature *extrude1 = dynamic_cast<Features::Feature *>(object);
-    NXOpen::Features::ExtrudeBuilder *extrudeBuilder1;
-    extrudeBuilder1 = workPart->Features()->CreateExtrudeBuilder(extrude1);
-    NXOpen::Section *section1;
-    section1 = extrudeBuilder1->Section();
-    extrudeBuilder1->AllowSelfIntersectingSection(true);
-  
-    NXOpen::Unit *unit1;
-    unit1 = extrudeBuilder1->Draft()->FrontDraftAngle()->Units();
-    section1->SetDistanceTolerance(0.01);
-    section1->SetChainingTolerance(0.0095);
-    NXOpen::NXObject *nullNXOpen_NXObject(NULL);
-	section1->Clear();
-    std::vector<NXOpen::IBaseCurve *> curves1(1);
-    
-	NXOpen::TaggedObject *object1 = NXOpen::NXObjectManager::Get(newCurve);
-	Curve *pCurve= dynamic_cast<Curve *>(object1);
-
-    curves1[0] = pCurve;
-    NXOpen::CurveDumbRule *curveDumbRule1;
-    curveDumbRule1 = workPart->ScRuleFactory()->CreateRuleBaseCurveDumb(curves1);
-    section1->AllowSelfIntersection(true);
-    std::vector<NXOpen::SelectionIntentRule *> rules1(1);
-    rules1[0] = curveDumbRule1;
-    NXOpen::Point3d helpPoint1(102.024472401989, 109.145404160179, 0.0);
-    section1->AddToSection(rules1, pCurve, nullNXOpen_NXObject, nullNXOpen_NXObject, helpPoint1, NXOpen::Section::ModeCreate, false);
-    
-    NXOpen::Features::Feature *feature1;
-    feature1 = extrudeBuilder1->CommitFeature();
-    extrudeBuilder1->Destroy();
-    return 0;
-
-}*/
-
-//替换workpart内的曲线
-/*
-int Royal_ExtrudeReplaceCurvesWorkPart(tag_t extrudeFeature, vtag_t newCurves)
-{
-    NXOpen::Session *theSession = NXOpen::Session::GetSession();
-    NXOpen::Part *workPart(theSession->Parts()->Work());
-
-    NXOpen::TaggedObject *object = NXOpen::NXObjectManager::Get(extrudeFeature);
-    Features::Feature *extrude1 = dynamic_cast<Features::Feature *>(object);
-    NXOpen::Features::ExtrudeBuilder *extrudeBuilder1;
-    extrudeBuilder1 = workPart->Features()->CreateExtrudeBuilder(extrude1);
-    NXOpen::Section *section1;
-    section1 = extrudeBuilder1->Section();
-    extrudeBuilder1->AllowSelfIntersectingSection(true);
-  
-    NXOpen::Unit *unit1;
-    unit1 = extrudeBuilder1->Draft()->FrontDraftAngle()->Units();
-    NXOpen::NXObject *nullNXOpen_NXObject(NULL);
-	section1->Clear();
-
-
-    std::vector<NXOpen::IBaseCurve *> curves1;
-	Curve *firstcurve=0;
-	for(int i = 0; i < newCurves.size(); i++)
-	{
-		NXOpen::TaggedObject *object1 = NXOpen::NXObjectManager::Get(newCurves[i]);
-	    Curve *pCurve= dynamic_cast<Curve *>(object1);
-		curves1.push_back(pCurve);
-		if(i == 0)
-			firstcurve = pCurve;
-	}
-	
-    NXOpen::CurveDumbRule *curveDumbRule1;
-    curveDumbRule1 = workPart->ScRuleFactory()->CreateRuleBaseCurveDumb(curves1);
-    section1->AllowSelfIntersection(true);
-    std::vector<NXOpen::SelectionIntentRule *> rules1(1);
-    rules1[0] = curveDumbRule1;
-    NXOpen::Point3d helpPoint1(102.024472401989, 109.145404160179, 0.0);
-    section1->AddToSection(rules1, firstcurve, nullNXOpen_NXObject, nullNXOpen_NXObject, helpPoint1, NXOpen::Section::ModeCreate, false);
-    
-    NXOpen::Features::Feature *feature1;
-    feature1 = extrudeBuilder1->CommitFeature();
-    extrudeBuilder1->Destroy();
-    return 0;
-}*/
-
-
-
-//替换装配内其他part的曲线
-/*
-int Royal_ExtrudeReplaceCurvesOtherPart(tag_t extrudeFeature, vtag_t newCurves)
-{
-    NXOpen::Session *theSession = NXOpen::Session::GetSession();
-    NXOpen::Part *workPart(theSession->Parts()->Work());
-
-    NXOpen::TaggedObject *object = NXOpen::NXObjectManager::Get(extrudeFeature);
-    Features::Feature *extrude1 = dynamic_cast<Features::Feature *>(object);
-    NXOpen::Features::ExtrudeBuilder *extrudeBuilder1;
-    extrudeBuilder1 = workPart->Features()->CreateExtrudeBuilder(extrude1);
-    NXOpen::Section *section1;
-    section1 = extrudeBuilder1->Section();
-    extrudeBuilder1->AllowSelfIntersectingSection(true);
-  
-    NXOpen::Unit *unit1;
-    unit1 = extrudeBuilder1->Draft()->FrontDraftAngle()->Units();
-    NXOpen::NXObject *nullNXOpen_NXObject(NULL);
-	section1->Clear();
-
-
-
-	//处理装配curve
-	NXOpen::Features::Feature *nullNXOpen_Features_Feature(NULL);
-	NXOpen::Features::CompositeCurveBuilder *compositeCurveBuilder1;
-    compositeCurveBuilder1 = workPart->Features()->CreateCompositeCurveBuilder(nullNXOpen_Features_Feature);
-    
-    NXOpen::Section *section2;
-    section2 = compositeCurveBuilder1->Section();
-    compositeCurveBuilder1->SetAssociative(true);
-    compositeCurveBuilder1->SetParentPart(NXOpen::Features::CompositeCurveBuilder::PartTypeOtherPart);
-    compositeCurveBuilder1->SetAllowSelfIntersection(true);
-    section2->SetAllowedEntityTypes(NXOpen::Section::AllowTypesOnlyCurves);
-    section2->SetAllowRefCrvs(false);
-    compositeCurveBuilder1->SetFixAtCurrentTimestamp(true);
-    
-	std::vector<NXOpen::IBaseCurve *> curves1;
-	Curve *firstcurve=0;
-	for(int i = 0; i < newCurves.size(); i++)
-	{
-		NXOpen::TaggedObject *object1 = NXOpen::NXObjectManager::Get(newCurves[i]);
-	    Curve *pCurve= dynamic_cast<Curve *>(object1);
-		curves1.push_back(pCurve);
-		if(i == 0)
-			firstcurve = pCurve;
-	}
-    NXOpen::CurveDumbRule *curveDumbRule1;
-    curveDumbRule1 = workPart->ScRuleFactory()->CreateRuleBaseCurveDumb(curves1);
-    
-    std::vector<NXOpen::SelectionIntentRule *> rules1(1);
-    rules1[0] = curveDumbRule1;
-    NXOpen::Point3d helpPoint1(0, 0, 0.0);
-    section2->AddToSection(rules1, firstcurve, nullNXOpen_NXObject, nullNXOpen_NXObject, helpPoint1, NXOpen::Section::ModeEdit, false);
-    
-    NXOpen::Features::Feature *feature1;
-    feature1 = compositeCurveBuilder1->CommitCreateOnTheFly();
-
-
-
-	std::vector<NXOpen::Features::Feature *> features1(1);
-    NXOpen::Features::CompositeCurve *compositeCurve2(dynamic_cast<NXOpen::Features::CompositeCurve *>(feature1));
-    features1[0] = compositeCurve2;
-    NXOpen::CurveFeatureRule *curveFeatureRule1;
-    curveFeatureRule1 = workPart->ScRuleFactory()->CreateRuleCurveFeature(features1);
-    
-    section1->AllowSelfIntersection(true);
-    
-    std::vector<NXOpen::SelectionIntentRule *> rules2(1);
-    rules2[0] = curveFeatureRule1;
-    NXOpen::Point3d helpPoint2(0, 0, 0.0);
-    section1->AddToSection(rules2, firstcurve, nullNXOpen_NXObject, nullNXOpen_NXObject, helpPoint2, NXOpen::Section::ModeCreate, false);
-   
-	
-    NXOpen::Features::Feature *feature2;
-    feature2 = extrudeBuilder1->CommitFeature();
-    extrudeBuilder1->Destroy();
-    return 0;
-}*/
-
-
-/*
-int Royal_ExtrudeReplaceCurves(tag_t extrudeFeature, vtag_t newCurves)
-{
-	if(extrudeFeature == 0 || newCurves.size() == 0)
-		return -1;
-
-	tag_t workPart = UF_ASSEM_ask_work_part();//包含了extrudeFeature
-	tag_t partTag2 = UF_ASSEM_ask_part_occurrence(newCurves[0]);
-	if(partTag2 != 0)
-		partTag2 = UF_ASSEM_ask_prototype_of_occ ( partTag2 ) ;
-	else
-		partTag2 = UF_PART_ask_display_part();
-
-	int errorCode = 0;
-	try
-	{
-		if(workPart == partTag2)
-			errorCode = Royal_ExtrudeReplaceCurvesWorkPart(extrudeFeature, newCurves);
-		else
-			errorCode = Royal_ExtrudeReplaceCurvesOtherPart(extrudeFeature, newCurves);
-	}
-	catch(exception& ex)
-	{
-		//---- Enter your exception handling code here -----
-		const char * mesg = ex.what();
-		errorCode = 1;
-		
-		//errorCode = 1;
-		//CutSolid2018::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
-	}
-	return errorCode;
-}*/
-
-tag_t CF_CreateLine( double startpoint[3],double endpoint[3] )
-{
-    tag_t lineTag = NULL_TAG;
-    UF_CURVE_line_t line_coords;
-    line_coords.start_point[0] = startpoint[0];
-    line_coords.start_point[1] = startpoint[1];
-    line_coords.start_point[2] = startpoint[2];
-    line_coords.end_point[0] = endpoint[0];
-    line_coords.end_point[1] = endpoint[1];
-    line_coords.end_point[2] = endpoint[2];
-    UF_CURVE_create_line(&line_coords, &lineTag);
-    return lineTag;
-}
-
-/*
-int CF_ProjectCurveToPlane(tag_t curve, tag_t plane, tag_t &feat)
-{
-    NXOpen::Session *theSession = NXOpen::Session::GetSession();
-    NXOpen::Part *workPart(theSession->Parts()->Work());
-
-    NXOpen::Features::Feature *nullNXOpen_Features_Feature(NULL);
-    
-    NXOpen::Features::ProjectCurveBuilder *projectCurveBuilder1;
-    projectCurveBuilder1 = workPart->Features()->CreateProjectCurveBuilder(nullNXOpen_Features_Feature);
-    
-
-	double plane_point[3]= {0.0, 0.0, 0.0}, plane_normal[3]= {0.0, 0.0, 0.0};
-	int ret = UF_MODL_ask_plane(plane, plane_point, plane_normal);
-	Point3d origin1(plane_point[0], plane_point[1], plane_point[2]);
-	Vector3d normal1(plane_normal[0], plane_normal[1], plane_normal[2]);
-	Plane *plane1;
-	plane1 = workPart->Planes()->CreatePlane(origin1, normal1, SmartObject::UpdateOptionWithinModeling);
-    
-    projectCurveBuilder1->CurveFitData()->SetTolerance(0.01);
-    
-    projectCurveBuilder1->CurveFitData()->SetAngleTolerance(0.5);
-    
-    projectCurveBuilder1->SectionToProject()->SetDistanceTolerance(0.01);
-    projectCurveBuilder1->SectionToProject()->SetChainingTolerance(0.0095);
-    
-    projectCurveBuilder1->SectionToProject()->SetAngleTolerance(0.5);
-    
-    projectCurveBuilder1->SectionToProject()->SetAllowedEntityTypes(NXOpen::Section::AllowTypesCurvesAndPoints);
-
-    
-    std::vector<NXOpen::IBaseCurve *> curves1(1);
-	TaggedObject * tagobj = NXOpen::NXObjectManager::Get(curve);
-	Line* line1 = dynamic_cast<Line*> (tagobj);
-    curves1[0] = line1;
-    NXOpen::CurveDumbRule *curveDumbRule1;
-    curveDumbRule1 = workPart->ScRuleFactory()->CreateRuleBaseCurveDumb(curves1);
-    
-    projectCurveBuilder1->SectionToProject()->AllowSelfIntersection(true);
-    
-    std::vector<NXOpen::SelectionIntentRule *> rules1(1);
-    rules1[0] = curveDumbRule1;
-    NXOpen::NXObject *nullNXOpen_NXObject(NULL);
-    NXOpen::Point3d helpPoint1(0, 0, 0);
-    projectCurveBuilder1->SectionToProject()->AddToSection(rules1, line1, nullNXOpen_NXObject, nullNXOpen_NXObject, helpPoint1, NXOpen::Section::ModeCreate, false);
-    
-   
-    
-    projectCurveBuilder1->SetPlaneToProjectTo(plane1);
-    
-    NXOpen::NXObject *nXObject1 = 0;
-    nXObject1 = projectCurveBuilder1->Commit();
-	if(nXObject1)
-	feat = nXObject1->Tag();
-    
-    projectCurveBuilder1->Destroy();
-    return 0;
-}*/
-
-/*
-
-int RY_Plot
-(
-    vtag_t &sheets,
-	NXOpen::PrintBuilder::PaperSize ps,//NXOpen::PrintBuilder::PaperSizeA4
-	NXOpen::PrintBuilder::OrientationOption orientation,//NXOpen::PrintBuilder::OrientationOptionLandscape
-	char * printer//"Canon MG7700 series Printer WS"
-)
-{
-    NXOpen::Session *theSession = NXOpen::Session::GetSession();
-    NXOpen::Part *workPart(theSession->Parts()->Work());
-    
-    NXOpen::PrintBuilder *printBuilder1;
-    printBuilder1 = workPart->PlotManager()->CreatePrintBuilder();
-    
-    printBuilder1->SetCopies(1);
-    printBuilder1->SetThinWidth(1.0);
-    printBuilder1->SetNormalWidth(2.0);
-    printBuilder1->SetThickWidth(3.0);
-    printBuilder1->SetWidth2ScaleFactor(1.0);
-    printBuilder1->SetWidth3ScaleFactor(1.0);
-    printBuilder1->SetWidth4ScaleFactor(1.0);
-    printBuilder1->SetWidth5ScaleFactor(2.0);
-    printBuilder1->SetWidth6ScaleFactor(2.0);
-    printBuilder1->SetWidth7ScaleFactor(3.0);
-    printBuilder1->SetWidth8ScaleFactor(3.0);
-    printBuilder1->SetWidth9ScaleFactor(3.0);
-    printBuilder1->SetOutput(NXOpen::PrintBuilder::OutputOptionWireframeBlackWhite);
-    printBuilder1->SetRasterImages(true);
-    
-	std::vector<NXOpen::NXObject *> sheets1;
-	for(int i = 0; i < sheets.size(); i++)
-	{
-		TaggedObject * tagobj = NXOpen::NXObjectManager::Get(sheets[i]);
-		Drawings::DrawingSheet *drawingSheet = dynamic_cast<NXOpen::Drawings::DrawingSheet *>(tagobj);
-		sheets1.push_back(drawingSheet);
-	}
-    printBuilder1->SourceBuilder()->SetSheets(sheets1);
-
-	printBuilder1->SetPaper(ps);
-	printBuilder1->SetOrientation(orientation);
-    printBuilder1->SetPrinterText(printer);
-    //NXOpen::PrintBuilder::PaperSize paper1;
-    //paper1 = printBuilder1->Paper();
-    
-    NXOpen::NXObject *nXObject1;
-    nXObject1 = printBuilder1->Commit();
-    printBuilder1->Destroy();
-   
-	return 0;
-}
-
-int RY_Plot_Single
-(
-    tag_t sheet,
-	NXOpen::PrintBuilder::PaperSize ps,//NXOpen::PrintBuilder::PaperSizeA4
-	NXOpen::PrintBuilder::OrientationOption orientation,//NXOpen::PrintBuilder::OrientationOptionLandscape
-	char * printer//"Canon MG7700 series Printer WS"
-)
-{
-	//UG打印线条的粗细是这样设置的
-	//UG 默认有Plot Customer Width 1--9 9个宽度比例可以设置
-	//分别对应的是0.13 0.18 0.25.2.00九个宽度
-	//这几个宽度可以通过Plot Customer Width给个不同的任意宽度的比例关系得到 所有的任意宽度参数
-	//所以royal用的是虚线0.35 实线 0.7 那么分别对应Plot Customer Width  4 和 Plot Customer Width 6
-	//为了区别明显 我们只要把Plot Customer Width 4设置成1 Plot Customer Width 设置成 5或者更大
-	//再打印效果就出来了。因为这样0.35还是0.35  0.7已经变成0.7*5 = 3.5了 是十倍的宽度
-	//----这个必须要打勾 否则上面第一段说的比例是不起作用的
-	//另外关于ug图上制图空间显示的线条宽度是不是需要根据实际需要显示，可以在首选项--》可视化--》直线
-	//下面打勾显示线宽实现。
-	//
-    NXOpen::Session *theSession = NXOpen::Session::GetSession();
-    NXOpen::Part *workPart(theSession->Parts()->Work());
-    
-    NXOpen::PrintBuilder *printBuilder1;
-    printBuilder1 = workPart->PlotManager()->CreatePrintBuilder();
-    
-    printBuilder1->SetCopies(1);
-    printBuilder1->SetThinWidth(1.0);
-    printBuilder1->SetNormalWidth(5.0);
-    printBuilder1->SetThickWidth(6.0);
-	printBuilder1->SetWidth1ScaleFactor(1.0);
-    printBuilder1->SetWidth2ScaleFactor(1.0);
-    printBuilder1->SetWidth3ScaleFactor(1.0);
-    printBuilder1->SetWidth4ScaleFactor(1.0);
-    printBuilder1->SetWidth5ScaleFactor(3.0);//royal实线用的是0.7 对应的是这个 设置宽一点
-    printBuilder1->SetWidth6ScaleFactor(3.0);
-    printBuilder1->SetWidth7ScaleFactor(3.0);
-    printBuilder1->SetWidth8ScaleFactor(3.0);
-    printBuilder1->SetWidth9ScaleFactor(3.0);
-    printBuilder1->SetOutput(NXOpen::PrintBuilder::OutputOptionWireframeBlackWhite);
-    printBuilder1->SetRasterImages(true);
-    
-	std::vector<NXOpen::NXObject *> sheets1;
-	TaggedObject * tagobj = NXOpen::NXObjectManager::Get(sheet);
-	Drawings::DrawingSheet *drawingSheet = dynamic_cast<NXOpen::Drawings::DrawingSheet *>(tagobj);
-	sheets1.push_back(drawingSheet);
-
-    printBuilder1->SourceBuilder()->SetSheets(sheets1);
-
-	printBuilder1->SetPaper(ps);
-	printBuilder1->SetOrientation(orientation);
-    printBuilder1->SetPrinterText(printer);
-    //NXOpen::PrintBuilder::PaperSize paper1;
-    //paper1 = printBuilder1->Paper();
-    
-    NXOpen::NXObject *nXObject1;
-    nXObject1 = printBuilder1->Commit();
-    printBuilder1->Destroy();
-   
-	return 0;
-}
-*/
-typedef int (* NXEXPORT_PRINT_WIN_get_printers)(char***printers);
-//This function get the max distance of two input objects. And return the two result points.
-int NXFUN_PRINT_WIN_get_printers(char***printers)
-{
-	static HINSTANCE hInst = NULL;
-	NXEXPORT_PRINT_WIN_get_printers getPrinters = NULL;
-	if(hInst == NULL)
-	{
-		hInst=LoadLibraryA("libpartdisp.dll");
-		getPrinters =(NXEXPORT_PRINT_WIN_get_printers)GetProcAddress(hInst,"?PRINT_WIN_get_printers@@YAHPEAPEAPEAD@Z");
-	}
-	else
-		getPrinters =(NXEXPORT_PRINT_WIN_get_printers)GetProcAddress(hInst,"?PRINT_WIN_get_printers@@YAHPEAPEAPEAD@Z");
-	if(getPrinters == NULL)
-		return -2;
-
-
-	int num = getPrinters(printers);
-	return num;
-}
-
-tag_t RY_GetPartForOccurenceBody(tag_t solidBody)
-{
-	if(UF_ASSEM_is_occurrence(solidBody))
-	{
-		tag_t part_tag = NULL_TAG;
-		//tag_t partocc = UF_ASSEM_ask_part_occurrence(solidBody);
-		tag_t solidBody1 = UF_ASSEM_ask_prototype_of_occ( solidBody ) ;
-		UF_OBJ_ask_owning_part(solidBody1,&part_tag);
-		return part_tag;
-	}
-
-	return solidBody;
-}
-
-tag_t RY_Prototype(tag_t intag)
-{
-	if(intag == 0)
-		return 0;
-	if(UF_ASSEM_is_occurrence(intag))
-		return UF_ASSEM_ask_prototype_of_occ( intag ) ;
-	return intag;
-}
-
-tag_t RY_ask_occ_of_entity( tag_t entity )
-{
-	int num = 0;
-	tag_t *occs = NULL;
-	tag_t occ = NULL_TAG;
-	num = UF_ASSEM_ask_occs_of_entity(entity,&occs);
-	if( num > 0 )
-	{
-		occ = occs[0];
-	}
-	UF_free(occs);
-	return occ;
-}
-
-
-int RY_ImportParasolid(NXString fileName)
-{
-    NXOpen::Session *theSession = NXOpen::Session::GetSession();
-    NXOpen::Part *workPart(theSession->Parts()->Work());
-    NXOpen::Part *displayPart(theSession->Parts()->Display());
-
-    NXOpen::Importer *importer1;
-    importer1 = workPart->ImportManager()->CreateParasolidImporter();
-    
-    importer1->SetFileName(fileName);
-    
-    NXOpen::NXObject *nXObject1;
-    nXObject1 = importer1->Commit();
-
-    importer1->Destroy();
-
-	return 0;
-}
-
-#define PRINTDefaultSettingPath "Software\\FinePrint Software\\pdfFactory5\\FinePrinters\\pdfFactory Pro\\DocInfo\\"
-int CF_SetPrintPDFName( const char* fileName)
-{
-	int irc = 0;
-	HKEY hKEY;
-	string SubKey = string(PRINTDefaultSettingPath);
-	CString str(fileName);
-	int wlen=wcslen(str)*2;
-	char *pElementText = new char[wlen];
-	WideCharToMultiByte(CP_ACP,NULL,str,-1,pElementText,wlen+2,NULL,NULL);
-
-	if(ERROR_SUCCESS == RegOpenKeyExA(HKEY_CURRENT_USER, SubKey.c_str(), 0, KEY_SET_VALUE, &hKEY))
-	{
-		CString title("Title");
-		irc =::RegSetValueExA(hKEY,"Title",0,REG_SZ,(unsigned char*)pElementText,wlen);
-	}
-	else
-	{
-		irc = ::RegCreateKeyA(HKEY_CURRENT_USER, SubKey.c_str(), &hKEY);
-		CString title("Title");
-		irc =::RegSetValueExA(hKEY,"Title",0,REG_SZ,(unsigned char*)pElementText,wlen);
-	}
-	::RegCloseKey(hKEY);
-
-	return irc;
-}
-
-/*
-int RY_AddObjectToReferenceSet(tag_t part, vtag_t objs, NXString refsetname)
-{
-	if(part == 0)
-		return -1;
-	if(objs.size()  == 0)
-		return -1;
-
-	part = RY_Prototype(part);
-
-	TaggedObject * tagobj = NXOpen::NXObjectManager::Get(part);
-	NXOpen::Part *ppart =  dynamic_cast<NXOpen::Part*> (tagobj);
-	if(ppart == NULL)
-		return -2;
-
-	std::vector<NXOpen::NXObject *> components;
-	for(int i = 0; i < objs.size(); i++)
-	{
-		TaggedObject * pobj = NXOpen::NXObjectManager::Get(objs[i]);
-    	NXOpen::NXObject *nxobj =  dynamic_cast<NXOpen::NXObject*> (pobj);
-		if(nxobj != NULL)
-			components.push_back(nxobj);
-	}
-
-	std::vector<NXOpen::ReferenceSet *> refsets = ppart->GetAllReferenceSets();
-	if(refsets.size() == 1)
-		refsets[0]->AddObjectsToReferenceSet(components);
-	else
-	{
-		//for(int i = 0; i < refsets.size(); i++)
-		//{
-		//	NXString name1 = refsets[i]->Name();
-		//	const char * name2 = refsetname.GetLocaleText();
-		//	if(strcmp(name1, name2) ==0 )
-		//	{
-		//		refsets[i]->AddObjectsToReferenceSet(components);
-		//			return 0;
-		//	}
-		//}
-	}
-	
-
-	return 1;
-
-
-	//NXOpen::Session *theSession = NXOpen::Session::GetSession();
-    //NXOpen::Part *workPart(theSession->Parts()->Work());
-}*/
-
-int RY_GetAllSplinesInPart( const tag_t partTag, vtag_t & splines )
-{
-	splines.clear();
-	tag_t parttagPRo = RY_Prototype(partTag);
-    tag_t tN = NULL_TAG;
-    tag_t tN1 = NULL_TAG;
-    tag_t holeTable = NULL_TAG;
-
-    //UF_initialize();
-    UF_OBJ_cycle_objs_in_part( parttagPRo, UF_spline_type, &tN);
-    while( NULL_TAG != tN )
-    {
-        int type = 0;
-        int subType = 0;
-        UF_OBJ_ask_type_and_subtype( tN, &type, &subType );
-        if(  UF_spline_type == subType || UF_spline_subtype == subType )//UF_tabular_note_type
-        {
-            splines.push_back(tN);
-        }
-        UF_OBJ_cycle_objs_in_part( parttagPRo, UF_spline_type, &tN);
-    }
-	UF_OBJ_cycle_objs_in_part( parttagPRo, UF_line_type, &tN1);
-	while( NULL_TAG != tN1 )
-	{
-		splines.push_back(tN1);
-		UF_OBJ_cycle_objs_in_part( parttagPRo, UF_spline_type, &tN1);
-	}
-    
-	return 0;
-}
-
-/*
-int RY_CreateDatumPlane(NXOpen::Point3d origin, NXOpen::Vector3d & normal, tag_t &plane)
-{
-    NXOpen::Session *theSession = NXOpen::Session::GetSession();
-    NXOpen::Part *workPart(theSession->Parts()->Work());
-   
-    NXOpen::Features::DatumPlaneBuilder *datumPlaneBuilder1;
-    datumPlaneBuilder1 = workPart->Features()->CreateDatumPlaneBuilder(0);
-    
-    NXOpen::Plane *plane1;
-    plane1 = datumPlaneBuilder1->GetPlane();
-    
-    plane1->SetOrigin(origin);
-	plane1->SetNormal(normal);
-    
-    plane1->Evaluate();
-    plane1->SetFlip(false);
-    plane1->SetReverseSide(false);
-
-    datumPlaneBuilder1->SetResizeDuringUpdate(true);
-    
-    NXOpen::Features::Feature *feature1;
-    feature1 = datumPlaneBuilder1->CommitFeature();
-    
-    NXOpen::Features::DatumPlaneFeature *datumPlaneFeature1(dynamic_cast<NXOpen::Features::DatumPlaneFeature *>(feature1));
-    NXOpen::DatumPlane *datumPlane1;
-    datumPlane1 = datumPlaneFeature1->DatumPlane();
-    datumPlaneBuilder1->Destroy();
-	plane = datumPlane1->Tag();
-	return 0;
-}*/
-
-void CreateReferenceSet(vtag_t bodies,NXString& refsetName)
-{
-	int ret = 0;
-	NXOpen::Session *theSession = NXOpen::Session::GetSession();
-	NXOpen::Part *workPart(theSession->Parts()->Work());
-    tag_t refset = NULL_TAG;
-    NXOpen::Session::UndoMarkId markId5;
-	markId5 = theSession->SetUndoMark(NXOpen::Session::MarkVisibilityVisible, "Create Reference Set");
-    std::vector<NXOpen::NXObject *> components1;
-    NXOpen::ReferenceSet *referenceSet1;
-	/*for( int idx = 0; idx < bodies.size(); ++idx )
-	{
-		if( 0 == type )
-		{
-			NXOpen::Body *body1(dynamic_cast<NXOpen::Body *>(NXOpen::NXObjectManager::Get(bodies[idx])));
-			components1.push_back(body1);
-		}
-		else
-		{
-			NXOpen::Line *line1(dynamic_cast<NXOpen::Line *>(NXOpen::NXObjectManager::Get(bodies[idx])));
-			components1.push_back(line1);
-		}
-			
-	}*/
-    try
-    {
-        UF_OBJ_cycle_by_name_and_type(workPart->Tag(), refsetName.GetText(),UF_reference_set_type, FALSE, &refset);
-        if( refset != NULL_TAG )
-        {
-            referenceSet1 = (ReferenceSet *)NXObjectManager::Get(refset);	
-        }
-        else
-        {
-            referenceSet1 = workPart->CreateReferenceSet();
-            referenceSet1->SetName(refsetName);
-        }
-        for( int idx = 0; idx < bodies.size(); ++idx )
-        {
-            ret = UF_ASSEM_add_ref_set_members(referenceSet1->Tag(),1,&bodies[idx]);
-        }
-        //referenceSet1->AddObjectsToReferenceSet(components1);
-        int nErrs3;
-        nErrs3 = theSession->UpdateManager()->DoUpdate(markId5);
-    }
-    catch(exception ex)
-    {
-    }
-}
-
-int RY_DraftingPreferences_SetShowLineWidth(bool show)
-{
-	NXOpen::Session *theSession = NXOpen::Session::GetSession();
-	NXOpen::Part *workPart(theSession->Parts()->Work());
-	NXOpen::Part *displayPart(theSession->Parts()->Display());
-	// ----------------------------------------------
-	//   Menu: 首选项(P)->可视化(V)...
-	// ----------------------------------------------
-	workPart->Preferences()->LineVisualization()->SetShowWidths(show);
-	return 0;
-}
-
-bool RY_DraftingPreferences_GetShowLineWidth()
-{
-	NXOpen::Session *theSession = NXOpen::Session::GetSession();
-	NXOpen::Part *workPart(theSession->Parts()->Work());
-	NXOpen::Part *displayPart(theSession->Parts()->Display());
-	// ----------------------------------------------
-	//   Menu: 首选项(P)->可视化(V)...
-	// ----------------------------------------------
-	return workPart->Preferences()->LineVisualization()->ShowWidths();
-}
-
-int RY_OffsetFace(tag_t faceID, double dis)
-{
-	NXOpen::Session *theSession = NXOpen::Session::GetSession();
-	NXOpen::Part *workPart(theSession->Parts()->Work());
-
-	NXOpen::Features::Feature *nullNXOpen_Features_Feature(NULL);
-
-	NXOpen::Features::OffsetFaceBuilder *offsetFaceBuilder1;
-	offsetFaceBuilder1 = workPart->Features()->CreateOffsetFaceBuilder(nullNXOpen_Features_Feature);
-
-	char cdis[32] = "";
-	sprintf(cdis, "%.3f", dis);
-	offsetFaceBuilder1->Distance()->SetRightHandSide(cdis);
-
-	std::vector<NXOpen::Face *> faces1(1);
-
-	TaggedObject * pobj = NXOpen::NXObjectManager::Get(faceID);
-	NXOpen::Face *face1 =  dynamic_cast<NXOpen::Face*> (pobj);
-
-
-	faces1[0] = face1;
-	NXOpen::FaceDumbRule *faceDumbRule1;
-	faceDumbRule1 = workPart->ScRuleFactory()->CreateRuleFaceDumb(faces1);
-
-	std::vector<NXOpen::SelectionIntentRule *> rules1(1);
-	rules1[0] = faceDumbRule1;
-	offsetFaceBuilder1->FaceCollector()->ReplaceRules(rules1, false);
-
-	NXOpen::NXObject *nXObject1;
-	nXObject1 = offsetFaceBuilder1->Commit();
-
-	NXOpen::Expression *expression1(offsetFaceBuilder1->Distance());
-	offsetFaceBuilder1->Destroy();
-	return 0;
-}
-
-int Roy_ask_obj_string_attr( tag_t obj , const char *title , char *string )
-{
-	UF_ATTR_value_t  value ;
-	strcpy( string , "" ) ;
-	if( obj == NULL_TAG ) 
-		return 1 ;
-	if( UF_ASSEM_is_occurrence( obj ))
-	{
-		obj = UF_ASSEM_ask_prototype_of_occ ( obj ) ;
-	}
-
-	UF_ATTR_read_value( obj, (char*)title, UF_ATTR_any, &value );
-	if( value.type == UF_ATTR_string ) 
-	{
-		strcpy( string , value.value.string ) ;
-		UF_free(value.value.string) ;
-	}
-	else 
-	{
-		return -1 ;
-	}
-	return 0 ;
-} 

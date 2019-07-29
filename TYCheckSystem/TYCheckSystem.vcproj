@@ -65,6 +65,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="libufun.lib libnxopencpp.lib libugopenint.lib libnxopenuicpp.lib libopenpp.lib libopenintpp.lib libvmathpp.lib"
+				OutputFile="$(UGII_USER_DIR)\Application\$(ProjectName).dll"
 				AdditionalLibraryDirectories="$(UGII_BASE_DIR)\ugopen;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -350,6 +351,10 @@
 				RelativePath=".\Entry.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\Entry.hpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="UI"
@@ -450,14 +455,6 @@
 			</File>
 			<File
 				RelativePath=".\UI\TYTextMark.hpp"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Header"
-			>
-			<File
-				RelativePath=".\Entry.hpp"
 				>
 			</File>
 		</Filter>

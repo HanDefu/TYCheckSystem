@@ -10,106 +10,106 @@
 //#include "Common.h"
 //#include "Common_Function.h"
 
-#define ROYAL_DEBUG
+#define TYCOM_DEBUG
 
 using namespace std;
 using namespace NXOpen;
 
 //镜像件原件
-#define ATTR_ROYAL_MIRROR_ORI_OBJ        "ATTR_ROYAL_MIRROR_ORI_OBJ"
+#define ATTR_TYCOM_MIRROR_ORI_OBJ        "ATTR_TYCOM_MIRROR_ORI_OBJ"
 //镜像件
-#define ATTR_ROYAL_MIRROR_OBJ        "ATTR_ROYAL_MIRROR_OBJ"
+#define ATTR_TYCOM_MIRROR_OBJ        "ATTR_TYCOM_MIRROR_OBJ"
 //镜像标准件
-#define ATTR_ROYAL_MIRROR_STANDARD_PART        "ATTR_ROYAL_MIRROR_STANDARD_PART"
+#define ATTR_TYCOM_MIRROR_STANDARD_PART        "ATTR_TYCOM_MIRROR_STANDARD_PART"
 
 //刻字专用
-#define ATTR_RY_TEXT_SPLINE_BODY_HANDLE "ATTR_RY_TEXT_SPLINE_BODY_HANDLE"
+#define ATTR_TYCOM_TEXT_SPLINE_BODY_HANDLE "ATTR_TYCOM_TEXT_SPLINE_BODY_HANDLE"
 
 //相同件
-#define ATTR_ROYAL_SAME_OBJ        "ATTR_ROYAL_SAME_OBJ"
+#define ATTR_TYCOM_SAME_OBJ        "ATTR_TYCOM_SAME_OBJ"
 
 //焊接件
-#define ATTR_ROYAL_WELD_OBJ        "ATTR_ROYAL_PROPERTY_WELD"
-#define ATTR_ROYAL_PROPERTY_WELD      "ATTR_ROYAL_PROPERTY_WELD"
-#define ATTR_ROYAL_WELD_OBJ_MIRROR   "ATTR_ROYAL_WELD_OBJ_MIRROR"
-#define ATTR_ROYAL_WELD_PART   "ATTR_ROYAL_WELD_PART"
-//三个原始零件 ATTR_ROYAL_WELD_OBJ = value 10001 
-//三个镜像 ATTR_ROYAL_WELD_OBJ_MIRROR = value 10001 ATTR_ROYAL_WELD_OBJ
+#define ATTR_TYCOM_WELD_OBJ        "ATTR_TYCOM_PROPERTY_WELD"
+#define ATTR_TYCOM_PROPERTY_WELD      "ATTR_TYCOM_PROPERTY_WELD"
+#define ATTR_TYCOM_WELD_OBJ_MIRROR   "ATTR_TYCOM_WELD_OBJ_MIRROR"
+#define ATTR_TYCOM_WELD_PART   "ATTR_TYCOM_WELD_PART"
+//三个原始零件 ATTR_TYCOM_WELD_OBJ = value 10001 
+//三个镜像 ATTR_TYCOM_WELD_OBJ_MIRROR = value 10001 ATTR_TYCOM_WELD_OBJ
 
 //客户属性
-#define ATTR_ROYAL_PROPERTY_CUSTOMER          "ATTR_ROYAL_PROPERTY_CUSTOMER"
+#define ATTR_TYCOM_PROPERTY_CUSTOMER          "ATTR_TYCOM_PROPERTY_CUSTOMER"
 
 //事业部
-#define ATTR_ROYAL_PROPERTY_PARTMENT          "ATTR_ROYAL_PROPERTY_CUSTOMER_TYPE"
-#define ATTR_ROYAL_PROPERTY_CUSTOMER_TYPE     "ATTR_ROYAL_PROPERTY_CUSTOMER_TYPE"
+#define ATTR_TYCOM_PROPERTY_PARTMENT          "ATTR_TYCOM_PROPERTY_CUSTOMER_TYPE"
+#define ATTR_TYCOM_PROPERTY_CUSTOMER_TYPE     "ATTR_TYCOM_PROPERTY_CUSTOMER_TYPE"
 
 //组件号
-#define ATTR_ROYAL_PROPERTY_GROUP_NUMBER      "ATTR_ROYAL_PROPERTY_GROUP_NUMBER"
+#define ATTR_TYCOM_PROPERTY_GROUP_NUMBER      "ATTR_TYCOM_PROPERTY_GROUP_NUMBER"
 //零件序号
-#define ATTR_ROYAL_PROPERTY_GROUP_SUBINDEX "ATTR_ROYAL_PROPERTY_GROUP_SUBINDEX"
+#define ATTR_TYCOM_PROPERTY_GROUP_SUBINDEX "ATTR_TYCOM_PROPERTY_GROUP_SUBINDEX"
 
 //零件主名称
-#define ATTR_ROYAL_PROPERTY_SOLID_NAME      "ATTR_ROYAL_PROPERTY_SOLID_NAME"
+#define ATTR_TYCOM_PROPERTY_SOLID_NAME      "ATTR_TYCOM_PROPERTY_SOLID_NAME"
 //零件次名称
-#define ATTR_ROYAL_PROPERTY_SOLID_NAME2      "ATTR_ROYAL_PROPERTY_SOLID_NAME2"
+#define ATTR_TYCOM_PROPERTY_SOLID_NAME2      "ATTR_TYCOM_PROPERTY_SOLID_NAME2"
 
 //技术要求
-#define ATTR_ROYAL_PROPERTY_TECH_REQUIREMENT      "ATTR_ROYAL_PROPERTY_TECH_REQUIREMENT"
+#define ATTR_TYCOM_PROPERTY_TECH_REQUIREMENT      "ATTR_TYCOM_PROPERTY_TECH_REQUIREMENT"
 //热处理
-#define ATTR_ROYAL_PROPERTY_HEAT_PROCESS      "ATTR_ROYAL_PROPERTY_HEAT_PROCESS"
+#define ATTR_TYCOM_PROPERTY_HEAT_PROCESS      "ATTR_TYCOM_PROPERTY_HEAT_PROCESS"
 //表面处理
-#define ATTR_ROYAL_PROPERTY_FACE_PROCESS      "ATTR_ROYAL_PROPERTY_FACE_PROCESS"
+#define ATTR_TYCOM_PROPERTY_FACE_PROCESS      "ATTR_TYCOM_PROPERTY_FACE_PROCESS"
 
 //材料
-#define ATTR_ROYAL_PROPERTY_MATERIAL     "ATTR_ROYAL_PROPERTY_MATERIAL"
-#define ATTR_ROYAL_PROPERTY_PARTNAME     "ATTR_ROYAL_PROPERTY_PARTNAME"
+#define ATTR_TYCOM_PROPERTY_MATERIAL     "ATTR_TYCOM_PROPERTY_MATERIAL"
+#define ATTR_TYCOM_PROPERTY_PARTNAME     "ATTR_TYCOM_PROPERTY_PARTNAME"
 
-#define ATTR_ROYAL_PROPERTY_CUSTOMER_TYPE     "ATTR_ROYAL_PROPERTY_CUSTOMER_TYPE"
+#define ATTR_TYCOM_PROPERTY_CUSTOMER_TYPE     "ATTR_TYCOM_PROPERTY_CUSTOMER_TYPE"
 //是否重命名
-#define  ATTR_ROYAL_PROPERTY_NEED_RENAME "ATTR_ROYAL_PROPERTY_NEED_RENAME"
-#define ATTR_ROYAL_PROPERTY_PART_QUANTITY     "ATTR_ROYAL_PROPERTY_PART_QUANTITY"
-#define ATTR_ROYAL_PROPERTY_PART_QUANTITY_NUM "ATTR_ROYAL_PROPERTY_PART_QUANTITY_NUM"
-//#define ATTR_ROYAL_PROPERTY_DRAWING_SCALE     "ATTR_ROYAL_PROPERTY_DRAWING_SCALE"
-#define ATTR_ROYAL_PROPERTY_SH_SHEET_NUMBER     "ATTR_ROYAL_PROPERTY_SH_SHEET_NUMBER"
-#define ATTR_ROYAL_PROPERTY_SH_NUMBER_OF_SHEETS    "ATTR_ROYAL_PROPERTY_SH_NUMBER_OF_SHEETS"
-#define ATTR_ROYAL_PROPERTY_ITEM_REVISION    "ATTR_ROYAL_PROPERTY_ITEM_REVISION"
-#define ATTR_ROYAL_DRAWING_REFERENCE_SET     "DRAWING"
+#define  ATTR_TYCOM_PROPERTY_NEED_RENAME "ATTR_TYCOM_PROPERTY_NEED_RENAME"
+#define ATTR_TYCOM_PROPERTY_PART_QUANTITY     "ATTR_TYCOM_PROPERTY_PART_QUANTITY"
+#define ATTR_TYCOM_PROPERTY_PART_QUANTITY_NUM "ATTR_TYCOM_PROPERTY_PART_QUANTITY_NUM"
+//#define ATTR_TYCOM_PROPERTY_DRAWING_SCALE     "ATTR_TYCOM_PROPERTY_DRAWING_SCALE"
+#define ATTR_TYCOM_PROPERTY_SH_SHEET_NUMBER     "ATTR_TYCOM_PROPERTY_SH_SHEET_NUMBER"
+#define ATTR_TYCOM_PROPERTY_SH_NUMBER_OF_SHEETS    "ATTR_TYCOM_PROPERTY_SH_NUMBER_OF_SHEETS"
+#define ATTR_TYCOM_PROPERTY_ITEM_REVISION    "ATTR_TYCOM_PROPERTY_ITEM_REVISION"
+#define ATTR_TYCOM_DRAWING_REFERENCE_SET     "DRAWING"
 
 //是否出图
-#define ATTR_ROYAL_PROPERTY_NEED_DRAFTING "ATTR_ROYAL_PROPERTY_NEED_DRAFTING"
+#define ATTR_TYCOM_PROPERTY_NEED_DRAFTING "ATTR_TYCOM_PROPERTY_NEED_DRAFTING"
 //标准件是否析出
-#define ATTR_ROYAL_PROPERTY_STD_DIVIDE "析出标准件"
-#define ATTR_ROYAL_PROPERTY_STD_GROUP "实体分组"
+#define ATTR_TYCOM_PROPERTY_STD_DIVIDE "析出标准件"
+#define ATTR_TYCOM_PROPERTY_STD_GROUP "实体分组"
 
 //出图方向--第一基准面
-#define ATTR_ROYAL_DRAFTING_NORMAL_DIR "ATTR_ROYAL_DRAFTING_NORMAL_DIR"
+#define ATTR_TYCOM_DRAFTING_NORMAL_DIR "ATTR_TYCOM_DRAFTING_NORMAL_DIR"
 //出图x方向--第二基准面
-#define ATTR_ROYAL_DRAFTING_X_DIR "ATTR_ROYAL_DRAFTING_X_DIR"
+#define ATTR_TYCOM_DRAFTING_X_DIR "ATTR_TYCOM_DRAFTING_X_DIR"
 
 //图纸大小
 //1-a3横 2-a3竖 3-a4横 4-a4-竖
-#define ATTR_ROYAL_PROPERTY_DRAWING_TYPE     "ATTR_ROYAL_PROPERTY_DRAWING_TYPE"
+#define ATTR_TYCOM_PROPERTY_DRAWING_TYPE     "ATTR_TYCOM_PROPERTY_DRAWING_TYPE"
 
 //图层属性
-#define ATTR_ROYAL_PROPERTY_Layer    "ATTR_ROYAL_PROPERTY_Layer"
+#define ATTR_TYCOM_PROPERTY_Layer    "ATTR_TYCOM_PROPERTY_Layer"
 //浓度
-#define ATTR_ROYAL_PROPERTY_DENSITY     "ATTR_ROYAL_PROPERTY_DENSITY"
+#define ATTR_TYCOM_PROPERTY_DENSITY     "ATTR_TYCOM_PROPERTY_DENSITY"
 
 //刻字专用
-#define ATTR_ROYAL_KEZI_1     "ATTR_ROYAL_KEZI_1"
-#define ATTR_ROYAL_KEZI_2     "ATTR_ROYAL_KEZI_2"
-#define ATTR_ROYAL_KEZI_3     "ATTR_ROYAL_KEZI_3"
-#define ATTR_ROYAL_KEZI_4     "ATTR_ROYAL_KEZI_4"
-#define ATTR_ROYAL_KEZI_5     "ATTR_ROYAL_KEZI_5"
-#define ATTR_ROYAL_KEZI_6     "ATTR_ROYAL_KEZI_6"
-#define ATTR_ROYAL_KEZI_7     "ATTR_ROYAL_KEZI_7"
-#define ATTR_ROYAL_KEZI_8     "ATTR_ROYAL_KEZI_8"
+#define ATTR_TYCOM_KEZI_1     "ATTR_TYCOM_KEZI_1"
+#define ATTR_TYCOM_KEZI_2     "ATTR_TYCOM_KEZI_2"
+#define ATTR_TYCOM_KEZI_3     "ATTR_TYCOM_KEZI_3"
+#define ATTR_TYCOM_KEZI_4     "ATTR_TYCOM_KEZI_4"
+#define ATTR_TYCOM_KEZI_5     "ATTR_TYCOM_KEZI_5"
+#define ATTR_TYCOM_KEZI_6     "ATTR_TYCOM_KEZI_6"
+#define ATTR_TYCOM_KEZI_7     "ATTR_TYCOM_KEZI_7"
+#define ATTR_TYCOM_KEZI_8     "ATTR_TYCOM_KEZI_8"
 
 //主模型镶块替换拉伸特征属性
-#define ATTR_ROYAL_EXTRUDE_REPLACE     "ATTR_ROYAL_EXTRUDE_REPLACE"
+#define ATTR_TYCOM_EXTRUDE_REPLACE     "ATTR_TYCOM_EXTRUDE_REPLACE"
 
 //定义组合件是否进行子零件出图
-#define ATTR_ROYAL_WEB_SUB_DRAFTING_FLAG     "ATTR_ROYAL_WEB_SUB_DRAFTING_FLAG"
+#define ATTR_TYCOM_WEB_SUB_DRAFTING_FLAG     "ATTR_TYCOM_WEB_SUB_DRAFTING_FLAG"
 
 //组合件的情况 第四层出几个图纸
 #define WELD_DRAFTING_NUMBER 1500
@@ -197,7 +197,7 @@ typedef vSOKPointInfo::iterator itvvSOKPointInfo;
 #define ANGTORAD(a) (PI*a/180.0)
 #define RADTOANG(r) (r*180.0/PI)
 
-#define CF_CURVE_EXTEND_LENGTH 1000.0
+#define TYCOM_CURVE_EXTEND_LENGTH 1000.0
 
 #define DOUBLE_TOL 0.000001
 
@@ -214,16 +214,16 @@ bool sma(double a, double b, double tol);
 bool equ(double a, double b, double tol);
 
 //This function help to check whether a double[3] is {0,0,0}.
-bool CF_ISZero(double d[3]);
+bool TYCOM_ISZero(double d[3]);
 
 //This function help to check whether a Vector3d is {0,0,0}.
-bool CF_ISZero(NXOpen::Vector3d &d);
+bool TYCOM_ISZero(NXOpen::Vector3d &d);
 
 //This function help to check whether a Point3d is {0,0,0}.
-bool CF_ISZero(NXOpen::Point3d &d);
+bool TYCOM_ISZero(NXOpen::Point3d &d);
 
 //This function help to check whether a Point3d is {0,0,0}, with input tolerance.
-bool CF_ISZero2(double d[3], double tol);
+bool TYCOM_ISZero2(double d[3], double tol);
 
 #define FIND_TOLERAANCE (10.0)
 int vFind(vtag_t tags, tag_t tag);
@@ -236,14 +236,14 @@ bool findExist(vtag_t tags1, vtag_t tags2);
 int vFind(vint vv, int v);
 int vfinddouble2(vdouble vv, double v);
 
-double CF_GetPointDistance(NXOpen::Point3d start, NXOpen::Point3d end);
+double TYCOM_GetPointDistance(NXOpen::Point3d start, NXOpen::Point3d end);
 
-int CF_GetArcFrom3Point(NXOpen::Point3d start, NXOpen::Point3d end, NXOpen::Point3d intersect, double &r, NXOpen::Point3d &center);
+int TYCOM_GetArcFrom3Point(NXOpen::Point3d start, NXOpen::Point3d end, NXOpen::Point3d intersect, double &r, NXOpen::Point3d &center);
 
 //20151202
-int CF_GetArcCenterFrom3Point(NXOpen::Point3d start, NXOpen::Point3d end, NXOpen::Point3d intersect, NXOpen::Point3d &center);
-int CF_GetArc2Point(NXOpen::Point3d start, NXOpen::Point3d end, NXOpen::Point3d intersect, NXOpen::Point3d &p1, NXOpen::Point3d &p2);
-int CF_GetArc2Point_2(NXOpen::Point3d start0,NXOpen::Point3d start1, NXOpen::Point3d end0, NXOpen::Point3d end1, double rad, NXOpen::Point3d &p1, NXOpen::Point3d &p2);
+int TYCOM_GetArcCenterFrom3Point(NXOpen::Point3d start, NXOpen::Point3d end, NXOpen::Point3d intersect, NXOpen::Point3d &center);
+int TYCOM_GetArc2Point(NXOpen::Point3d start, NXOpen::Point3d end, NXOpen::Point3d intersect, NXOpen::Point3d &p1, NXOpen::Point3d &p2);
+int TYCOM_GetArc2Point_2(NXOpen::Point3d start0,NXOpen::Point3d start1, NXOpen::Point3d end0, NXOpen::Point3d end1, double rad, NXOpen::Point3d &p1, NXOpen::Point3d &p2);
 
 
 int GetFirstStr(char *data, char* key, char *first);
@@ -259,12 +259,12 @@ int GetPO_GetNoteDefaultName(char *name);
 int GetPO_GetNoteDefaultNameExt(char *name);
 int GetPO_GetNoteRadsNumber();
 
-int CF_SaveDoubleValueToFile(FILE *m_file, char *key, double value);
+int TYCOM_SaveDoubleValueToFile(FILE *m_file, char *key, double value);
 int GetPO_GetNoteDefaultName_HanGuo(char *name);
 
 double GetPO_GetNoteBUCHANG();
 double GetPO_GetFaZhi();
-int  CF_TXT_RemoveTailFileEndSign(char * str);
+int  TYCOM_TXT_RemoveTailFileEndSign(char * str);
 
 
 //求出a边对面的角度
@@ -289,25 +289,25 @@ wchar_t * UTF8ToUnicode(const char* str);
 char * UnicodeToANSI(const wchar_t* str);
 char* UTF8ToANSI(const char* str);
 void SortNXStrings(vNXString &strs);
-int Royal_set_obj_attr( tag_t obj_tag, const char* title, const char *name_str );
+int TYCOM_set_obj_attr( tag_t obj_tag, const char* title, const char *name_str );
 /*extern void EF_Read_excel_file( char *filepath, char *FileName, 
 							  char *table_name, char **list_data, 
 							  int  columnum, int *row_num );*/
 int EF_eval_exp(const char *express_input , double *value );
 int ROY_dissect_exp_string(const char *express_input , NXString &leftstr, NXString &rightstr);
-void Royal_create_STD_attributes(tag_t std_tag, vNXString names, vNXString values);
-int Royal_STD_parametrize_part(vNXString all_express, tag_t part_tag);
+void TYCOM_create_STD_attributes(tag_t std_tag, vNXString names, vNXString values);
+int TYCOM_STD_parametrize_part(vNXString all_express, tag_t part_tag);
 extern void PrintErrorMessage( int errorCode );
 
-int RY_GetVecFromTwoPnts(NXOpen::Point3d pnt0, NXOpen::Point3d pnt1, double vec[3]);
-int RY_MirrorPoint_Plane(double pnt[3], double planeOri[3], double planeNormal[3], double outPnt[3]);
-int RY_MirrorPoint_Plane(NXOpen::Point3d pnt, NXOpen::Point3d planeOri, NXOpen::Vector3d planeNormal, NXOpen::Point3d &outPnt);
+int TYCOM_GetVecFromTwoPnts(NXOpen::Point3d pnt0, NXOpen::Point3d pnt1, double vec[3]);
+int TYCOM_MirrorPoint_Plane(double pnt[3], double planeOri[3], double planeNormal[3], double outPnt[3]);
+int TYCOM_MirrorPoint_Plane(NXOpen::Point3d pnt, NXOpen::Point3d planeOri, NXOpen::Vector3d planeNormal, NXOpen::Point3d &outPnt);
 
-int RY_MirrorPoint_Point(double pnt[3], double Ori[3], double outPnt[3]);
-int RY_MirrorPoint_Point(NXOpen::Point3d pnt, NXOpen::Point3d Ori, NXOpen::Point3d &outPnt);
-int CF_TXT_SplitToStrs(char *instr, char* key, char **strs, int &numStr);
-int CF_SetPrintPDFName( const char* fileName);
+int TYCOM_MirrorPoint_Point(double pnt[3], double Ori[3], double outPnt[3]);
+int TYCOM_MirrorPoint_Point(NXOpen::Point3d pnt, NXOpen::Point3d Ori, NXOpen::Point3d &outPnt);
+int TYCOM_TXT_SplitToStrs(char *instr, char* key, char **strs, int &numStr);
+int TYCOM_SetPrintPDFName( const char* fileName);
 
-void CF_getFilesInDirectory( string path, vector<string>& files );
-int CF_GetNewFileName(char *orinalFileName, char newFileName[256]);
+void TYCOM_getFilesInDirectory( string path, vector<string>& files );
+int TYCOM_GetNewFileName(char *orinalFileName, char newFileName[256]);
 #endif

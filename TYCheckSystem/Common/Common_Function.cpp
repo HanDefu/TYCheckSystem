@@ -32,7 +32,7 @@ bool equ(double a, double b, double tol)
 }
 
 //This function help to check whether a double[3] is {0,0,0}.
-bool CF_ISZero(double d[3])
+bool TYCOM_ISZero(double d[3])
 {
     if(MATH_is_zero(d[0], DOUBLE_TOL) && 
 	   MATH_is_zero(d[1], DOUBLE_TOL) && 
@@ -42,7 +42,7 @@ bool CF_ISZero(double d[3])
 }
 
 //This function help to check whether a Vector3d is {0,0,0}.
-bool CF_ISZero(Vector3d &d)
+bool TYCOM_ISZero(Vector3d &d)
 {
 	if(MATH_is_zero(d.X, DOUBLE_TOL) && 
 	   MATH_is_zero(d.Y, DOUBLE_TOL) && 
@@ -52,7 +52,7 @@ bool CF_ISZero(Vector3d &d)
 }
 
 //This function help to check whether a Point3d is {0,0,0}.
-bool CF_ISZero(Point3d &d)
+bool TYCOM_ISZero(Point3d &d)
 {
 	if(MATH_is_zero(d.X, DOUBLE_TOL) && 
 	   MATH_is_zero(d.Y, DOUBLE_TOL) && 
@@ -62,7 +62,7 @@ bool CF_ISZero(Point3d &d)
 }
 
 //This function help to check whether a Point3d is {0,0,0}, with input tolerance.
-bool CF_ISZero2(double d[3], double tol)
+bool TYCOM_ISZero2(double d[3], double tol)
 {
     if(MATH_is_zero(d[0], tol) && 
 	   MATH_is_zero(d[1], tol) && 
@@ -197,7 +197,7 @@ bool findExist(vtag_t tags1, vtag_t tags2)
 }
 
 
-double CF_GetPointDistance(Point3d start, Point3d end)
+double TYCOM_GetPointDistance(Point3d start, Point3d end)
 {
 	return sqrt((start.X-end.X)*(start.X-end.X) + 
 		        (start.Y-end.Y)*(start.Y-end.Y) +
@@ -223,15 +223,15 @@ int GetSecondStr(char *data, char* key, char *second)
 	return 0;
 }
 
-int CF_GetArcFrom3Point(Point3d start, Point3d end, Point3d intersect, double &r, Point3d &center)
+int TYCOM_GetArcFrom3Point(Point3d start, Point3d end, Point3d intersect, double &r, Point3d &center)
 {
 	Point3d midPoint;
 	midPoint.X = (start.X + end.X)/2.0;
 	midPoint.Y = (start.Y + end.Y)/2.0;
 	midPoint.Z = (start.Z + end.Z)/2.0;
 
-    double a = CF_GetPointDistance(intersect, midPoint);
-	double b = CF_GetPointDistance(intersect, start);
+    double a = TYCOM_GetPointDistance(intersect, midPoint);
+	double b = TYCOM_GetPointDistance(intersect, start);
 	double c = b * b /a;
 	if(a > 100000 || b > 1000000 || c>100000)
 		r = 0;
@@ -247,7 +247,7 @@ int CF_GetArcFrom3Point(Point3d start, Point3d end, Point3d intersect, double &r
 
  ////20161021第二部分
 	//求出圆心
-    double d = CF_GetPointDistance(midPoint, start);
+    double d = TYCOM_GetPointDistance(midPoint, start);
 	double e = sqrt(r*r - d*d);
 	//x = x2+e/a * (x2-x1);
 	center.X = midPoint.X + (e/a)*(midPoint.X - intersect.X);
@@ -258,9 +258,9 @@ int CF_GetArcFrom3Point(Point3d start, Point3d end, Point3d intersect, double &r
 
 //This function extend a input line by input value.
 //You can choose to just extend start or end part of this line.
-Point3d  CF_CurveExtendCurve(Point3d start, Point3d end, double value)
+Point3d  TYCOM_CurveExtendCurve(Point3d start, Point3d end, double value)
 {
-    double a = CF_GetPointDistance(start, end);
+    double a = TYCOM_GetPointDistance(start, end);
     Point3d pnt;
 
 	pnt.X = value * (end.X - start.X)/a + end.X;
@@ -270,34 +270,34 @@ Point3d  CF_CurveExtendCurve(Point3d start, Point3d end, double value)
 	return pnt;
 }
 
-int CF_GetArcCenterFrom3Point(Point3d start, Point3d end, Point3d intersect, Point3d &center)
+int TYCOM_GetArcCenterFrom3Point(Point3d start, Point3d end, Point3d intersect, Point3d &center)
 {
 	Point3d midPoint;
 	midPoint.X = (start.X + end.X)/2.0;
 	midPoint.Y = (start.Y + end.Y)/2.0;
 	midPoint.Z = (start.Z + end.Z)/2.0;
 
-    double a = CF_GetPointDistance(intersect, midPoint);
-	double b = CF_GetPointDistance(intersect, start);
+    double a = TYCOM_GetPointDistance(intersect, midPoint);
+	double b = TYCOM_GetPointDistance(intersect, start);
 	double c = b * b /a;
 	double r = sqrt(c*c - b * b);
 
     double disLen = sqrt(r*r + b*b) - a;
 
-    center = CF_CurveExtendCurve(intersect, midPoint, disLen);
+    center = TYCOM_CurveExtendCurve(intersect, midPoint, disLen);
     
 	return 0;
 }
 
-int CF_GetArc2Point(Point3d start, Point3d end, Point3d intersect, Point3d &p1, Point3d &p2)
+int TYCOM_GetArc2Point(Point3d start, Point3d end, Point3d intersect, Point3d &p1, Point3d &p2)
 {
 	Point3d midPoint;
 	midPoint.X = (start.X + end.X)/2.0;
 	midPoint.Y = (start.Y + end.Y)/2.0;
 	midPoint.Z = (start.Z + end.Z)/2.0;
 
-    double a = CF_GetPointDistance(intersect, midPoint);
-	double b = CF_GetPointDistance(intersect, start);
+    double a = TYCOM_GetPointDistance(intersect, midPoint);
+	double b = TYCOM_GetPointDistance(intersect, start);
 	double c = b * b /a;
 	double r = sqrt(c*c - b * b);
 
@@ -307,22 +307,22 @@ int CF_GetArc2Point(Point3d start, Point3d end, Point3d intersect, Point3d &p1, 
 	double L3 =  L * L2/b;
 
     
-    p1 = CF_CurveExtendCurve(intersect, start, L3 - b);
-	p2 = CF_CurveExtendCurve(intersect, end, L3 - b);
+    p1 = TYCOM_CurveExtendCurve(intersect, start, L3 - b);
+	p2 = TYCOM_CurveExtendCurve(intersect, end, L3 - b);
     
 	return 0;
 }
 
-int CF_GetArc2Point_2(Point3d start0,Point3d start1, Point3d end0, Point3d end1, double rad, Point3d &p1, Point3d &p2)
+int TYCOM_GetArc2Point_2(Point3d start0,Point3d start1, Point3d end0, Point3d end1, double rad, Point3d &p1, Point3d &p2)
 {
 
-    p1 = CF_CurveExtendCurve(start0, start1, rad);
-	p2 = CF_CurveExtendCurve(end1, end0, rad);
+    p1 = TYCOM_CurveExtendCurve(start0, start1, rad);
+	p2 = TYCOM_CurveExtendCurve(end1, end0, rad);
     
 	return 0;
 }
 
-int CF_SaveDoubleValueToFile(FILE *m_file, char *key, double value)
+int TYCOM_SaveDoubleValueToFile(FILE *m_file, char *key, double value)
 {
 	if (m_file == NULL || key == NULL || strlen(key) < 1)
 		return -1;
@@ -520,7 +520,7 @@ double GetPO_GetFaZhi()
 	return atof(value);
 }
 
-int  CF_TXT_RemoveTailFileEndSign(char * str)
+int  TYCOM_TXT_RemoveTailFileEndSign(char * str)
 {
 	if (NULL == str)
 		return 1;
@@ -1021,7 +1021,7 @@ void SortNXStrings(vNXString &strs)
 	std::sort(strs.begin(), strs.end(), sort_as);
 }
 
-int Royal_set_obj_attr( tag_t obj_tag, const char* title, const char *name_str )
+int TYCOM_set_obj_attr( tag_t obj_tag, const char* title, const char *name_str )
 {
 	int err;
 	UF_ATTR_value_t value;
@@ -1111,7 +1111,7 @@ int ROY_dissect_exp_string(const char *express_input , NXString &leftstr, NXStri
 	return 0;
 }
 
-void Royal_create_STD_attributes(tag_t std_tag, vNXString names, vNXString values)
+void TYCOM_create_STD_attributes(tag_t std_tag, vNXString names, vNXString values)
 {
 	int nn = names.size();
 	int nv = values.size();//UF_MODL_eval_exp(  ) ;
@@ -1144,7 +1144,7 @@ void Royal_create_STD_attributes(tag_t std_tag, vNXString names, vNXString value
 			UF_MODL_eval_exp( specs_exp , &exp_value ) ;
 			sprintf( specs_format , "%s%g%s",specs_before,exp_value,specs_after);
 		}
-		Royal_set_obj_attr(std_tag, names[idx].GetText(), specs_format);
+		TYCOM_set_obj_attr(std_tag, names[idx].GetText(), specs_format);
 	}
 }
 static int EF_SLIDE_isdigit( char *string )
@@ -1215,7 +1215,7 @@ static void print_error_msg(char msg[])
 	UF_UI_write_listing_window(msg);
 	UF_UI_write_listing_window("\n");
 }
-int Royal_STD_parametrize_part(vNXString all_express, tag_t part_tag)
+int TYCOM_STD_parametrize_part(vNXString all_express, tag_t part_tag)
 {
     int i;
 	char exp_name[1024], exp_value[1024], *pp;
@@ -1294,9 +1294,9 @@ extern void PrintErrorMessage( int errorCode )
     }
 }
 
-int RY_GetVecFromTwoPnts(NXOpen::Point3d pnt0, NXOpen::Point3d pnt1, double vec[3])
+int TYCOM_GetVecFromTwoPnts(NXOpen::Point3d pnt0, NXOpen::Point3d pnt1, double vec[3])
 {
-	double dis = CF_GetPointDistance(pnt0, pnt1);
+	double dis = TYCOM_GetPointDistance(pnt0, pnt1);
 	if(dis < 0.1)
 		return -1;
 	vec[0] = pnt1.X - pnt0.X;
@@ -1305,7 +1305,7 @@ int RY_GetVecFromTwoPnts(NXOpen::Point3d pnt0, NXOpen::Point3d pnt1, double vec[
 	return 0;
 }
 
-int RY_MirrorPoint_Plane(double pnt[3], double planeOri[3], double planeNormal[3], double outPnt[3])
+int TYCOM_MirrorPoint_Plane(double pnt[3], double planeOri[3], double planeNormal[3], double outPnt[3])
 {
 	double mtx[16] = {0.0};
 	UF_MTX4_mirror(planeOri,planeNormal,mtx );
@@ -1313,21 +1313,21 @@ int RY_MirrorPoint_Plane(double pnt[3], double planeOri[3], double planeNormal[3
 	return 0;
 }
 
-int RY_MirrorPoint_Plane(NXOpen::Point3d pnt, NXOpen::Point3d planeOri, NXOpen::Vector3d planeNormal, NXOpen::Point3d &outPnt)
+int TYCOM_MirrorPoint_Plane(NXOpen::Point3d pnt, NXOpen::Point3d planeOri, NXOpen::Vector3d planeNormal, NXOpen::Point3d &outPnt)
 {
 	double pnt1[3] = {pnt.X,pnt.Y,pnt.Z};
 	double planeOri1[3] = {planeOri.X,planeOri.Y,planeOri.Z};
 	double planeNormal1[3] = {planeNormal.X,planeNormal.Y,planeNormal.Z};
 
 	double outPnt1[3] = {0};
-	RY_MirrorPoint_Plane(pnt1, planeOri1, planeNormal1, outPnt1);
+	TYCOM_MirrorPoint_Plane(pnt1, planeOri1, planeNormal1, outPnt1);
 	outPnt.X = outPnt1[0];
 	outPnt.Y = outPnt1[1];
 	outPnt.Z=  outPnt1[2];
 	return 0;
 }
 
-int RY_MirrorPoint_Point(double pnt[3], double Ori[3], double outPnt[3])
+int TYCOM_MirrorPoint_Point(double pnt[3], double Ori[3], double outPnt[3])
 {
 	outPnt[0] = Ori[0] + (Ori[0] - pnt[0]);
 	outPnt[1] = Ori[1] + (Ori[1] - pnt[1]);
@@ -1335,7 +1335,7 @@ int RY_MirrorPoint_Point(double pnt[3], double Ori[3], double outPnt[3])
 	return 0;
 }
 
-int RY_MirrorPoint_Point(NXOpen::Point3d pnt, NXOpen::Point3d Ori, NXOpen::Point3d &outPnt)
+int TYCOM_MirrorPoint_Point(NXOpen::Point3d pnt, NXOpen::Point3d Ori, NXOpen::Point3d &outPnt)
 {
 	outPnt.X = Ori.X + (Ori.X - pnt.X);
 	outPnt.Y = Ori.Y + (Ori.Y - pnt.Y);
@@ -1343,7 +1343,7 @@ int RY_MirrorPoint_Point(NXOpen::Point3d pnt, NXOpen::Point3d Ori, NXOpen::Point
 	return 0;
 }
 
-int CF_TXT_SplitToStrs(char *instr, char* key, char **strs, int &numStr)
+int TYCOM_TXT_SplitToStrs(char *instr, char* key, char **strs, int &numStr)
 {
 	if (strlen(instr) == 0) return 0;
 	numStr = 0;
@@ -1359,7 +1359,7 @@ int CF_TXT_SplitToStrs(char *instr, char* key, char **strs, int &numStr)
 	return 0;
 }
 
-void CF_getFilesInDirectory( string path, vector<string>& files )  
+void TYCOM_getFilesInDirectory( string path, vector<string>& files )  
 {  
     //文件句柄  
     long   hFile   =   0;  
@@ -1375,7 +1375,7 @@ void CF_getFilesInDirectory( string path, vector<string>& files )
             if((fileinfo.attrib &  _A_SUBDIR))  
             {  
                 if(strcmp(fileinfo.name,".") != 0  &&  strcmp(fileinfo.name,"..") != 0)  
-                    CF_getFilesInDirectory( p.assign(path).append("\\").append(fileinfo.name), files );  
+                    TYCOM_getFilesInDirectory( p.assign(path).append("\\").append(fileinfo.name), files );  
             }  
             else  
             {  
@@ -1386,7 +1386,7 @@ void CF_getFilesInDirectory( string path, vector<string>& files )
     }  
 }
 
-int CF_GetNewFileName(char *orinalFileName, char newFileName[256])
+int TYCOM_GetNewFileName(char *orinalFileName, char newFileName[256])
 {
     if (orinalFileName == NULL || strstr(orinalFileName, ".prt") == 0)
 		return -1;
