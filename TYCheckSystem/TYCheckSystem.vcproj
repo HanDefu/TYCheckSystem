@@ -485,6 +485,10 @@
 				RelativePath=".\Common\Common_UI.h"
 				>
 			</File>
+			<File
+				RelativePath=".\Common\TY_Def.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Tool"

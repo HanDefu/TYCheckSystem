@@ -860,9 +860,9 @@ static void USER_stradd(char *str1, char *str2)
 * -------------------------------------------------------------------*/
 static void Excel_ConfigDSN(char * FilePath, char * FileName)
 {
-	char DSNAttri[STR_LEN];
-	char temp[STR_LEN]  = {"DefaultDir="};
-	char temp1[STR_LEN] = {"DBQ="};
+	char DSNAttri[TY_STR_LEN];
+	char temp[TY_STR_LEN]  = {"DefaultDir="};
+	char temp1[TY_STR_LEN] = {"DBQ="};
 	DSNAttri[0] = '\0';//初始化为空的办法  也可以直接定义时候DSNAttri[STR_LEN]="";
 
 	

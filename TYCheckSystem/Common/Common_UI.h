@@ -66,4 +66,7 @@ tag_t UI_GetPlaneTag(NXOpen::BlockStyler::UIBlock* block);
 //old ui
 extern int KONKA_STYLER_set_item_value_string( int dialog_id, char *item, char * value );
 extern int KONKA_STYLER_ask_item_value_string( int dialog_id, char *item, char *value );
+
+void UI_SetSeletSolidBody(NXOpen::BlockStyler::UIBlock* block);
+
 #endif

@@ -7,10 +7,9 @@
 #include <uf_undo.h>
 #include <NXOpen/UGMath.hxx>
 #include <NXOpen\TaggedObject.hxx>
+#include "TY_Def.h"
 //#include "Common.h"
 //#include "Common_Function.h"
-
-#define TYCOM_DEBUG
 
 using namespace std;
 using namespace NXOpen;
@@ -115,39 +114,6 @@ using namespace NXOpen;
 #define WELD_DRAFTING_NUMBER 1500
 
 #define NX_VERSION_60
-
-//definitions - help vectors
-typedef std::vector<tag_t> vtag_t;
-typedef std::vector<tag_t>::iterator itvtag_t;
-
-typedef std::vector<vtag_t> vvtag_t;
-typedef std::vector<vtag_t>::iterator itvvtag_t;
-
-typedef std::vector<NXOpen::Point3d> vPoint3d;
-typedef std::vector<NXOpen::Point3d>::iterator itvPoint3d;
-
-typedef std::vector<NXOpen::Point3d> vPoint3d;
-typedef std::vector<NXOpen::Point3d>::iterator itvPoint3d;
-
-
-typedef std::vector<double> vdouble;
-typedef std::vector<double>::iterator itvdouble;
-
-typedef std::vector<vdouble> vvdouble;
-typedef std::vector<vdouble>::iterator itvvdouble;
-
-typedef std::vector<int> vint;
-typedef std::vector<int>::iterator itvvint;
-
-
-typedef std::vector<string> vstring;
-typedef std::vector<string>::iterator itvstring;
-
-typedef std::vector<NXString> vNXString;
-typedef std::vector<NXString>::iterator itvNXString;
-typedef std::vector<vNXString> vvNXString;
-
-#define STR_LEN 256
 
 typedef struct SOKPointInfo
 {

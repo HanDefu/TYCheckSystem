@@ -17,6 +17,10 @@
 //These includes are needed for the following template code
 //------------------------------------------------------------------------------
 #include "TYCheckInterference.hpp"
+#include "../Common/Common_UI.h"
+#include "../Common/TY_Def.h"
+#include <uf_disp.h>
+#include <uf_modl.h>
 using namespace NXOpen;
 using namespace NXOpen::BlockStyler;
 
@@ -114,6 +118,8 @@ void TYCheckInterference::initialize_cb()
 	{
 		groupSelectBodies = theDialog->TopBlock()->FindBlock("groupSelectBodies");
 		selectionBodies = theDialog->TopBlock()->FindBlock("selectionBodies");
+
+		
 	}
 	catch(exception& ex)
 	{
@@ -132,6 +138,7 @@ void TYCheckInterference::dialogShown_cb()
 	try
 	{
 		//---- Enter your callback code here -----
+		UI_SetSeletSolidBody(selectionBodies);
 	}
 	catch(exception& ex)
 	{
@@ -147,7 +154,53 @@ int TYCheckInterference::apply_cb()
 {
 	try
 	{
-		//---- Enter your callback code here -----
+		std::vector<NXOpen::TaggedObject *> pbodies = UI_GetSelectObjects(selectionBodies);
+		vtag_t bodies;
+		for(int i = 0; i < pbodies.size(); i++)
+			bodies.push_back(pbodies[i]->Tag()); 
+
+		//
+		double dis = 0;
+		int num = 0;
+		for(int i = 0; i < bodies.size(); i++)
+		{
+			for(int j = i+1; j < bodies.size(); j++)
+            {
+			    /*CF_AskMinimumDist(bodies[i], bodies[j], dis);
+                if( dis < 0.00001 )
+                {
+                    UF_DISP_set_highlight(bodies[i],1);
+                    UF_DISP_set_highlight(bodies[j],1);
+                    num++;
+                }*/
+                int   result[1];
+                UF_MODL_check_interference(bodies[i],1,&bodies[j],result);
+                if( 1 == result[0] )
+                {
+                    UF_DISP_set_highlight(bodies[i],1);
+                    UF_DISP_set_highlight(bodies[j],1);
+                    num++;
+                }
+            }
+			/*if(fabs(dis) > 0.0001)
+				continue;
+			
+			if(dis > 0.1)
+			{
+				UF_DISP_set_highlight(bodies[i],1);
+				num++;
+			}*/
+		}
+        logical response = 0;
+		UF_UI_is_listing_window_open(&response);
+		if(!response)
+		    UF_UI_open_listing_window();
+		char str[1024]="";
+        if( num > 0 )
+		    sprintf(str, "共选择%d个检测实体\n其中%d处存在干涉,系统已经高亮显示\n",bodies.size(),num);
+        else
+            sprintf(str, "共选择%d个检测实体\n没有发现干涉\n",bodies.size());
+		UF_UI_write_listing_window(str);
 	}
 	catch(exception& ex)
 	{
