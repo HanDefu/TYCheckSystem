@@ -10,7 +10,7 @@
 #include <uf_assem.h>
 #include <uf_obj.h>
 #include <uf.h>
-#include "../TY_Def.h"
+#include "../Common/TY_Def.h"
 #include "../Common/Com_Attribute.h"
 #include <uf_modl.h>
 #include <uf_vec.h>

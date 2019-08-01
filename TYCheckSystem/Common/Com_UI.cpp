@@ -16,6 +16,20 @@ void UI_DoubleSetMaxMinValue(NXOpen::BlockStyler::UIBlock* block, double max, do
 	pAttr = NULL;
 }
 
+void UI_DoubleSetOptions(NXOpen::BlockStyler::UIBlock* block, vdouble &options)
+{
+	vint conData;
+	for (int i = 0; i < options.size(); i++)
+	{
+		conData.push_back((int)options[i]);
+	}
+	NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
+	pAttr = block->GetProperties();
+	pAttr->SetDoubleVector("ComboOptions", conData);
+	delete pAttr;
+	pAttr = NULL;
+}
+
 //This function set the show status of input block.
 void UI_BlockSetShowStatus(NXOpen::BlockStyler::UIBlock* block, bool show)
 {
@@ -62,6 +76,16 @@ void UI_BlockSetLabel(NXOpen::BlockStyler::UIBlock* block, const NXString &label
 	NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
 	pAttr = block->GetProperties();
 	pAttr->SetString("Label", label);
+	delete pAttr;
+	pAttr = NULL;
+}
+
+//This function set the bitmap of a input block.
+void UI_BlockSetBitmap(NXOpen::BlockStyler::UIBlock* block, const NXString &bitmap)
+{
+	NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
+	pAttr = block->GetProperties();
+	pAttr->SetString("Bitmap", bitmap);
 	delete pAttr;
 	pAttr = NULL;
 }
@@ -189,11 +213,21 @@ void UI_ListBox_SetItems(NXOpen::BlockStyler::UIBlock* block, std::vector<NXStri
 }
 
 //This function get the listbox select item.
-void UI_ListBox_SetItems(NXOpen::BlockStyler::UIBlock* block, std::vector<int> &sels)
+void UI_ListBox_GetSelectItems(NXOpen::BlockStyler::UIBlock* block, std::vector<int> &sels)
 {
 	NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
 	pAttr = block->GetProperties();
 	sels = pAttr->GetIntegerVector("SelectedItems");
+	delete pAttr;
+	pAttr = NULL;
+}
+
+//This function get the listbox select item.
+void UI_ListBox_SetSelectItem(NXOpen::BlockStyler::UIBlock* block, int sel)
+{
+	NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
+	pAttr = block->GetProperties();
+	 pAttr->SetInteger("SelectedItemIndex",sel);
 	delete pAttr;
 	pAttr = NULL;
 }

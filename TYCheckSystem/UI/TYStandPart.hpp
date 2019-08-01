@@ -31,6 +31,7 @@
 #include <NXOpen/BlockStyler_BlockDialog.hxx>
 #include <NXOpen/BlockStyler_PropertyList.hxx>
 #include <NXOpen/BlockStyler_ListBox.hxx>
+#include "../Common/StandardPartData.h"
 //------------------------------------------------------------------------------
 // Namespaces needed for following template
 //------------------------------------------------------------------------------
@@ -48,6 +49,12 @@ class TYStandPart;
 //------------------------------------------------------------------------------
 extern TYStandPart *theTYStandPart;
 
+
+//还需要做 预览  编辑功能
+//定位功能需要进一步完善
+//父节点功能
+//标准件名称功能
+//开孔自动选择还是手动选择？工具体
 class TYStandPart
 {
     // class members
@@ -72,6 +79,9 @@ public:
     int cancel_cb();
     int update_cb(NXOpen::BlockStyler::UIBlock* block);
     int filter_cb(NXOpen::BlockStyler::UIBlock*  block, NXOpen::TaggedObject* selectObject);
+
+	void UpdateExpUI();
+	void SetStdDefaultName();
     
 private:
     std::string theDialogName;
@@ -81,8 +91,8 @@ private:
     NXOpen::BlockStyler::UIBlock* buttonSearch;// Block type: Button
     NXOpen::BlockStyler::ListBox* listSearchResult;// Block type: List Box
     NXOpen::BlockStyler::UIBlock* groupClass;// Block type: Group
-    NXOpen::BlockStyler::UIBlock* enumMainClass;// Block type: Enumeration
-    NXOpen::BlockStyler::UIBlock* enumSubClass;// Block type: Enumeration
+    NXOpen::BlockStyler::UIBlock* enumFirstName;// Block type: Enumeration
+    NXOpen::BlockStyler::UIBlock* enumSecondName;// Block type: Enumeration
     NXOpen::BlockStyler::ListBox* listParts;// Block type: List Box
     NXOpen::BlockStyler::UIBlock* groupLegend;// Block type: Group
     NXOpen::BlockStyler::UIBlock* labelLegend;// Block type: Label
@@ -95,6 +105,13 @@ private:
     NXOpen::BlockStyler::UIBlock* groupSetting;// Block type: Group
     NXOpen::BlockStyler::UIBlock* toggleSubtract;// Block type: Toggle
     NXOpen::BlockStyler::UIBlock* togglePreview;// Block type: Toggle
+
+
+	tag_t stdPreviewInstance;
+	logical newCopy;
+	int first;
+
+	StandardPartData RoyStdData;
     
 };
 #endif //TYSTANDPART_H_INCLUDED

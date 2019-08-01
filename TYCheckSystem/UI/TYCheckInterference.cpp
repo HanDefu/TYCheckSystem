@@ -18,7 +18,7 @@
 //------------------------------------------------------------------------------
 #include "TYCheckInterference.hpp"
 #include "../Common/Com_UI.h"
-#include "../TY_Def.h"
+#include "../Common/TY_Def.h"
 #include <uf_disp.h>
 #include <uf_modl.h>
 #include "../Common/Com.h"

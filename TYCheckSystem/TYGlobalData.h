@@ -1,6 +1,6 @@
 #pragma once
 
-#include "TY_Def.h"
+#include "Common/TY_Def.h"
 
 typedef struct SNameMaterial
 {

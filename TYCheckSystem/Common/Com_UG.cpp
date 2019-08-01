@@ -105,7 +105,7 @@
 #include <NXOpen/Preferences_PartVisualizationLine.hxx>
 #include <NXOpen/Features_OffsetFaceBuilder.hxx>
 #include "Com_Attribute.h"
-#include "../TY_Def.h"
+#include "../Common/TY_Def.h"
 
 using namespace NXOpen;
 using namespace std;

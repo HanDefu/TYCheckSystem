@@ -1,7 +1,7 @@
 #pragma once
 
 #include <uf_defs.h>
-#include "../TY_Def.h"
+#include "../Common/TY_Def.h"
 
 extern int TYCOM_SetObjectStringAttribute( tag_t part_tag, char title[64], const char name_str[132] );
 extern int TYCOM_SetObjectIntAttribute( tag_t part_tag, char title[64], int data );

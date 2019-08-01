@@ -7,7 +7,7 @@
 #include <uf_undo.h>
 #include <NXOpen/UGMath.hxx>
 #include <NXOpen\TaggedObject.hxx>
-#include "../TY_Def.h"
+#include "../Common/TY_Def.h"
 //#include "Common.h"
 //#include "Com.h"
 

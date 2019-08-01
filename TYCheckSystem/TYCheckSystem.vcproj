@@ -220,6 +220,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="libufun.lib libnxopencpp.lib libugopenint.lib libnxopenuicpp.lib libopenpp.lib libopenintpp.lib libvmathpp.lib"
+				OutputFile="$(UGII_USER_DIR)\application\$(ProjectName).dll"
 				AdditionalLibraryDirectories="$(UGII_BASE_DIR)\ugopen"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -357,10 +358,6 @@
 			</File>
 			<File
 				RelativePath=".\Entry.hpp"
-				>
-			</File>
-			<File
-				RelativePath=".\TY_Def.h"
 				>
 			</File>
 			<File
@@ -515,6 +512,18 @@
 			</File>
 			<File
 				RelativePath=".\Common\Com_UI.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Common\StandardPartData.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Common\StandardPartData.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Common\TY_Def.h"
 				>
 			</File>
 		</Filter>

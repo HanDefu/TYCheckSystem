@@ -17,6 +17,7 @@
 //These includes are needed for the following template code
 //------------------------------------------------------------------------------
 #include "TYStandPart.hpp"
+#include "../Common/Com_UI.h"
 using namespace NXOpen;
 using namespace NXOpen::BlockStyler;
 
@@ -123,8 +124,8 @@ void TYStandPart::initialize_cb()
 		buttonSearch = theDialog->TopBlock()->FindBlock("buttonSearch");
 		listSearchResult = dynamic_cast<NXOpen::BlockStyler::ListBox* >(theDialog->TopBlock()->FindBlock("listSearchResult"));
 		groupClass = theDialog->TopBlock()->FindBlock("groupClass");
-		enumMainClass = theDialog->TopBlock()->FindBlock("enumMainClass");
-		enumSubClass = theDialog->TopBlock()->FindBlock("enumSubClass");
+		enumFirstName = theDialog->TopBlock()->FindBlock("enumMainClass");
+		enumSecondName = theDialog->TopBlock()->FindBlock("enumSubClass");
 		listParts = dynamic_cast<NXOpen::BlockStyler::ListBox* >(theDialog->TopBlock()->FindBlock("listParts"));
 		groupLegend = theDialog->TopBlock()->FindBlock("groupLegend");
 		labelLegend = theDialog->TopBlock()->FindBlock("labelLegend");
@@ -155,6 +156,52 @@ void TYStandPart::dialogShown_cb()
 	try
 	{
 		//---- Enter your callback code here -----
+		stdPreviewInstance = NULL_TAG;
+		first = 0;
+		newCopy = false;
+
+		// Load a workbook with one sheet, display its contents and save into another file.
+		//const char *env_name = "UGII_USER_DIR";
+		const char *env_name = getenv("TY_DATA_DIR");
+		if( env_name != NULL )
+		{
+			if( !RoyStdData.GetIsInit() )
+			{
+				RoyStdData.InitalData(env_name,"\\standard\\TYStandardReg.xls");
+			}
+
+			
+			UI_EnumSetValues(enumFirstName, RoyStdData.GetFirstClassNames());
+			UI_EnumSetValues(enumSecondName, RoyStdData.GetSecondClassNames());
+            UI_ListBox_SetItems(listParts, RoyStdData.GetThirdClassNames());
+
+			UI_EnumSetCurrentSel(enumFirstName, RoyStdData.GetClass1Index());
+			UI_EnumSetCurrentSel(enumSecondName, RoyStdData.GetClass2Index());
+
+			UI_ListBox_SetSelectItem(listParts, RoyStdData.GetClass3Index());
+
+			UpdateExpUI();
+			StlNXStringVector results,namestosearch;
+			NXString key;
+			UI_StringGetValue(stringKey, key);
+			char* keystr = UTF8ToANSI(key.GetText());
+			if( strlen(keystr) > 0)
+			{
+				namestosearch =RoyStdData.GetStandardSearchDataName();
+				for( int idx = 0; idx < namestosearch.size(); ++idx )
+				{
+					if(IsContainStr(namestosearch[idx].GetText(),keystr))
+					{
+						results.push_back(namestosearch[idx]);
+					}
+				}
+				UI_ListBox_SetItems(listSearchResult,results);
+			}
+		}
+		else
+		{
+			TYStandPart::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, "Can not find ROYAL_STANDARD_DIR");
+		}
 	}
 	catch(exception& ex)
 	{
@@ -199,11 +246,11 @@ int TYStandPart::update_cb(NXOpen::BlockStyler::UIBlock* block)
 		{
 			//---------Enter your code here-----------
 		}
-		else if(block == enumMainClass)
+		else if(block == enumFirstName)
 		{
 			//---------Enter your code here-----------
 		}
-		else if(block == enumSubClass)
+		else if(block == enumSecondName)
 		{
 			//---------Enter your code here-----------
 		}
@@ -288,4 +335,98 @@ int TYStandPart::cancel_cb()
 int TYStandPart::filter_cb(NXOpen::BlockStyler::UIBlock*  block, NXOpen::TaggedObject* selectObject)
 {
 	return(UF_UI_SEL_ACCEPT);
+}
+
+void TYStandPart::UpdateExpUI( )
+{
+	StlNXStringVector expressions;
+	logical isparame = RoyStdData.GetCurrentStdPartIsPara();
+	UI_SetShow(groupParameter, isparame);
+	logical ispocket = RoyStdData.GetCurrentStdPartIsPock();
+	UI_SetShow(toggleSubtract, ispocket);
+	NXString bmp = RoyStdData.GetCurrentStdPartBitmap();
+	UI_BlockSetBitmap(labelLegend, bmp);
+
+	if(isparame)
+	{
+		StlNXStringVector expressionNames = RoyStdData.GetCurrentExpNames();
+		StlNXStringVectorVector expValues = RoyStdData.GetCurrentExpValues();
+		expressions = RoyStdData.GetLastUIExpressions();
+		if( expressions.size() < 1 )
+		{
+			for( int kdx = 0; kdx < expressionNames.size(); ++kdx )
+			{
+				if( expValues[kdx].size() > 0 )
+				{
+					expressions.push_back(expressionNames[kdx]+"="+expValues[kdx].at(0));
+				}
+			}
+		}
+		UI_ListBox_SetItems(listParmeters,expressions);
+		UI_ListBox_SetSelectItem(listParmeters, 0);
+
+		StlDoubleVector valuelist;
+		for( int kdx = 0; kdx < expValues[0].size(); ++kdx )
+		{
+			valuelist.push_back(atof(expValues[0].at(kdx).GetText()));
+		}
+		if( valuelist.size() > 0 )
+		{
+			logical expcankeyin = RoyStdData.GetCurrentExpCanInput().at(0);
+			if( expcankeyin )
+			{
+				
+				UI_SetShow(doublePara, true);
+				UI_SetShow(enumNoKeyinPara, false);
+			
+				UI_DoubleSetOptions(doublePara, valuelist);
+				double value = 0;
+				EF_eval_exp(expressions[0].GetLocaleText(),&value);
+				UI_DoubleSetValue(doublePara,value);
+				UI_BlockSetLabel(doublePara, expressionNames[0]);
+			}
+			else
+			{
+				UI_SetShow(doublePara, false);
+				UI_SetShow(enumNoKeyinPara, true);
+
+				UI_EnumSetValues(enumNoKeyinPara, expValues[0]);
+				UI_BlockSetLabel(enumNoKeyinPara, expressionNames[0]);
+				double value = 0;
+				char str[64]="";
+				EF_eval_exp(expressions[0].GetLocaleText(),&value);
+				sprintf_s(str,"%g",value);
+				enumNoKeyinPara->GetProperties()->SetEnumAsString("Value",str);
+			}
+		}
+	}// end of if(isparame)
+
+	SetStdDefaultName();
+}
+
+void TYStandPart::SetStdDefaultName()
+{
+	char fileName[133] = "";
+	logical isparame = RoyStdData.GetCurrentStdPartIsPara();
+	NXString modelfile = RoyStdData.GetCurrentStdPartModel();
+	const char* orgname = modelfile.GetText();
+	uc4574(orgname, 2, fileName);
+	if( isparame )
+	{
+		StlLogicalVector expRenameFlag = RoyStdData.GetCurrentExpRename();
+		StlNXStringVector expressions = listParmeters->GetProperties()->GetStrings("ListItems");
+		for( int idx = 0; idx < expRenameFlag.size(); ++idx )
+		{
+			if( expRenameFlag[idx] )
+			{
+				NXString leftStr, rightStr;
+				ROY_dissect_exp_string(expressions[idx].GetText(),leftStr, rightStr);
+				strcat(fileName,"-");
+				strcat(fileName,leftStr.GetText());
+				strcat(fileName,rightStr.GetText());
+			}
+		}
+	}
+	//strcat(fileName,"_01");
+	//stdPartName->GetProperties()->SetString("Value",fileName);
 }

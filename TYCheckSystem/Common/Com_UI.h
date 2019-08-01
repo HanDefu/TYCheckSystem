@@ -9,6 +9,7 @@
 #include <uf_ui_types.h>
 #include <NXOpen/BlockStyler_UIBlock.hxx>
 #include <NXOpen/ugmath.hxx>
+#include "TY_Def.h"
 
 using namespace NXOpen;
 
@@ -17,13 +18,17 @@ using namespace NXOpen;
 
 //This function set the show status of input block.
 void UI_BlockSetShowStatus(NXOpen::BlockStyler::UIBlock* block, bool show);
+void UI_SetShow(NXOpen::BlockStyler::UIBlock* block, bool show);
+
 void UI_BlockSetSensitivity(NXOpen::BlockStyler::UIBlock* block, bool sensitivity);
 
 //This function set the label of a input block.
 void UI_BlockSetLabel(NXOpen::BlockStyler::UIBlock* block, const NXString &label);
+void UI_BlockSetBitmap(NXOpen::BlockStyler::UIBlock* block, const NXString &bitmap);
 
 //This function set the max and min value of input double block.
 void UI_DoubleSetMaxMinValue(NXOpen::BlockStyler::UIBlock* block, double max, double min);
+void UI_DoubleSetOptions(NXOpen::BlockStyler::UIBlock* block, vdouble &options);
 
 //This function set the enum current selection.
 void UI_EnumSetCurrentSel(NXOpen::BlockStyler::UIBlock* block, int cursel);
@@ -54,9 +59,13 @@ void UI_LogicalGetValue(NXOpen::BlockStyler::UIBlock* block, bool &value);
 void UI_PointGetPoint(NXOpen::BlockStyler::UIBlock* block, NXOpen::Point3d &point);
 void UI_PointGetPoint_Tag(NXOpen::BlockStyler::UIBlock* block, std::vector<NXOpen::TaggedObject *> &obj);
 void UI_PointSetPoint_Tag(NXOpen::BlockStyler::UIBlock* block, std::vector<NXOpen::TaggedObject *> &obj);
+
 void UI_ListBox_SetItems(NXOpen::BlockStyler::UIBlock* block, std::vector<NXString> & stringArray);
-void UI_ListBox_SetItems(NXOpen::BlockStyler::UIBlock* block, std::vector<int> &sels);
-void UI_SetShow(NXOpen::BlockStyler::UIBlock* block, bool show);
+
+//设置多个选择项
+void UI_ListBox_GetSelectItems(NXOpen::BlockStyler::UIBlock* block, std::vector<int> &sels);
+void UI_ListBox_SetSelectItem(NXOpen::BlockStyler::UIBlock* block, int sel);
+
 
 std::vector<NXOpen::TaggedObject *> UI_GetSelectObjects(NXOpen::BlockStyler::UIBlock* block);
 
