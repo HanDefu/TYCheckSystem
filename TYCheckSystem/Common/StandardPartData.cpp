@@ -2,6 +2,9 @@
 #include "../Tool/Excel/BasicExcel.hpp"
 #include <uf_clone.h>
 #include "../Common/Com_UG.h"
+#include <uf_assem.h>
+#include <uf_so.h>
+#include <uf_wave.h>
 
 using namespace YExcel;
 StandardPartData::StandardPartData()
@@ -411,7 +414,8 @@ void build_temp_filespec(char *fspec, int ftype, char *new_spec)
     UF_translate_variable("UGII_TMP_DIR", &tmp_dir);
 	uc4575(tmp_dir, ftype, fspec, new_spec);
 }
-static int StandardPartClonePart(const char *source_part, char *output_part)
+
+int StandardPartClonePart(const char *source_part, char *output_part)
 {
 	int irc = 0;
     /*UF_CLONE_naming_failures_t  name_failures;
@@ -527,4 +531,192 @@ logical IsContainStr( const char* strlib, const char* substr )
     free(strp);
     return result;
 }
+
+
+int pock_with_select_tool_and_target2(tag_t tool_occ,tag_t sel_target)
+{
+	//tag_t tool_occ;
+	tag_t tool_pro,target_pro;
+	tag_t from_part_occ,to_part_occ;
+	tag_t ref_tag=NULL_TAG;
+	tag_p_t mebers;
+	int  num_mebers,i;
+	char refset_name[MAX_ENTITY_NAME_SIZE+1] ;
+	double origin[3] ;
+	double csys_matrix[9] ;
+	tag_t feat_waved=NULL_TAG,body_waved=NULL_TAG;
+	tag_t workpart;
+	tag_t tem_workpart;
+
+	workpart=UF_ASSEM_ask_work_part();
+
+	if (UF_ASSEM_is_occurrence(sel_target))
+	{
+		to_part_occ=UF_ASSEM_ask_part_occurrence(sel_target);
+		target_pro=UF_ASSEM_ask_prototype_of_occ(sel_target);
+		tem_workpart=UF_ASSEM_ask_prototype_of_occ(to_part_occ);
+	}
+	else
+	{
+		target_pro=sel_target;
+		to_part_occ=NULL_TAG;
+		tem_workpart=workpart;
+	}
+
+	if (UF_ASSEM_is_occurrence(tool_occ))
+	{
+		//tool_occ=UF_ASSEM_ask_part_occurrence(sel_tool);
+		tool_pro=UF_ASSEM_ask_prototype_of_occ(tool_occ);
+		from_part_occ=tool_occ;
+	}
+
+
+	UF_CALL(UF_OBJ_cycle_by_name_and_type(tool_pro,"FALSE",UF_reference_set_type, TRUE, &ref_tag));
+
+	UF_CALL(UF_ASSEM_ask_ref_set_data(ref_tag,refset_name,origin,csys_matrix,&num_mebers,&mebers));
+
+	if( workpart != tem_workpart )
+		UF_CALL(UF_ASSEM_set_work_part(tem_workpart));
+	for (i=0;i<num_mebers;i++)
+	{
+		int type,subtype,err;
+		tag_t xform=NULL_TAG;
+		int num_results;
+		tag_t *resultbodies;
+		int   result[1];
+
+		if (UF_OBJ_ask_type_and_subtype(mebers[i],&type,&subtype)==0
+			&&type==UF_solid_type&&subtype==UF_solid_body_subtype)
+		{
+			//UF_CALL(UF_ASSEM_set_work_part(tem_workpart));
+
+			UF_CALL(UF_SO_create_xform_assy_ctxt(target_pro,from_part_occ,to_part_occ,&xform));
+
+			UF_CALL(UF_WAVE_create_linked_body(mebers[i],xform,target_pro,TRUE,&feat_waved));
+
+			UF_CALL(UF_MODL_ask_feat_body(feat_waved,&body_waved));
+
+			//UF_CALL(UF_ASSEM_set_work_part(tem_workpart));
+			UF_MODL_check_interference(target_pro,1,&body_waved,result);
+			if( result[0]==1 )
+			{
+				err=UF_MODL_subtract_bodies(target_pro,body_waved,&num_results,&resultbodies);
+				if (err)
+				{
+					UF_CALL(UF_OBJ_delete_object(body_waved));
+				}
+				UF_free(resultbodies);
+			}
+			else
+			{
+				UF_CALL(UF_OBJ_delete_object(body_waved));
+			}
+		}
+	}
+	UF_free(mebers);
+	if( workpart != tem_workpart )
+		UF_CALL(UF_ASSEM_set_work_part(workpart));
+	return 0;
+}
+
+int Royal_ask_refset_objs( char *ref_set_name , 
+								 tag_t part_occ , 
+								 StlTagVector& objlist )
+{
+	int i = 0 ,
+		j = 0 ,
+		err = 0 ,
+		type = 0 ,
+		subtype = 0 ,
+		num_occ = 0 ,
+		n_members = 0 ;
+	tag_t ref_set = NULL_TAG , 
+		part_tag = NULL_TAG ,
+		* members = NULL ,
+		* body_occ = NULL ;
+
+	if( UF_ASSEM_is_occurrence( part_occ ) )
+	{
+		part_tag = UF_ASSEM_ask_prototype_of_occ( part_occ ) ;
+	}
+
+	err = UF_OBJ_cycle_by_name_and_type( part_tag , ref_set_name , UF_reference_set_type , true , & ref_set ) ;
+	if ( err || ref_set == NULL_TAG )
+		return -1;
+
+	UF_ASSEM_ask_ref_set_members( ref_set , & n_members , & members ) ;
+	for( i = 0 ; i < n_members ; i ++ )
+	{
+		err = UF_OBJ_ask_type_and_subtype( members[ i ] , & type , & subtype ) ;
+		if ( err == 0 && type == UF_solid_type && subtype == UF_solid_body_subtype &&
+			UF_OBJ_ALIVE == UF_OBJ_ask_status( members[ i ] ) )
+		{
+			num_occ = UF_ASSEM_ask_occs_of_entity( members[ i ] , & body_occ ) ;
+			for( j = 0 ; j < num_occ ; j ++ )
+			{
+				if( part_occ == UF_ASSEM_ask_part_occurrence( body_occ[ j ] ) )
+				{
+					objlist.push_back(body_occ[ j ]);
+				}
+			}
+			if( body_occ != NULL )
+			{
+				UF_free( body_occ ) ;
+				body_occ = NULL ;
+			}           
+		}
+	}
+	UF_free( members ) ;
+	return objlist.size() ;
+}
+
+int Royal_standard_pocket(tag_t tool_occ, StlTagVector target_list,StlTagVector target_force)
+{
+	tag_t  target = NULL_TAG;
+	int   result[1];
+	StlTagVector  true_objs;
+	int num_true = Royal_ask_refset_objs("TRUE",tool_occ,true_objs);
+	for (int i=0;i<target_list.size();i++)
+	{
+		int idx = -1;
+		logical intersect = false;
+		target = target_list[i];
+		if(target_force.size()>0)
+		{
+			idx = vFind(target_force,target);
+		}
+		if( idx > -1 )
+		{
+			intersect = true;
+		}
+		else
+		{
+			for (int j=0;j<num_true;j++)
+			{
+				UF_MODL_check_interference(target,1,&true_objs[j],result);
+				if (result[0]==1&&target != true_objs[j])
+				{
+					intersect = true;
+					break;
+				}
+			}
+		}
+		if( intersect )
+			UF_CALL(pock_with_select_tool_and_target2(tool_occ,target));
+	}
+	return 0;
+}
+
+//void Royal_set_obj_attr( tag_t obj_tag, const char* title, const char *name_str )
+//{
+//	int err;
+//	UF_ATTR_value_t value;
+//	if( UF_ASSEM_is_occurrence( obj_tag ))
+//	{
+//		obj_tag = UF_ASSEM_ask_prototype_of_occ ( obj_tag ) ;
+//    }
+//	value.type = UF_ATTR_string;
+//	value.value.string = (char*)name_str;
+//	err = UF_ATTR_assign( obj_tag, (char*)title, value );
+//}
 

@@ -41,6 +41,7 @@ typedef std::vector<NXString>::iterator itvNXString;
 typedef std::vector<vNXString> vvNXString;
 
 #define TY_STR_LEN 256
+#define MAX_FSPEC_BUFSIZE 256
 #define TY_GAP_DIS 0.1 //Ðü¿Õ¼ì²â
 
 //¿Í»§ÊôÐÔ

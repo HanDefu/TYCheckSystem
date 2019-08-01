@@ -212,6 +212,16 @@ void UI_ListBox_SetItems(NXOpen::BlockStyler::UIBlock* block, std::vector<NXStri
 	pAttr = NULL;
 }
 
+//This function get the listbox strings.
+void UI_ListBox_GetItems(NXOpen::BlockStyler::UIBlock* block, std::vector<NXString> & stringArray)
+{
+	NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
+	pAttr = block->GetProperties();
+	stringArray = pAttr->GetStrings("ListItems");
+	delete pAttr;
+	pAttr = NULL;
+}
+
 //This function get the listbox select item.
 void UI_ListBox_GetSelectItems(NXOpen::BlockStyler::UIBlock* block, std::vector<int> &sels)
 {
@@ -231,6 +241,18 @@ void UI_ListBox_SetSelectItem(NXOpen::BlockStyler::UIBlock* block, int sel)
 	delete pAttr;
 	pAttr = NULL;
 }
+
+int UI_ListBox_GetSelectItem(NXOpen::BlockStyler::UIBlock* block)
+{
+	int sel = -1;
+	NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
+	pAttr = block->GetProperties();
+	sel = pAttr->GetInteger("SelectedItemIndex");
+	delete pAttr;
+	pAttr = NULL;
+	return sel;
+}
+
 
 //This function set the value of a double block.
 void UI_SetShow(NXOpen::BlockStyler::UIBlock* block, bool show)
@@ -387,6 +409,26 @@ void UI_EnumGetBlockString(NXOpen::BlockStyler::UIBlock* block, NXString & value
 	pAttr = NULL;
 }
 
+
+//This function get the point tag from the block.
+void UI_CSYS_GetSelected(NXOpen::BlockStyler::UIBlock* block, std::vector<NXOpen::TaggedObject *> &obj)
+{
+	NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
+	pAttr = block->GetProperties();
+	obj = pAttr->GetTaggedObjectVector("SelectedObjects");
+	delete pAttr;
+	pAttr = NULL;
+}
+
+//This function get the point tag from the block.
+void UI_CSYS_SetSelected(NXOpen::BlockStyler::UIBlock* block, std::vector<NXOpen::TaggedObject *> &obj)
+{
+	NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
+	pAttr = block->GetProperties();
+	pAttr->SetTaggedObjectVector("SelectedObjects", obj);
+	delete pAttr;
+	pAttr = NULL;
+}
 
 
 

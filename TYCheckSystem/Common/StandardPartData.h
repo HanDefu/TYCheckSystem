@@ -186,8 +186,15 @@ private:
 
 extern int XINGTAI_ASSY_clone(char templateName[MAX_FSPEC_SIZE], char nameRule[MAX_FSPEC_SIZE],char path_str[MAX_FSPEC_SIZE], char new_part_name[MAX_FSPEC_SIZE]);
 void build_temp_filespec(char *fspec, int ftype, char *new_spec);
-static int StandardPartClonePart(const char *source_part, char *output_part);
+int StandardPartClonePart(const char *source_part, char *output_part);
 int ConvertStr(char *pstr);
 logical IsContainStr( const char* strlib, const char* substr );
+int Royal_standard_pocket(tag_t tool_occ, StlTagVector target_list,StlTagVector target_force);
+
+//void Royal_set_obj_attr( tag_t obj_tag, const char* title, const char *name_str );
+int Royal_ask_refset_objs( char *ref_set_name , 
+						  tag_t part_occ , 
+						  StlTagVector& objlist );
+int pock_with_select_tool_and_target2(tag_t tool_occ,tag_t sel_target);
 
 #endif //STANDARD_PART_DATA_H_INCLUDED

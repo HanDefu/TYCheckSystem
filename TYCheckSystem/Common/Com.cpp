@@ -1305,3 +1305,29 @@ NXString GetDateStr()
 	return NXString(timeStr);
 }
 
+extern int report( char *file, int line, char *call, int irc)
+{
+	if (irc)    
+	{
+		char messg[MAX_LINE_SIZE + 1], str1[100];
+
+		(UF_get_fail_message(irc, messg)) ?
+			sprintf(str1, "returned a %d\n", irc) :
+		sprintf(str1, "returned error %d:  %s\n", irc, messg);
+#ifdef _DEBUG
+		{
+			char str[300], fName[MAX_ENTITY_NAME_SIZE+1], ext[_MAX_EXT];
+
+			_splitpath(file, NULL, NULL, fName, ext);
+			sprintf(str, "%s%s, line %d:  %s\n", fName, ext, line, call);
+			strcat(str, str1);
+
+			UF_UI_open_listing_window();
+			UF_UI_write_listing_window(str);
+		}
+#else
+		UF_UI_set_status(str1);
+#endif
+	}
+	return(irc);
+}

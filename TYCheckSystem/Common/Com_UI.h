@@ -32,7 +32,7 @@ void UI_DoubleSetOptions(NXOpen::BlockStyler::UIBlock* block, vdouble &options);
 
 //This function set the enum current selection.
 void UI_EnumSetCurrentSel(NXOpen::BlockStyler::UIBlock* block, int cursel);
-//This function get the enum current selection.
+//This function get the enum current selection.---需要改造为返回值类型的
 void UI_EnumGetCurrentSel(NXOpen::BlockStyler::UIBlock* block, int &cursel);
 
 //This function set the value of a double block.
@@ -61,6 +61,8 @@ void UI_PointGetPoint_Tag(NXOpen::BlockStyler::UIBlock* block, std::vector<NXOpe
 void UI_PointSetPoint_Tag(NXOpen::BlockStyler::UIBlock* block, std::vector<NXOpen::TaggedObject *> &obj);
 
 void UI_ListBox_SetItems(NXOpen::BlockStyler::UIBlock* block, std::vector<NXString> & stringArray);
+void UI_ListBox_GetItems(NXOpen::BlockStyler::UIBlock* block, std::vector<NXString> & stringArray);
+int UI_ListBox_GetSelectItem(NXOpen::BlockStyler::UIBlock* block);
 
 //设置多个选择项
 void UI_ListBox_GetSelectItems(NXOpen::BlockStyler::UIBlock* block, std::vector<int> &sels);
@@ -88,4 +90,7 @@ void UI_EnumGetBlockString(NXOpen::BlockStyler::UIBlock* block, NXString & value
 
 void UI_StringsSetValues(NXOpen::BlockStyler::UIBlock* block, std::vector<NXString> & values);
 void UI_StringsGetValues(NXOpen::BlockStyler::UIBlock* block, std::vector<NXString> & values);
+
+void UI_CSYS_GetSelected(NXOpen::BlockStyler::UIBlock* block, std::vector<NXOpen::TaggedObject *> &obj);
+void UI_CSYS_SetSelected(NXOpen::BlockStyler::UIBlock* block, std::vector<NXOpen::TaggedObject *> &obj);
 #endif

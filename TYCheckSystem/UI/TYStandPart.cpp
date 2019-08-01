@@ -18,6 +18,14 @@
 //------------------------------------------------------------------------------
 #include "TYStandPart.hpp"
 #include "../Common/Com_UI.h"
+#include <uf_assem.h>
+#include <uf_part.h>
+#include <NXOpen/PartCollection.hxx>
+#include <NXOpen/NXObjectManager.hxx>
+#include <NXOpen/CoordinateSystem.hxx>
+#include <NXOpen/NXMatrix.hxx>
+#include "../Common/Com_UG.h"
+
 using namespace NXOpen;
 using namespace NXOpen::BlockStyler;
 
@@ -123,10 +131,15 @@ void TYStandPart::initialize_cb()
 		stringKey = theDialog->TopBlock()->FindBlock("stringKey");
 		buttonSearch = theDialog->TopBlock()->FindBlock("buttonSearch");
 		listSearchResult = dynamic_cast<NXOpen::BlockStyler::ListBox* >(theDialog->TopBlock()->FindBlock("listSearchResult"));
+		groupEdit = theDialog->TopBlock()->FindBlock("groupEdit");
+		selectionEdit = theDialog->TopBlock()->FindBlock("selectionEdit");
 		groupClass = theDialog->TopBlock()->FindBlock("groupClass");
 		enumFirstName = theDialog->TopBlock()->FindBlock("enumMainClass");
 		enumSecondName = theDialog->TopBlock()->FindBlock("enumSubClass");
 		listParts = dynamic_cast<NXOpen::BlockStyler::ListBox* >(theDialog->TopBlock()->FindBlock("listParts"));
+		groupAssembly = theDialog->TopBlock()->FindBlock("groupAssembly");
+		enumParentNode = theDialog->TopBlock()->FindBlock("enumParentNode");
+		stdPartName = theDialog->TopBlock()->FindBlock("stdPartName");
 		groupLegend = theDialog->TopBlock()->FindBlock("groupLegend");
 		labelLegend = theDialog->TopBlock()->FindBlock("labelLegend");
 		groupParameter = theDialog->TopBlock()->FindBlock("groupParameter");
@@ -136,7 +149,10 @@ void TYStandPart::initialize_cb()
 		groupPosition = theDialog->TopBlock()->FindBlock("groupPosition");
 		csysPos = theDialog->TopBlock()->FindBlock("csysPos");
 		groupSetting = theDialog->TopBlock()->FindBlock("groupSetting");
+		groupPocket = theDialog->TopBlock()->FindBlock("groupPocket");
 		toggleSubtract = theDialog->TopBlock()->FindBlock("toggleSubtract");
+		enumPocketMethod = theDialog->TopBlock()->FindBlock("enumPocketMethod");
+		selectionPocketTargets = theDialog->TopBlock()->FindBlock("selectionPocketTargets");
 		togglePreview = theDialog->TopBlock()->FindBlock("togglePreview");
 	}
 	catch(exception& ex)
@@ -215,16 +231,175 @@ void TYStandPart::dialogShown_cb()
 //------------------------------------------------------------------------------
 int TYStandPart::apply_cb()
 {
-	try
+	 int errorCode = 0;
+	//logical isPreview = toggle_preview->GetProperties()->GetLogical("Value");
+	logical isPreview = false;
+	if( isPreview && stdPreviewInstance != NULL_TAG )
 	{
-		//---- Enter your callback code here -----
+		//UF_PART_save();
+		return 0;
 	}
-	catch(exception& ex)
-	{
-		//---- Enter your exception handling code here -----
-		TYStandPart::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
-	}
-	return 0;
+    try
+    {
+        //---- Enter your callback code here -----
+        int status = 0;
+        tag_t oldWork = NULL_TAG;
+        tag_t instance = NULL_TAG;
+        NXString cloneName;
+        //char *p_env = getenv("UGII_USER_DIR");
+        char sourceName[133] = "";
+        char part_fspec[ MAX_FSPEC_BUFSIZE ]="";
+        char desName[133] = "";
+        double org[3] = {0.0}, csys[6] = {1,0,0,0,1,0};
+        UF_PART_load_status_t error_status;
+		tag_t std_occ = NULL_TAG;
+		char fname[133] = "";
+        char assem_path[133] = "";
+
+		StlNXStringVector all_express;
+		UI_ListBox_GetItems(listParmeters,all_express);
+		RoyStdData.SetLastUIExpressions(all_express);
+
+        Part *workPart(theSession->Parts()->Work());
+        UF_PART_ask_part_name(workPart->Tag(),part_fspec);
+        
+
+		const char* stdName = stdPartName->GetProperties()->GetString("Value").GetText();
+		if( strlen(stdName) < 1)
+		{
+			TYStandPart::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeInformation, "命名不能为空");
+			return 1;
+		}
+        uc4576(part_fspec, 2, desName, fname);
+		strcpy(assem_path,desName);
+        strcat(desName,"\\");
+        strcat(desName, stdPartName->GetProperties()->GetString("Value").GetText());
+        strcat(desName, ".prt");
+
+		
+		int idx1 = 0; 
+		int idx2 = 0;
+		UI_EnumGetCurrentSel(enumFirstName,idx1);
+		UI_EnumGetCurrentSel(enumSecondName,idx2);
+		int idx3 = UI_ListBox_GetSelectItem(listParts);
+		NXString stdModelFile = RoyStdData.GetCurrentStdPartModel();
+        //sprintf(sourceName,"%s\\standard\\screw.prt",p_env);
+        
+        //Point3d originPoint = point_pos->GetProperties()->GetPoint("Point");
+		/*Point3d originPoint = manip_pos->GetProperties()->GetPoint("Origin");
+		Vector3d vecDirX = manip_pos->GetProperties()->GetVector("XAxis");
+		Vector3d vecDirY = manip_pos->GetProperties()->GetVector("YAxis");
+		csys[0] = vecDirX.X;
+		csys[1] = vecDirX.Y;
+		csys[2] = vecDirX.Z;
+		csys[3] = vecDirY.X;
+		csys[4] = vecDirY.Y;
+		csys[5] = vecDirY.Z;*/
+        //Vector3d vecDir = directionVec->GetProperties()->GetVector("Vector");
+        //double vec[3], mtx[9];
+        
+        /* vec[0] = vecDir.X; vec[1] = vecDir.Y; vec[2] = vecDir.Z;
+        UF_MTX3_initialize_z( vec ,mtx );
+        for( int idx = 0; idx < 6; ++idx )
+        {
+        csys[idx] = mtx[idx];
+        }*/
+        Point3d originPoint;
+		std::vector<NXOpen::TaggedObject *> csysObjects;
+		UI_CSYS_GetSelected(csysPos, csysObjects);
+		if( csysObjects.size() > 0 )
+		{
+			tag_t csys_tag = csysObjects[0]->Tag();
+			NXOpen::CoordinateSystem *coord_system = (NXOpen::CoordinateSystem *)NXOpen::NXObjectManager::Get(csys_tag);
+			originPoint =  coord_system->Origin(); 
+			NXOpen::NXMatrix *matrix = coord_system->Orientation();
+			Matrix3x3 matrix33 = matrix->Element();
+			csys[0] = matrix33.Xx;
+			csys[1] = matrix33.Xy;
+			csys[2] = matrix33.Xz;
+			csys[3] = matrix33.Yx;
+			csys[4] = matrix33.Yy;
+			csys[5] = matrix33.Yz;
+		}
+		/*else
+		{
+			originPoint =  point_pos->GetProperties()->GetPoint("Point");; 
+		}*/
+		org[0] = originPoint.X; org[1] = originPoint.Y;org[2] = originPoint.Z;
+		UF_CFI_ask_file_exist( desName, &status);
+        if( 0 == status )
+        {
+            int recover = theUI->NXMessageBox()->Show("同名文件已经存在", NXOpen::NXMessageBox::DialogTypeQuestion,"是否添加实例？");
+			if( 1 == recover )
+			{
+				UF_ASSEM_add_part_to_assembly(workPart->Tag(),desName,"TRUE",NULL,org,csys,-1,&instance,&error_status);
+				UF_PART_free_load_status(&error_status);
+			}
+			else
+				return 0;
+        }
+		else
+		{
+			StandardPartClonePart(stdModelFile.getText(), desName );
+			int err = UF_ASSEM_add_part_to_assembly(workPart->Tag(),desName,"TRUE",NULL,org,csys,-1,&instance,&error_status);
+			if(err)
+			{
+				UF_free_string_array(error_status.n_parts, error_status.file_names);
+				UF_free(error_status.statuses);
+				std_occ = NULL_TAG;
+			}
+			else
+			{
+				logical ispram = RoyStdData.GetCurrentStdPartIsPara();//false;//
+                tag_t work_occ, std_tag;
+                StlNXStringVector assoAttrNames = RoyStdData.GetAssoAttrNames();
+                StlNXStringVector assoAttrValues= RoyStdData.GetAssoAttrValues();
+                NXString classall = RoyStdData.GetCurrentStdClassName();
+                work_occ = UF_ASSEM_ask_work_occurrence();
+                std_tag = UF_ASSEM_ask_child_of_instance(instance);
+                std_occ = UF_ASSEM_ask_part_occ_of_inst(work_occ, instance);
+                UF_ASSEM_set_work_occurrence(std_occ);	
+                if(ispram)
+				{
+					//参数化驱动
+					TYCOM_STD_parametrize_part( all_express, std_tag);
+				}
+                TYCOM_set_obj_attr(std_tag, "标准件分类", classall.GetText());
+                TYCOM_create_STD_attributes(std_tag,assoAttrNames,assoAttrValues);
+                UF_ASSEM_set_work_part(workPart->Tag());
+			}
+			UF_PART_free_load_status(&error_status);
+		}
+        if(NULL_TAG != instance)
+		{
+			logical ispocket = false;
+			UI_LogicalGetValue(toggleSubtract, ispocket);
+			if( ispocket )
+			{
+                std::vector<NXOpen::TaggedObject* > objects =  UI_GetSelectObjects(selectionPocketTargets);
+				if( NULL_TAG == std_occ )
+				{
+					tag_t work_occ = NULL_TAG;
+					work_occ = UF_ASSEM_ask_work_occurrence();
+					std_occ = UF_ASSEM_ask_part_occ_of_inst(work_occ, instance);
+				}
+				StlTagVector target_list;
+				StlTagVector target_force;
+                for( int idx = 0; idx < objects.size(); ++idx )
+                    target_force.push_back(objects[idx]->Tag());
+				TYCOM_GetCurrentPartSolidBodies(target_list);
+				Royal_standard_pocket(std_occ,target_list,target_force);
+			}
+		}
+        //UF_PART_save();
+    }
+    catch(exception& ex)
+    {
+        //---- Enter your exception handling code here -----
+        errorCode = 1;
+        TYStandPart::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
+    }
+    return errorCode;
 }
 
 //------------------------------------------------------------------------------
@@ -237,6 +412,19 @@ int TYStandPart::update_cb(NXOpen::BlockStyler::UIBlock* block)
 		if(block == stringKey)
 		{
 			//---------Enter your code here-----------
+			StlNXStringVector results,namestosearch;
+			NXString key;
+			UI_StringGetValue(stringKey,key);
+			char* keystr = UTF8ToANSI(key.GetText());
+			namestosearch =RoyStdData.GetStandardSearchDataName();
+			for( int idx = 0; idx < namestosearch.size(); ++idx )
+			{
+				if(IsContainStr(namestosearch[idx].GetText(),keystr))
+				{
+					results.push_back(namestosearch[idx]);
+				}
+			}
+			UI_ListBox_SetItems(listParts,results);
 		}
 		else if(block == buttonSearch)
 		{
@@ -244,19 +432,67 @@ int TYStandPart::update_cb(NXOpen::BlockStyler::UIBlock* block)
 		}
 		else if(block == listSearchResult)
 		{
-			//---------Enter your code here-----------
+			StlNXStringVector namestosearch;
+			int idx1 = 0, idx2 = 0, idx3 = 0;
+			int idx4 = UI_ListBox_GetSelectItem(listSearchResult);
+			StlNXStringVector listitems;
+			UI_ListBox_GetItems(listSearchResult,listitems);
+			const char* selectResult = UTF8ToANSI(listitems[idx4].GetUTF8Text());
+			namestosearch =RoyStdData.GetStandardSearchDataName();
+			for( int idx = 0; idx < namestosearch.size(); ++idx )
+			{
+				if( 0 == strcmp(selectResult,namestosearch[idx].GetText()) )
+				{
+					RoyStdData.GetStandardSearchDataIndex(idx,&idx1,&idx2,&idx3);
+					break;
+				}
+			}
+			RoyStdData.RefreshData(idx1,idx2,idx3);
+
+			UI_EnumSetValues(enumFirstName,RoyStdData.GetFirstClassNames());
+			UI_EnumSetValues(enumSecondName,RoyStdData.GetSecondClassNames());
+			UI_ListBox_SetItems(listParts,RoyStdData.GetThirdClassNames());
+
+			UI_EnumSetCurrentSel(enumFirstName,idx1);
+			UI_EnumSetCurrentSel(enumSecondName,idx2);
+			UI_ListBox_SetSelectItem(listParts,idx3);
+			UpdateExpUI();
 		}
 		else if(block == enumFirstName)
 		{
 			//---------Enter your code here-----------
+			int idx = 0;
+			UI_EnumSetCurrentSel(enumFirstName,idx);
+
+			RoyStdData.RefreshData(idx,0,0);
+			UI_EnumSetValues(enumSecondName,RoyStdData.GetSecondClassNames());
+			UI_ListBox_SetItems(listParts,RoyStdData.GetThirdClassNames());
+
+			UpdateExpUI();
 		}
 		else if(block == enumSecondName)
 		{
 			//---------Enter your code here-----------
+			int idx1 = 0;
+			UI_EnumSetCurrentSel(enumFirstName,idx1);
+			int idx2 = 0;
+			UI_EnumSetCurrentSel(enumSecondName,idx2);
+
+			RoyStdData.RefreshData(idx1,idx2,0);
+			UI_ListBox_SetItems(listParts,RoyStdData.GetThirdClassNames());
+			UpdateExpUI();
 		}
 		else if(block == listParts)
 		{
 			//---------Enter your code here-----------
+			int idx1 = 0;
+			UI_EnumSetCurrentSel(enumFirstName,idx1);
+			int idx2 = 0;
+			UI_EnumSetCurrentSel(enumSecondName,idx2);
+			int idx3 = UI_ListBox_GetSelectItem(listParts);
+
+			RoyStdData.RefreshData(idx1,idx2,idx3);
+			UpdateExpUI();
 		}
 		else if(block == labelLegend)
 		{
@@ -265,18 +501,128 @@ int TYStandPart::update_cb(NXOpen::BlockStyler::UIBlock* block)
 		else if(block == listParmeters)
 		{
 			//---------Enter your code here-----------
+			int idx1 = 0;
+			UI_EnumSetCurrentSel(enumFirstName,idx1);
+			int idx2 = 0;
+			UI_EnumSetCurrentSel(enumSecondName,idx2);
+			int idx3 = UI_ListBox_GetSelectItem(listParts);
+            int idx4 = UI_ListBox_GetSelectItem(listParmeters);
+
+
+			StlNXStringVectorVector expValues = RoyStdData.GetCurrentExpValues();
+			StlDoubleVector valuelist;
+			for( int kdx = 0; kdx < expValues[idx4].size(); ++kdx )
+			{
+				valuelist.push_back(atof(expValues[idx4].at(kdx).GetText()));
+			}
+			logical expcankeyin = RoyStdData.GetCurrentExpCanInput().at(idx4);
+			StlNXStringVector listitems;
+			UI_ListBox_GetItems(listParmeters,listitems);
+
+
+			NXString leftStr, rightStr;
+			ROY_dissect_exp_string(listitems[idx4].GetLocaleText(),leftStr, rightStr);
+			if( expcankeyin )
+			{
+				UI_SetShow(doublePara,true);
+				UI_SetShow(enumNoKeyinPara,false);
+				UI_DoubleSetOptions(doublePara,valuelist);
+				UI_DoubleSetValue(doublePara,atof(rightStr.GetLocaleText()));
+				UI_BlockSetLabel(doublePara, leftStr.GetLocaleText());
+			}
+			else
+			{
+				UI_SetShow(doublePara,false);
+				UI_SetShow(enumNoKeyinPara,true);
+				UI_EnumSetValues(enumNoKeyinPara, expValues[idx4]);
+
+				enumNoKeyinPara->GetProperties()->SetEnumAsString("Value",rightStr.GetLocaleText());
+				enumNoKeyinPara->GetProperties()->SetString("Label",leftStr.GetLocaleText());
+			}
 		}
 		else if(block == doublePara)
 		{
 			//---------Enter your code here-----------
+			int idx = listParmeters->GetProperties()->GetInteger("SelectedItemIndex");
+			if( idx > -1 )
+			{
+				double curval = doublePara->GetProperties()->GetDouble("Value");
+				NXString curname = doublePara->GetProperties()->GetString("Label");
+				StlNXStringVector expressions = listParmeters->GetProperties()->GetStrings("ListItems");
+				char str[133]="";
+				sprintf(str,"%g",curval);
+				expressions[idx]=NXString(curname+"="+str);
+				UI_ListBox_SetItems(listParmeters,expressions);
+				listParmeters->GetProperties()->SetInteger("SelectedItemIndex",idx);
+				SetStdDefaultName();
+				PrieviewAddSTD(1);
+			}
 		}
 		else if(block == enumNoKeyinPara)
 		{
 			//---------Enter your code here-----------
+			int idx = listParmeters->GetProperties()->GetInteger("SelectedItemIndex");
+			if( idx < 0 )
+				return 0;
+			NXString curval = enumNoKeyinPara->GetProperties()->GetEnumAsString("Value");
+			NXString curname = enumNoKeyinPara->GetProperties()->GetString("Label");
+			StlNXStringVector expressions = listParmeters->GetProperties()->GetStrings("ListItems");
+			expressions[idx]=NXString(curname+"="+curval);
+			if( 0 == idx && RoyStdData.GetIsSpecialParamsTable() )
+			{
+				int paramidx = enumNoKeyinPara->GetProperties()->GetEnum("Value");
+				RoyStdData.SetSpecialParamIndex(paramidx);
+				int idx1 = 0;
+				UI_EnumSetCurrentSel(enumFirstName,idx1);
+				int idx2 = 0;
+				UI_EnumSetCurrentSel(enumSecondName,idx2);
+				int idx3 = UI_ListBox_GetSelectItem(listParts);
+				StlNXStringVector expressionNames = RoyStdData.GetCurrentExpNames();
+				StlNXStringVectorVector expValues = RoyStdData.GetCurrentExpValues();
+				for( int kdx = 1; kdx < expressions.size(); ++kdx )
+				{
+					if( expValues[kdx].size() > 0 )
+					{
+						expressions[kdx] = (expressionNames[kdx]+"="+expValues[kdx].at(0));
+					}
+				}
+
+			}
+			UI_ListBox_SetItems(listParmeters,expressions);
+			listParmeters->GetProperties()->SetInteger("SelectedItemIndex",idx);
+			SetStdDefaultName();
+			PrieviewAddSTD(1);
 		}
 		else if(block == csysPos)
 		{
 			//---------Enter your code here-----------
+			//---------Enter your code here-----------
+			/*tag_t csys_tag = NULL_TAG;
+			std::vector<NXOpen::TaggedObject* > csysObjects = coord_system_pos->GetProperties()->GetTaggedObjectVector("SelectedObjects");
+			if( csysObjects.size() > 0 )
+			{
+				csys_tag = csysObjects[0]->Tag();
+			}
+			//NXOpen::CoordinateSystem *coord_system  = dynamic_cast<NXOpen::CoordinateSystem*>(coord_system_pos->Tag);
+			NXOpen::CoordinateSystem *coord_system = (NXOpen::CoordinateSystem *)NXOpen::NXObjectManager::Get(csys_tag);
+			// Origin of the selected CSYS :
+			NXOpen::Point3d origin =  coord_system->Origin(); 
+
+			point_pos->GetProperties()->SetPoint("Point",origin);
+
+			//Part *displayPart = theSession->Parts()->Display();
+			// Orientation  Matrix :  
+			NXOpen::NXMatrix *matrix = coord_system->Orientation();
+
+			NXOpen::Matrix3x3 mx3 = matrix->Element();*/
+			if( first > 0 )
+			{
+				PrieviewAddSTD(0);
+			}
+			else
+			{
+				first++;
+			}
 		}
 		else if(block == toggleSubtract)
 		{
@@ -320,6 +666,14 @@ int TYStandPart::cancel_cb()
 	try
 	{
 		//---- Enter your callback code here -----
+		//---- Enter your callback code here -----
+		if(NULL_TAG != stdPreviewInstance && newCopy )
+		{
+			char part_fspec1[ MAX_FSPEC_BUFSIZE ]="";
+			tag_t cur_preview_std_tag = UF_ASSEM_ask_child_of_instance(stdPreviewInstance);
+			UF_PART_ask_part_name(cur_preview_std_tag,part_fspec1);
+			uc4561(part_fspec1,2);
+		}
 	}
 	catch(exception& ex)
 	{
@@ -427,6 +781,172 @@ void TYStandPart::SetStdDefaultName()
 			}
 		}
 	}
-	//strcat(fileName,"_01");
-	//stdPartName->GetProperties()->SetString("Value",fileName);
+	strcat(fileName,"_01");
+	stdPartName->GetProperties()->SetString("Value",fileName);
+}
+
+//  check current idxs, idxs same ,instance exist, update parameters,
+//  idxs not the same, instance exist, need delete instance, recreate preview
+
+void TYStandPart::PrieviewAddSTD( int updateflag )
+{
+	logical isPreview = false;//toggle_preview->GetProperties()->GetLogical("Value");
+	if( !isPreview || first < 1 )
+	{
+		return;
+	}
+	int errorCode = 0;
+	char stdName[133] = "";
+	NXString stdNameNXStr = stdPartName->GetProperties()->GetString("Value");
+	sprintf(stdName,"%s.prt",stdNameNXStr.GetText());
+	if( strlen(stdName) < 5)
+	{
+		TYStandPart::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeInformation, "命名不能为空");
+		return;
+	}
+	if(NULL_TAG != stdPreviewInstance)
+	{
+		char fname[MAX_FSPEC_BUFSIZE] = "";
+		char desName[MAX_FSPEC_BUFSIZE] = "";
+		char part_fspec1[ MAX_FSPEC_BUFSIZE ]="";
+		tag_t cur_preview_std_tag = UF_ASSEM_ask_child_of_instance(stdPreviewInstance);
+		UF_PART_ask_part_name(cur_preview_std_tag,part_fspec1);
+		uc4576(part_fspec1, 2, desName, fname);
+		if(0 != strcmpi(fname,stdName))
+		{
+			UF_ASSEM_remove_instance(stdPreviewInstance);
+			stdPreviewInstance = NULL_TAG;
+			if( newCopy )
+			{
+				uc4561(part_fspec1,2);
+			}
+		}
+	}
+	try
+	{
+		//---- Enter your callback code here -----
+		Point3d originPoint;
+		tag_t std_occ = NULL_TAG;
+		double org[3] = {0.0}, csys[6] = {1,0,0,0,1,0};
+		Part *workPart(theSession->Parts()->Work());
+
+
+		StlNXStringVector all_express;
+		UI_ListBox_GetItems(listParmeters,all_express);
+		RoyStdData.SetLastUIExpressions(all_express);
+		std::vector<NXOpen::TaggedObject* > csysObjects;
+		UI_CSYS_SetSelected(csysPos, csysObjects);
+		if( csysObjects.size() > 0 )
+		{
+			tag_t csys_tag = csysObjects[0]->Tag();
+			NXOpen::CoordinateSystem *coord_system = (NXOpen::CoordinateSystem *)NXOpen::NXObjectManager::Get(csys_tag);
+			originPoint =  coord_system->Origin(); 
+			NXOpen::NXMatrix *matrix = coord_system->Orientation();
+			Matrix3x3 matrix33 = matrix->Element();
+			csys[0] = matrix33.Xx;
+			csys[1] = matrix33.Xy;
+			csys[2] = matrix33.Xz;
+			csys[3] = matrix33.Yx;
+			csys[4] = matrix33.Yy;
+			csys[5] = matrix33.Yz;
+		}
+		org[0] = originPoint.X; org[1] = originPoint.Y;org[2] = originPoint.Z;
+		if( NULL_TAG == stdPreviewInstance )
+		{
+			int status = 0;
+			tag_t oldWork = NULL_TAG;
+			tag_t instance = NULL_TAG;
+			NXString cloneName;
+
+			char sourceName[133] = "";
+			char part_fspec[ MAX_FSPEC_BUFSIZE ]="";
+
+			char desName[133] = "";
+			UF_PART_load_status_t error_status;
+
+			char fname[133] = "";
+			char assem_path[133] = "";
+			UF_PART_ask_part_name(workPart->Tag(),part_fspec);
+
+
+			uc4576(part_fspec, 2, desName, fname);
+			strcpy(assem_path,desName);
+			strcat(desName,"\\");
+			strcat(desName, stdName);
+			//strcat(desName, ".prt");
+
+			NXString stdModelFile = RoyStdData.GetCurrentStdPartModel();
+
+			UF_CFI_ask_file_exist( desName, &status);
+			if( 0 == status )
+			{
+				int recover = theUI->NXMessageBox()->Show("同名文件已经存在", NXOpen::NXMessageBox::DialogTypeQuestion,"是否添加实例？");
+				if( 1 == recover )
+				{
+					UF_ASSEM_add_part_to_assembly(workPart->Tag(),desName,"TRUE",NULL,org,csys,-1,&instance,&error_status);
+					UF_PART_free_load_status(&error_status);
+					stdPreviewInstance = instance;
+				}
+				else
+					return;
+			}
+			else
+			{
+				StandardPartClonePart(stdModelFile.getText(), desName );
+				newCopy = true;
+				int err = UF_ASSEM_add_part_to_assembly(workPart->Tag(),desName,"TRUE",NULL,org,csys,-1,&instance,&error_status);
+				if(err)
+				{
+					UF_free_string_array(error_status.n_parts, error_status.file_names);
+					UF_free(error_status.statuses);
+					std_occ = NULL_TAG;
+				}
+				else
+				{
+					logical ispram = RoyStdData.GetCurrentStdPartIsPara();//false;//
+					if(ispram)
+					{
+						//参数化驱动
+						tag_t work_occ, std_tag;
+						work_occ = UF_ASSEM_ask_work_occurrence();
+						std_tag = UF_ASSEM_ask_child_of_instance(instance);
+						std_occ = UF_ASSEM_ask_part_occ_of_inst(work_occ, instance);
+						UF_ASSEM_set_work_occurrence(std_occ);	
+						TYCOM_STD_parametrize_part( all_express, std_tag);
+						UF_ASSEM_set_work_part(workPart->Tag());
+					}
+					stdPreviewInstance = instance;
+				}
+				UF_PART_free_load_status(&error_status);
+			}
+		}
+		else
+		{
+			if(1==updateflag )
+			{
+				logical ispram = RoyStdData.GetCurrentStdPartIsPara();//false;//
+				if(ispram)
+				{
+					//参数化驱动
+					tag_t work_occ, std_tag;
+					work_occ = UF_ASSEM_ask_work_occurrence();
+					std_tag = UF_ASSEM_ask_child_of_instance(stdPreviewInstance);
+					std_occ = UF_ASSEM_ask_part_occ_of_inst(work_occ, stdPreviewInstance);
+					UF_ASSEM_set_work_occurrence(std_occ);	
+					TYCOM_STD_parametrize_part( all_express, std_tag);
+					UF_ASSEM_set_work_part(workPart->Tag());
+				}
+			}
+			else//reposition instance
+			{
+				UF_ASSEM_reposition_instance(stdPreviewInstance,org,csys);
+			}
+		}
+	}
+	catch(exception& ex)
+	{
+		//---- Enter your exception handling code here -----
+		errorCode = 1;
+		TYStandPart::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
+	}
 }

@@ -175,5 +175,5 @@ int report_error( char *file, int line, char *call, int irc);
 
 NXString GetDateStr();
 
-
+extern int report( char *file, int line, char *call, int irc);
 #endif
