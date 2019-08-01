@@ -65,7 +65,7 @@
 			Name="Release|Win32"
 			>
 			<DebugSettings
-				Command="$(TargetPath)"
+				Command="$(UGII_BASE_DIR)\ugii\ugraf.exe"
 				WorkingDirectory=""
 				CommandArguments=""
 				Attach="false"
@@ -78,7 +78,7 @@
 				SQLDebugging=""
 				Environment=""
 				EnvironmentMerge="true"
-				DebuggerFlavor=""
+				DebuggerFlavor="0"
 				MPIRunCommand=""
 				MPIRunArguments=""
 				MPIRunWorkingDirectory=""
