@@ -235,22 +235,27 @@ void UI_ListBox_GetSelectItems(NXOpen::BlockStyler::UIBlock* block, std::vector<
 //This function get the listbox select item.
 void UI_ListBox_SetSelectItem(NXOpen::BlockStyler::UIBlock* block, int sel)
 {
+	vint sels;
+	sels.push_back(sel);
 	NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
 	pAttr = block->GetProperties();
-	 pAttr->SetInteger("SelectedItemIndex",sel);
+	 pAttr->SetIntegerVector("SelectedItems",sels);
 	delete pAttr;
 	pAttr = NULL;
 }
 
 int UI_ListBox_GetSelectItem(NXOpen::BlockStyler::UIBlock* block)
 {
-	int sel = -1;
+	vint sel;
 	NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
 	pAttr = block->GetProperties();
-	sel = pAttr->GetInteger("SelectedItemIndex");
+	//NXOpen::BlockStyler::PropertyList::PropertyType type =pAttr->GetPropertyType("SelectedItems");
+	//int len = pAttr->Length();
+	sel = pAttr->GetIntegerVector("SelectedItems");
+
 	delete pAttr;
 	pAttr = NULL;
-	return sel;
+	return sel[0];
 }
 
 

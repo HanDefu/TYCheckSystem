@@ -186,8 +186,9 @@ void TYStandPart::dialogShown_cb()
 				RoyStdData.InitalData(env_name,"\\standard\\TYStandardReg.xls");
 			}
 
-			
-			UI_EnumSetValues(enumFirstName, RoyStdData.GetFirstClassNames());
+
+			vNXString strs = RoyStdData.GetFirstClassNames();
+			UI_EnumSetValues(enumFirstName, strs);
 			UI_EnumSetValues(enumSecondName, RoyStdData.GetSecondClassNames());
             UI_ListBox_SetItems(listParts, RoyStdData.GetThirdClassNames());
 
@@ -462,7 +463,7 @@ int TYStandPart::update_cb(NXOpen::BlockStyler::UIBlock* block)
 		{
 			//---------Enter your code here-----------
 			int idx = 0;
-			UI_EnumSetCurrentSel(enumFirstName,idx);
+			UI_EnumGetCurrentSel(enumFirstName,idx);
 
 			RoyStdData.RefreshData(idx,0,0);
 			UI_EnumSetValues(enumSecondName,RoyStdData.GetSecondClassNames());
@@ -486,9 +487,9 @@ int TYStandPart::update_cb(NXOpen::BlockStyler::UIBlock* block)
 		{
 			//---------Enter your code here-----------
 			int idx1 = 0;
-			UI_EnumSetCurrentSel(enumFirstName,idx1);
+			UI_EnumGetCurrentSel(enumFirstName,idx1);
 			int idx2 = 0;
-			UI_EnumSetCurrentSel(enumSecondName,idx2);
+			UI_EnumGetCurrentSel(enumSecondName,idx2);
 			int idx3 = UI_ListBox_GetSelectItem(listParts);
 
 			RoyStdData.RefreshData(idx1,idx2,idx3);

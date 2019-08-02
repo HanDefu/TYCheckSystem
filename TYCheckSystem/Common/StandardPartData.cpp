@@ -98,7 +98,7 @@ int StandardPartData::Load_Level_1_Data( const char* regFileFullName )
 				NXString name = cel->Get();
 				m1_1_firstClassTypes.push_back(name);
 				BasicExcelCell *cel2 = sheet1->Cell(i,1);
-				NXString regpath = cel2->Get();
+				NXString regpath(cel2->Get().c_str());
 				m1_2_firstClassRegFiles.push_back(standardRoot+regpath);
 			}
 			irc = 0;
@@ -154,15 +154,15 @@ int StandardPartData::Load_Level_2_Data( int idx )
 
 					BasicExcelCell *cel2 = sheet1->Cell(i,1);
 					std::string regpath = cel2->Get();
-					sheetclassDatas.push_back(standardRoot+NXString(regpath));
+					sheetclassDatas.push_back(standardRoot+NXString(regpath.c_str()));
 
 					BasicExcelCell *cel3 = sheet1->Cell(i,2);
 					std::string modelpath = cel3->Get();
-					sheetclassModels.push_back(standardRoot+NXString(modelpath));
+					sheetclassModels.push_back(standardRoot+NXString(modelpath.c_str()));
 
 					BasicExcelCell *cel4 = sheet1->Cell(i,3);
 					std::string bitmappath = cel4->Get();
-					sheetclassBitmaps.push_back(standardRoot+NXString(bitmappath));
+					sheetclassBitmaps.push_back(standardRoot+NXString(bitmappath.c_str()));
 
 					BasicExcelCell *cel5 = sheet1->Cell(i,4);
 					std::string isParam = cel5->Get();
@@ -309,10 +309,10 @@ int StandardPartData::Load_Level_3_Data( int idx2, int idx3  )
 			{
 				BasicExcelCell *cel = sheet2->Cell(i,0);
 				std::string expName = cel->Get();
-				m3_5_currentAssoAttrName.push_back(expName);
+				m3_5_currentAssoAttrName.push_back(expName.c_str());
 				BasicExcelCell *cel2 = sheet2->Cell(i,1);
 				std::string values = cel2->Get();
-				m3_6_currentAssoAttrValue.push_back(values);
+				m3_6_currentAssoAttrValue.push_back(NXString(values.c_str()));
 			}
 		}	
 	}

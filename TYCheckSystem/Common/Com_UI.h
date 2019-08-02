@@ -66,6 +66,7 @@ int UI_ListBox_GetSelectItem(NXOpen::BlockStyler::UIBlock* block);
 
 //设置多个选择项
 void UI_ListBox_GetSelectItems(NXOpen::BlockStyler::UIBlock* block, std::vector<int> &sels);
+//NX7有问题
 void UI_ListBox_SetSelectItem(NXOpen::BlockStyler::UIBlock* block, int sel);
 
 
