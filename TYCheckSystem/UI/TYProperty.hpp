@@ -30,6 +30,7 @@
 #include <NXOpen/BlockStyler_UIBlock.hxx>
 #include <NXOpen/BlockStyler_BlockDialog.hxx>
 #include <NXOpen/BlockStyler_PropertyList.hxx>
+#include "../TYGlobalData.h"
 //------------------------------------------------------------------------------
 //Bit Option for Property: SnapPointTypesEnabled
 //------------------------------------------------------------------------------
@@ -68,6 +69,7 @@
 using namespace std;
 using namespace NXOpen;
 using namespace NXOpen::BlockStyler;
+
 
 //------------------------------------------------------------------------------
 // Forward declaration for Class
@@ -116,6 +118,13 @@ private:
     NXOpen::BlockStyler::UIBlock* enumHeatProcess;// Block type: Enumeration
     NXOpen::BlockStyler::UIBlock* enumFaceProcess;// Block type: Enumeration
     NXOpen::BlockStyler::UIBlock* stringTechReq;// Block type: Multiline String
+
+
+	//¸¨Öú
+	int m_customerSel;
+	int m_firstNameSel;
+	int m_secondNameSel;
+	int m_materialSel;
     
 };
 #endif //TYPROPERTY_H_INCLUDED

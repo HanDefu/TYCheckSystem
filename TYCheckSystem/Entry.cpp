@@ -36,14 +36,16 @@
 #include "UI\TYTextMark.hpp"
 #include "Tool\TYRegister.hpp"
 #include "Command.h"
-#include "uf_ui.h"
+#include <uf_ui.h>
+#include "TYGlobalData.h"
 
 using namespace NXOpen;
 
-bool g_regOK = false;
+static bool s_regOK = false;
+static bool s_isFirst = true;
 
-
-bool InitCheck();
+static bool InitCheck();
+static int InitData();
 
 extern "C" DllExport void  ufusr(char *param, int *retcod, int param_len)
 {
@@ -66,9 +68,20 @@ extern "C" DllExport void  ufusr(char *param, int *retcod, int param_len)
 
 		UF_initialize();
 
+		if (s_isFirst)
+		{
+			InitData();
+			s_isFirst = false;
+		}
+
 		if(strcmp(param, "CUSTOM_TY_ADD_PROPERTY") == 0)//添加属性
 		{
 			 TYProperty::Show_TYProperty();
+		}
+
+		if(strcmp(param, "CUSTOM_TY_CLEAR_PROPERTY") == 0)//清空属性
+		{
+			TYPropertyClear::Show_TYPropertyClear();
 		}
 
 		if(strcmp(param, "CUSTOM_TY_COLOR_TOOL") == 0)//着色
@@ -110,6 +123,12 @@ extern "C" DllExport void  ufusr(char *param, int *retcod, int param_len)
 		{
 			TYHole::Show_TYHole();
 		}
+
+		if(strcmp(param, "CUSTOM_TY_GET_HEAVY") == 0)//称重
+		{
+			TYHeavy::Show_TYHeavy();
+		}
+
 		if(strcmp(param, "CUSTOM_TY_TEXT_MARK") == 0)//刻字和镜像刻字
 		{
 			TYTextMark::Show_TYTextMark();
@@ -137,35 +156,16 @@ extern "C" DllExport void  ufusr(char *param, int *retcod, int param_len)
 
 }
 
-//------------------------------------------------------------------------------
-// This method specifies how a shared image is unloaded from memory
-// within NX. This method gives you the capability to unload an
-// internal NX Open application or user  exit from NX. Specify any
-// one of the three constants as a return value to determine the type
-// of unload to perform:
-//
-//
-//    Immediately : unload the library as soon as the automation program has completed
-//    Explicitly  : unload the library from the "Unload Shared Image" dialog
-//    AtTermination : unload the library when the NX session terminates
-//
-//
-// NOTE:  A program which associates NX Open applications with the menubar
-// MUST NOT use this option since it will UNLOAD your NX Open application image
-// from the menubar.
-//------------------------------------------------------------------------------
+
 extern "C" DllExport int ufusr_ask_unload()
 {
 	UF_terminate();
 	//return (int)Session::LibraryUnloadOptionExplicitly;
-	return (int)NXOpen::Session::LibraryUnloadOptionImmediately;
-	//return (int)Session::LibraryUnloadOptionAtTermination;
+	//return (int)NXOpen::Session::LibraryUnloadOptionImmediately;
+	return (int)Session::LibraryUnloadOptionAtTermination;
 }
 
-//------------------------------------------------------------------------------
-// Following method cleanup any housekeeping chores that may be needed.
-// This method is automatically called by NX.
-//------------------------------------------------------------------------------
+
 extern "C" DllExport void ufusr_cleanup(void)
 {
 	try
@@ -180,17 +180,24 @@ extern "C" DllExport void ufusr_cleanup(void)
 
 bool InitCheck()
 {
-	char * env = getenv("TY_STANDARD_DIR");
+	char * env = getenv("TY_DATA_DIR");
 	if (env == 0)
 	{
-		uc1601("没有环境变量TY_STANDARD_DIR",1);
+		uc1601("没有环境变量TY_DATA_DIR",1);
 		return false;
 	}
 
 	env = getenv("UGII_USER_DIR");
 	if (env == 0)
 	{
-		uc1601("没有环境变量TY_STANDARD_DIR",1);
+		uc1601("没有环境变量TY_DATA_DIR",1);
 		return false;
 	}
+	return true;
+}
+
+int InitData()
+{
+	TYGBDATA->Run();
+	return 0;
 }

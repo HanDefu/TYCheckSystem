@@ -355,6 +355,18 @@
 				RelativePath=".\Entry.hpp"
 				>
 			</File>
+			<File
+				RelativePath=".\TY_Def.h"
+				>
+			</File>
+			<File
+				RelativePath=".\TYGlobalData.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\TYGlobalData.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="UI"
@@ -483,10 +495,6 @@
 			</File>
 			<File
 				RelativePath=".\Common\Common_UI.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Common\TY_Def.h"
 				>
 			</File>
 		</Filter>

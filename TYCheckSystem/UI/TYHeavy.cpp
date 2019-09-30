@@ -17,6 +17,11 @@
 //These includes are needed for the following template code
 //------------------------------------------------------------------------------
 #include "TYHeavy.hpp"
+#include <uf_modl.h>
+#include "../Common/Common_Function.h"
+#include "../Common/Common_UI.h"
+#include "../Common/Common_Function_UG.h"
+#include "uf_assem.h"
 using namespace NXOpen;
 using namespace NXOpen::BlockStyler;
 
@@ -150,7 +155,31 @@ int TYHeavy::apply_cb()
 {
 	try
 	{
-		//---- Enter your callback code here -----
+		//预处理 workpart
+		std::vector<NXOpen::TaggedObject *> objs = UI_GetSelectObjects(selectionBodies);
+		double sum = 0;
+		int useless = 0;
+		for(int i = 0; i < objs.size(); i++)
+		{
+			double gri = GetBodyGrid(objs[i]->Tag());
+			if(gri > 0)
+				sum = sum + gri;
+			else
+				useless++;
+		}
+
+		//Report
+		logical response = 0;
+		UF_UI_is_listing_window_open(&response);
+		if(!response)
+			UF_UI_open_listing_window();
+
+		//UF_UI_write_listing_window("-----------------若宇称重报告-------------------\n\n\n");
+		char str[1024]="";
+		sprintf(str, "共选择实体:  %d个\n有效实体: %d个\n",objs.size(),objs.size()-useless);
+		UF_UI_write_listing_window(str);
+		sprintf(str, "共计重量:%.3f(KG)\n",sum);
+		UF_UI_write_listing_window(str);
 	}
 	catch(exception& ex)
 	{
@@ -220,4 +249,30 @@ int TYHeavy::cancel_cb()
 int TYHeavy::filter_cb(NXOpen::BlockStyler::UIBlock*  block, NXOpen::TaggedObject* selectObject)
 {
 	return(UF_UI_SEL_ACCEPT);
+}
+
+//获取实体重量
+double TYHeavy::GetBodyGrid(tag_t body)
+{
+	if( UF_ASSEM_is_occurrence( body ))
+	{
+		body = UF_ASSEM_ask_prototype_of_occ ( body ) ;
+	}
+
+	if(body == 0)
+		return -1;
+
+	//默认铁的密度7.8g/cm3
+	double grid = 7.8;
+	char cgrid[32] = "";
+	int has = USER_ask_obj_string_attr( body , TY_ATTR_DENSITY , cgrid );
+	if(has)
+	    grid = atof(cgrid);
+
+	double volume = TYCOM_GetBodyVolume(body);
+	
+	double heavy = volume * grid;//g
+	heavy = heavy/1000;//kg
+
+	return heavy;
 }

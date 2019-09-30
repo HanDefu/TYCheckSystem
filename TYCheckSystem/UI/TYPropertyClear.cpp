@@ -17,6 +17,7 @@
 //These includes are needed for the following template code
 //------------------------------------------------------------------------------
 #include "TYPropertyClear.hpp"
+#include <uf_attr.h>
 using namespace NXOpen;
 using namespace NXOpen::BlockStyler;
 
@@ -147,7 +148,17 @@ int TYPropertyClear::apply_cb()
 {
 	try
 	{
-		//---- Enter your callback code here -----
+		NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
+		//bodies
+		pAttr = selectionBodies->GetProperties();
+		std::vector<NXOpen::TaggedObject *> objsBodies = pAttr->GetTaggedObjectVector("SelectedObjects");
+
+		for(int i = 0; i < objsBodies.size(); i++)
+		{
+			UF_ATTR_delete_all( objsBodies[i]->Tag() , UF_ATTR_any );
+		}
+		delete pAttr;
+		pAttr = 0;
 	}
 	catch(exception& ex)
 	{

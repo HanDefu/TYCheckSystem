@@ -18,7 +18,7 @@
 //------------------------------------------------------------------------------
 #include "TYCheckInterference.hpp"
 #include "../Common/Common_UI.h"
-#include "../Common/TY_Def.h"
+#include "../TY_Def.h"
 #include <uf_disp.h>
 #include <uf_modl.h>
 #include "../Common/Common_Function.h"
@@ -120,7 +120,12 @@ void TYCheckInterference::initialize_cb()
 		groupSelectBodies = theDialog->TopBlock()->FindBlock("groupSelectBodies");
 		selectionBodies = theDialog->TopBlock()->FindBlock("selectionBodies");
 
-		
+		UI_SetSeletSolidBody(selectionBodies);
+
+		for(int i = 0; i < m_intsectBodies.size(); i++)
+		{
+			UF_DISP_set_highlight(m_intsectBodies[i],1);
+		}
 	}
 	catch(exception& ex)
 	{
@@ -139,7 +144,7 @@ void TYCheckInterference::dialogShown_cb()
 	try
 	{
 		//---- Enter your callback code here -----
-		UI_SetSeletSolidBody(selectionBodies);
+		
 	}
 	catch(exception& ex)
 	{
@@ -155,6 +160,8 @@ int TYCheckInterference::apply_cb()
 {
 	try
 	{
+		m_intsectBodies.clear();
+
 		std::vector<NXOpen::TaggedObject *> pbodies = UI_GetSelectObjects(selectionBodies);
 		vtag_t bodies;
 		for(int i = 0; i < pbodies.size(); i++)
@@ -169,6 +176,12 @@ int TYCheckInterference::apply_cb()
 				if (ret < 0)
 				{
 					m_intsectBodies.push_back(bodies[i]);
+				}
+
+				ret = vFind(m_intsectBodies,bodies[j]);
+				if (ret < 0)
+				{
+					m_intsectBodies.push_back(bodies[j]);
 				}
             }
 
@@ -240,10 +253,7 @@ int TYCheckInterference::cancel_cb()
 {
 	try
 	{
-		for(int i = 0; i < m_intsectBodies.size(); i++)
-		{
-			UF_DISP_set_highlight(m_intsectBodies[i],1);
-		}
+		
 	}
 	catch(exception& ex)
 	{

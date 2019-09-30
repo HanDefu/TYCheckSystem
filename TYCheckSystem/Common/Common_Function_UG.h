@@ -271,6 +271,7 @@ void SetDrawingSheetScale(double stdscale);
 tag_t Create_wcs_by_dir2( double x_dir[3], double z_dir[3]);
 double GetSuggestScaleforPartDrawing(tag_t component, double shlen, double shhei);
 double GetSuggestScaleforAssemDrawing( tag_t part, double shlen, double shhei );
+vtag_t TYCOM_GetBodiesFromObjects(vtag_t &objs);
 
 
 

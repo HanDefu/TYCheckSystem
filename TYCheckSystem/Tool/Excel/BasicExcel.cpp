@@ -36,9 +36,18 @@ bool Block::Open(const wchar_t* filename, ios_base::openmode mode)
 	// Open existing file for reading or writing or both
 	size_t filenameLength = wcslen(filename);
 	filename_.resize(filenameLength+1, 0);
-	wcstombs(&*(filename_.begin()), filename, filenameLength);
+	
+	//20190930支持中文文件名测试
+	/*wcstombs(&*(filename_.begin()), filename, filenameLength);
+	file_.open(&*(filename_.begin()), mode | ios_base::binary);*/
 
-	file_.open(&*(filename_.begin()), mode | ios_base::binary);
+	setlocale(LC_ALL,"Chinese-simplified");//设置中文环境 
+	file_.open(&*(filename_.begin()), mode_ | ios_base::binary);
+	setlocale(LC_ALL,"C"); 
+
+
+
+
 	if (!file_.is_open()) return false;
 
 	mode_ = mode;

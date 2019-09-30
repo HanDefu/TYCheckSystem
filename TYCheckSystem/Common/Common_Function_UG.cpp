@@ -4013,3 +4013,18 @@ int TYCOM_WaveLinkBodyToWorkPart(tag_t body)
 
 	return 0;
 }*/
+
+vtag_t TYCOM_GetBodiesFromObjects(vtag_t &objs)
+{
+	vtag_t bodies;
+	for( int idx = 0; idx < objs.size(); ++idx )
+	{
+		int type = 0,subType = 0;
+		UF_OBJ_ask_type_and_subtype( objs[idx], &type, &subType );
+		if(  UF_solid_type == type && UF_solid_body_subtype == subType )//UF_tabular_note_type
+		{
+			bodies.push_back(objs[idx]);
+		}
+	}
+	return bodies;
+}

@@ -103,6 +103,7 @@ public:
     int cancel_cb();
     int update_cb(NXOpen::BlockStyler::UIBlock* block);
     int filter_cb(NXOpen::BlockStyler::UIBlock*  block, NXOpen::TaggedObject* selectObject);
+	double GetBodyGrid(tag_t body);
     
 private:
     std::string theDialogName;

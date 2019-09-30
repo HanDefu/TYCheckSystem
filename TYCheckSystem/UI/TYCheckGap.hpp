@@ -30,6 +30,7 @@
 #include <NXOpen/BlockStyler_UIBlock.hxx>
 #include <NXOpen/BlockStyler_BlockDialog.hxx>
 #include <NXOpen/BlockStyler_PropertyList.hxx>
+#include "../TY_Def.h"
 //------------------------------------------------------------------------------
 //Bit Option for Property: SnapPointTypesEnabled
 //------------------------------------------------------------------------------
@@ -111,5 +112,6 @@ private:
     NXOpen::BlockStyler::UIBlock* selectionBasePlate;// Block type: Selection
     NXOpen::BlockStyler::UIBlock* selectionBodies;// Block type: Selection
     
+	vtag_t m_gapBodies;
 };
 #endif //TYCHECKGAP_H_INCLUDED

@@ -17,6 +17,11 @@
 //These includes are needed for the following template code
 //------------------------------------------------------------------------------
 #include "TYCheckGap.hpp"
+#include <uf_disp.h>
+#include <uf_modl.h>
+#include "../Common/Common_Function.h"
+#include "../Common/Common_UI.h"
+#include "../Common/Common_Function_UG.h"
 using namespace NXOpen;
 using namespace NXOpen::BlockStyler;
 
@@ -118,6 +123,14 @@ void TYCheckGap::initialize_cb()
 		groupSelectBodies = theDialog->TopBlock()->FindBlock("groupSelectBodies");
 		selectionBasePlate = theDialog->TopBlock()->FindBlock("selectionBasePlate");
 		selectionBodies = theDialog->TopBlock()->FindBlock("selectionBodies");
+
+		UI_SetSeletSolidBody(selectionBasePlate);
+		UI_SetSeletSolidBody(selectionBodies);
+
+		for(int i = 0; i < m_gapBodies.size(); i++)
+		{
+			UF_DISP_set_highlight(m_gapBodies[i],1);
+		}
 	}
 	catch(exception& ex)
 	{
@@ -144,6 +157,12 @@ void TYCheckGap::dialogShown_cb()
 	}
 }
 
+static int CheckOneBody(tag_t diban, tag_t body, double &dis)
+{
+	int ret = TYCOM_AskMinimumDist(diban, body, dis);
+	return 0;
+}
+
 //------------------------------------------------------------------------------
 //Callback Name: apply_cb
 //------------------------------------------------------------------------------
@@ -151,7 +170,38 @@ int TYCheckGap::apply_cb()
 {
 	try
 	{
-		//---- Enter your callback code here -----
+		m_gapBodies.clear();
+		std::vector<NXOpen::TaggedObject *> dibans = UI_GetSelectObjects(selectionBasePlate);
+		tag_t diban = dibans[0]->Tag();
+
+		std::vector<NXOpen::TaggedObject *> pbodies = UI_GetSelectObjects(selectionBodies);
+		vtag_t bodies;
+		for(int i = 0; i < pbodies.size(); i++)
+			bodies.push_back(pbodies[i]->Tag()); 
+
+		//
+		double dis = 0;
+		int num = 0;
+		for(int i = 0; i < bodies.size(); i++)
+		{
+			CheckOneBody(diban, bodies[i], dis);
+			if(dis > TY_GAP_DIS)
+			{
+				m_gapBodies.push_back(bodies[i]);
+			}
+		}
+
+
+		//Report
+		logical response = 0;
+		UF_UI_is_listing_window_open(&response);
+		if(!response)
+			UF_UI_open_listing_window();
+
+		//UF_UI_write_listing_window("-----------------若宇称重报告-------------------\n\n\n");
+		char str[1024]="";
+		sprintf(str, "共选择%d个检测实体\n其中%d个是悬空状态,系统已经高亮显示\n",bodies.size(),m_gapBodies.size());
+		UF_UI_write_listing_window(str);
 	}
 	catch(exception& ex)
 	{

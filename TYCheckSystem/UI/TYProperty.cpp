@@ -68,6 +68,11 @@ TYProperty::TYProperty()
 		theDialog->AddFilterHandler(make_callback(this, &TYProperty::filter_cb));
 		theDialog->AddInitializeHandler(make_callback(this, &TYProperty::initialize_cb));
 		theDialog->AddDialogShownHandler(make_callback(this, &TYProperty::dialogShown_cb));
+
+		m_customerSel = 0;
+		m_firstNameSel = 0;
+		m_secondNameSel = 0;
+		m_materialSel = 0;
 	}
 	catch(exception& ex)
 	{
