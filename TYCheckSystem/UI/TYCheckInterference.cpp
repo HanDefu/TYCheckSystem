@@ -21,6 +21,7 @@
 #include "../Common/TY_Def.h"
 #include <uf_disp.h>
 #include <uf_modl.h>
+#include "../Common/Common_Function.h"
 using namespace NXOpen;
 using namespace NXOpen::BlockStyler;
 
@@ -159,48 +160,33 @@ int TYCheckInterference::apply_cb()
 		for(int i = 0; i < pbodies.size(); i++)
 			bodies.push_back(pbodies[i]->Tag()); 
 
-		//
-		double dis = 0;
-		int num = 0;
+		int ret = 0;
 		for(int i = 0; i < bodies.size(); i++)
 		{
 			for(int j = i+1; j < bodies.size(); j++)
             {
-			    /*CF_AskMinimumDist(bodies[i], bodies[j], dis);
-                if( dis < 0.00001 )
-                {
-                    UF_DISP_set_highlight(bodies[i],1);
-                    UF_DISP_set_highlight(bodies[j],1);
-                    num++;
-                }*/
-                int   result[1];
-                UF_MODL_check_interference(bodies[i],1,&bodies[j],result);
-                if( 1 == result[0] )
-                {
-                    UF_DISP_set_highlight(bodies[i],1);
-                    UF_DISP_set_highlight(bodies[j],1);
-                    num++;
-                }
+                ret = vFind(m_intsectBodies,bodies[i]);
+				if (ret < 0)
+				{
+					m_intsectBodies.push_back(bodies[i]);
+				}
             }
-			/*if(fabs(dis) > 0.0001)
-				continue;
-			
-			if(dis > 0.1)
-			{
-				UF_DISP_set_highlight(bodies[i],1);
-				num++;
-			}*/
+
 		}
+
         logical response = 0;
 		UF_UI_is_listing_window_open(&response);
 		if(!response)
 		    UF_UI_open_listing_window();
+		
 		char str[1024]="";
-        if( num > 0 )
-		    sprintf(str, "共选择%d个检测实体\n其中%d处存在干涉,系统已经高亮显示\n",bodies.size(),num);
+        if( m_intsectBodies.size() > 0 )
+		    sprintf(str, "共选择%d个检测实体\n其中%d处存在干涉,系统已经高亮显示\n",bodies.size(),m_intsectBodies.size());
         else
             sprintf(str, "共选择%d个检测实体\n没有发现干涉\n",bodies.size());
 		UF_UI_write_listing_window(str);
+
+        cancel_cb();
 	}
 	catch(exception& ex)
 	{
@@ -254,7 +240,10 @@ int TYCheckInterference::cancel_cb()
 {
 	try
 	{
-		//---- Enter your callback code here -----
+		for(int i = 0; i < m_intsectBodies.size(); i++)
+		{
+			UF_DISP_set_highlight(m_intsectBodies[i],1);
+		}
 	}
 	catch(exception& ex)
 	{

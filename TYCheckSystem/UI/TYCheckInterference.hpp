@@ -30,6 +30,7 @@
 #include <NXOpen/BlockStyler_UIBlock.hxx>
 #include <NXOpen/BlockStyler_BlockDialog.hxx>
 #include <NXOpen/BlockStyler_PropertyList.hxx>
+#include "../Common/TY_Def.h"
 //------------------------------------------------------------------------------
 //Bit Option for Property: SnapPointTypesEnabled
 //------------------------------------------------------------------------------
@@ -109,6 +110,8 @@ private:
     NXOpen::BlockStyler::BlockDialog* theDialog;
     NXOpen::BlockStyler::UIBlock* groupSelectBodies;// Block type: Group
     NXOpen::BlockStyler::UIBlock* selectionBodies;// Block type: Selection
+
+	vtag_t m_intsectBodies;
     
 };
 #endif //TYCHECKINTERFERENCE_H_INCLUDED
