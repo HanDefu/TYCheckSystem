@@ -168,4 +168,10 @@ int TYCOM_SetPrintPDFName( const char* fileName);
 
 void TYCOM_getFilesInDirectory( string path, vector<string>& files );
 int TYCOM_GetNewFileName(char *orinalFileName, char newFileName[256]);
+
+void write_integer_to_listing_window(char *title, int n);
+int report_error( char *file, int line, char *call, int irc);
+#define UF_CALL(X) (report_error( __FILE__, __LINE__, #X, (X)))
+
+NXString GetDateStr();
 #endif

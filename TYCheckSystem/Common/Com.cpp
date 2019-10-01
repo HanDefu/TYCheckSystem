@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <uf_mtx.h>
 #include <io.h>
+#include <time.h>
 
 using namespace NXOpen;
 using namespace std;
@@ -1247,3 +1248,60 @@ int TYCOM_GetNewFileName(char *orinalFileName, char newFileName[256])
 
 	return 0;
 }
+
+
+/*ARGSUSED*/
+int report_error( char *file, int line, char *call, int irc)
+{
+	if (irc)
+	{
+		char err[133],
+			msg[133];
+
+		sprintf(msg, "*** ERROR code %d at line %d in %s:\n+++ ",
+			irc, line, file);
+		UF_get_fail_message(irc, err);
+
+		/*  NOTE:  UF_print_syslog is new in V18 */
+
+		UF_print_syslog(msg, FALSE);
+		UF_print_syslog(err, FALSE);
+		UF_print_syslog("\n", FALSE);
+		UF_print_syslog(call, FALSE);
+		UF_print_syslog(";\n", FALSE);
+
+		if (!UF_UI_open_listing_window())
+		{
+			UF_UI_write_listing_window(msg);
+			UF_UI_write_listing_window(err);
+			UF_UI_write_listing_window("\n");
+			UF_UI_write_listing_window(call);
+			UF_UI_write_listing_window(";\n");
+		}
+	}
+
+	return(irc);
+}
+
+/*ARGSUSED*/
+void write_integer_to_listing_window(char *title, int n)
+{
+	char
+		msg[UF_UI_MAX_STRING_LEN+1];
+
+	UF_CALL(UF_UI_open_listing_window());
+	sprintf(msg, "%s = %d\n", title, n);
+	UF_CALL(UF_UI_write_listing_window(msg));
+}
+
+NXString GetDateStr()
+{
+	time_t timep;
+	struct tm *time_ptr;
+	time(&timep);
+	time_ptr = localtime(&timep);
+	char timeStr[32] = "";
+	sprintf_s(timeStr,"%d%02d%02d",time_ptr->tm_year+1900, time_ptr->tm_mon+1, time_ptr->tm_mday);
+	return NXString(timeStr);
+}
+

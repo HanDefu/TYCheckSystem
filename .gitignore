@@ -13,6 +13,10 @@ YTCAD/Temp
 *.htm
 *.res
 *.idb
+*.ilk
+*.dep
+*.user
+*.ncb
 
 # Prerequisites
 *.d
