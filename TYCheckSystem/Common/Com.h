@@ -174,4 +174,6 @@ int report_error( char *file, int line, char *call, int irc);
 #define UF_CALL(X) (report_error( __FILE__, __LINE__, #X, (X)))
 
 NXString GetDateStr();
+
+
 #endif

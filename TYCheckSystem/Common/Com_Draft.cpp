@@ -38,6 +38,7 @@
 #include <NXOpen/Annotations_Note.hxx>
 #include <NXOpen/Annotations_DraftingNoteBuilder.hxx>
 #include <NXOpen/Annotations_AnnotationManager.hxx>
+#include "Com_UG.h"
 
 using namespace NXOpen;
 
@@ -178,7 +179,7 @@ tag_t GetReferencesetBody(tag_t part,NXString& refsetName)
 	return body;
 }
 
-void GetTopViewProjectDirection( tag_t partTag, NXString& refset,double dir[3][3] )
+int GetTopViewProjectDirection( tag_t partTag, NXString& refset,double dir[3][3] )
 {
 	tag_t part = partTag;
 	dir[0][0] = 1;
@@ -234,8 +235,10 @@ void GetTopViewProjectDirection( tag_t partTag, NXString& refset,double dir[3][3
 			/*UF_CALL(UF_VEC3_unitize(dir[0], tol, &mag, &csys[0]));
 			UF_CALL(UF_VEC3_unitize(dir[1], tol, &mag, &csys[3]));
 			UF_CALL(UF_VEC3_unitize(dir[2], tol, &mag, &csys[6]));*/
+			return -1;
 		}
 	}
+	return 0;
 }
 
 static tag_t CreateBaseView(tag_t partTag, NXString viewType, NXString& refset,Point3d& viewRefPoint, double stdscale,double sheetlen,double sheethei  )
@@ -265,8 +268,28 @@ static tag_t CreateBaseView(tag_t partTag, NXString viewType, NXString& refset,P
 	if( !loadStatus1 )
 		part1->LoadFully();
     
+
+	/*NXOpen::ModelingViewCollection * views = part1->ModelingViews();
+	NXOpen::ModelingViewCollection::iterator it = views->begin();
+	char name[133] = "";
+    NXOpen::ModelingView * topView = 0;
+	while (it!= views->end())
+	{
+		NXOpen::ModelingView * thisdata = *it;
+		UF_OBJ_ask_name(thisdata->Tag(),name);
+		if (strcmp(name,viewType.GetLocaleText()) == 0)
+		{
+			topView = *it;
+			break;
+		}
+
+		it++;
+	}*/
+
     NXOpen::ModelingView *modelingView2(dynamic_cast<NXOpen::ModelingView *>(part1->ModelingViews()->FindObject(viewType)));
     baseViewBuilder1->SelectModelView()->SetSelectedView(modelingView2);
+
+	baseViewBuilder1->SelectModelView()->SetSelectedView(modelingView2);
     
     NXOpen::Assemblies::Arrangement *nullNXOpen_Assemblies_Arrangement(NULL);
     baseViewBuilder1->Style()->ViewStyleBase()->Arrangement()->SetSelectedArrangement(nullNXOpen_Assemblies_Arrangement);
@@ -294,13 +317,17 @@ static tag_t CreateBaseView(tag_t partTag, NXString viewType, NXString& refset,P
 		NXOpen::Vector3d vector1(0.0, 0.0, 1.0);
 		NXOpen::Vector3d vector2(1.0, 0.0, 0.0);
 		double dir[3][3]={0};
-		GetTopViewProjectDirection(partTag,refset,dir);
-		vector1.X = dir[2][0];
-		vector1.Y = dir[2][1];
-		vector1.Z = dir[2][2];
-		vector2.X = dir[0][0];
-		vector2.Y = dir[0][1];
-		vector2.Z = dir[0][2];
+		int ret = GetTopViewProjectDirection(partTag,refset,dir);
+		if(ret == 0)
+		{
+			vector1.X = dir[2][0];
+			vector1.Y = dir[2][1];
+			vector1.Z = dir[2][2];
+			vector2.X = dir[0][0];
+			vector2.Y = dir[0][1];
+			vector2.Z = dir[0][2];
+		}
+		
 		/*tag_t body = GetReferencesetBody(part,refset);
 		if( NULL_TAG != body )
 		{
@@ -464,7 +491,9 @@ static int CreateBaseAndProjectViews( tag_t partTag, NXString& refset, double st
 	Session *theSession = Session::GetSession();
     Part *workPart(theSession->Parts()->Work());
 	NXOpen::Point3d point1(0, 0, 0.0);
-	tag_t baseView = CreateBaseView(partTag,"Top",refset, point1,stdscale,sheetlen,sheethei);
+
+	//注意NX7.0 是TOP NX12.0是 Top
+	tag_t baseView = CreateBaseView(partTag,"TOP",refset, point1,stdscale,sheetlen,sheethei);
 
     tag_t proto = partTag;
     tag_t currentDrawing = NULL_TAG;
@@ -481,7 +510,7 @@ static int CreateBaseAndProjectViews( tag_t partTag, NXString& refset, double st
         {
             int err = 0;
             err = UF_ASSEM_replace_refset(1,&comps[idx],refset.GetLocaleText());
-            tag_t baseView2 = CreateBaseView(partTag,"Top",refset, point1,stdscale,sheetlen,sheethei);
+            tag_t baseView2 = CreateBaseView(partTag,"TOP",refset, point1,stdscale,sheetlen,sheethei);
             UF_VIEW_delete(baseView,&err);
             baseView = baseView2;
         }
@@ -495,7 +524,9 @@ static int CreateBaseAndProjectViews( tag_t partTag, NXString& refset, double st
     double sheetHei = point1.Y*2;
 	projectViewl = CreateProjectView(baseView,point1.X, point1.Y-50);
     projectViewr = CreateProjectView(baseView,point1.X+50, point1.Y);
-    tag_t IsometricView = CreateBaseView(partTag,"Isometric", refset,point1,stdscale,sheetlen,sheethei);
+
+	//nx7.0 TFR-ISO nx12.0 Isometric
+    tag_t IsometricView = CreateBaseView(partTag,"TFR-ISO", refset,point1,stdscale,sheetlen,sheethei);
 	double xy_boud1[4] = {0,0,0,0};
 	double xy_boud2[4] = {0,0,0,0};
 	double xy_boud3[4] = {0,0,0,0};
@@ -582,7 +613,7 @@ static int CreateBaseAndProjectViews( tag_t partTag, NXString& refset, double st
 		MoveProjectView(projectViewr,projecRview_x,projecRview_y);
 
 		NXOpen::Point3d point2(projecRview_x, projeclview_y, 0.0);
-		tag_t IsometricView = CreateBaseView(partTag,"Isometric", refset,point2,stdscale,sheetlen,sheethei);
+		tag_t IsometricView = CreateBaseView(partTag," TFR-ISO", refset,point2,stdscale,sheetlen,sheethei);
 		NXOpen::Session *theSession = NXOpen::Session::GetSession();
 		NXOpen::Part *workPart(theSession->Parts()->Work());
 		std::vector<NXOpen::Drawings::DraftingView *> views1(2);
@@ -1358,64 +1389,43 @@ int GZ_SetDrawingNoteInformation( tag_t part, tag_t group, double scale, NXStrin
 			}
 		}
 	}
-	UF_free(members);
-	return 0;*/
+	UF_free(members);*/
+	return 0;
 }
 
 
-int CMD()
+int TY_AutoDrafting()
 {
 	int errorCode = 0;
     try
     {
-        //errorCode = apply_cb();
-		/*char inputfile[UF_CFI_MAX_PATH_NAME_SIZE]="";
+		char inputfile[UF_CFI_MAX_PATH_NAME_SIZE]="";
 		char outputfile[UF_CFI_MAX_PATH_NAME_SIZE]="";
-		//std::vector<Node*> SelectedNodes;
-        tag_t disp = UF_PART_ask_display_part();
-		std::vector<NXString> typestrs = enumType->GetEnumMembers();
-		int sel = 0;
-		UI_EnumGetCurrentSel(enumType, sel);
-		NXString typeStr = typestrs[sel];
-        double scale = doubleDwgScale->GetProperties()->GetDouble("Value");
-        NXString frame = enumFrameType->GetProperties()->GetEnumAsString("Value");
-		NXString savepath = nativeFolderBrowser01->GetProperties()->GetString("Path");
-        std::vector<NXOpen::TaggedObject* > objects = bodySelect0->GetProperties()->GetTaggedObjectVector("SelectedObjects");
-        NXString projName = projectName->GetProperties()->GetString("Value");
-        NXString projNO = projectNO->GetProperties()->GetString("Value");
-		NXString tuHao = drawingNO->GetProperties()->GetString("Value");
+		tag_t disp = UF_PART_ask_display_part();
+        NXString savepath("E:\\Projects\\WeiTang\\Test");
 
-        Royal_set_obj_attr(disp,"工程名称",projName.GetLocaleText());
-		Royal_set_obj_attr(disp,"工程编号",projNO.GetLocaleText());
+		vtag_t allBodies;
+		TYCOM_GetCurrentPartSolidBodies(allBodies);
+     
+	    vNXString refNames;
+        for( int idx = 0; idx < allBodies.size(); ++idx )
+        {
+     
+			vtag_t bodies;
+			bodies.push_back(allBodies[idx]);
+			char  crefName[32] = "";
+			sprintf_s(crefName,"BODY_%d",idx);
+			NXString refName(crefName);
+			refNames.push_back(refName);
+            CreateReferenceSet(bodies,refName);
+        }
 
-        std::vector<Node*> SelectedNodes;
-        NXOpen::BlockStyler::Node * treeNode = tree_control0->RootNode();
-        while( NULL != treeNode )
-        {
-            SelectedNodes.push_back(treeNode);
-            treeNode = treeNode->NextNode();
-        }
-        for( int idx = 0; idx < SelectedNodes.size(); ++idx )
-        {
-            StlTagVector bodies;
-            NXOpen::DataContainer *nodeData = SelectedNodes[idx]->GetNodeData();
-            std::vector<NXOpen::TaggedObject *>objects = nodeData->GetTaggedObjectVector("Data");
-            for(int jdx = 0; jdx < objects.size(); ++jdx )
-                bodies.push_back(objects[jdx]->Tag());
-            if( bodies.size() > 0 )
-            {
-                NXString name = SelectedNodes[idx]->GetColumnDisplayText(0);
-                CreateReferenceSet(bodies,name);
-            }
-        }
         tag_t newpart = CreateDWGPart();
         if( NULL_TAG == newpart )
             return 1;
         UF_PART_ask_part_name(newpart,inputfile);
-        for( int idx = 0; idx < SelectedNodes.size(); ++idx )
+        for( int idx = 0; idx < allBodies.size(); ++idx )
         {
-            NXString refname = SelectedNodes[idx]->GetColumnDisplayText(0);
-            NXString frame = SelectedNodes[idx]->GetColumnDisplayText(1);
             tag_t view = NULL_TAG;
             tag_t viewl = NULL_TAG;
             tag_t viewr = NULL_TAG;
@@ -1429,9 +1439,9 @@ int CMD()
 			//double viewcenter[3]={0};
 			//double pt2d[2] = {0};
 			//char viewName[133]="";
-			GetTopViewProjectDirection( disp, refname, direction );
-            tag_t group = CreateDrawingViewDWG(disp,view,viewl,viewr,refname,frame,typeStr,viewbound,scale);
-            GZ_SetDrawingNoteInformation(newpart,group,scale,refname);
+			GetTopViewProjectDirection( disp, refNames[idx], direction );
+            tag_t group = CreateDrawingViewDWG(disp,view,viewl,viewr,refNames[idx],NXString("frame"),NXString("钢材"),viewbound,scale);
+            GZ_SetDrawingNoteInformation(newpart,group,scale,refNames[idx]);
             RY_DWG_create_demention(disp,view,scale,direction);
 			for( int i = 0; i< 3; i++)
 				viewldir[0][i] = direction[0][i];
@@ -1444,15 +1454,15 @@ int CMD()
 				viewrdir[1][i] = direction[1][i];
             RY_DWG_create_demention(disp,viewr,scale,viewrdir);
             UF_PART_save();
-            sprintf(outputfile,"%s\\%s.dwg",savepath.GetLocaleText(),refname.GetLocaleText());
-            export_sheet_to_acad_dwg2d(inputfile,outputfile,refname);
+            sprintf(outputfile,"%s\\%s.dwg",savepath.GetLocaleText(),refNames[idx].GetLocaleText());
+            export_sheet_to_acad_dwg2d(inputfile,outputfile,refNames[idx]);
         }
         UF_PART_close(newpart,0,1);
         UF_PART_set_display_part(disp);
-        theSession->ApplicationSwitchImmediate("UG_APP_MODELING");
+        //theSession->ApplicationSwitchImmediate("UG_APP_MODELING");
         char cmd[512]="";
         sprintf_s(cmd,"start %s",savepath.GetLocaleText());
-        system(cmd);   */   
+        system(cmd);    
     }
     catch(exception& ex)
     {
