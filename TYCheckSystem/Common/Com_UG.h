@@ -17,7 +17,7 @@
 #include <NXOpen/ugmath.hxx>
 #include <NXOpen/GeometricUtilities_BooleanOperation.hxx>
 #include <NXOpen/BlockStyler_UIBlock.hxx>
-#include "Common_Function.h"
+#include "Com.h"
 #include "uf_attr.h"
 #include <NXOpen/CartesianCoordinateSystem.hxx>
 #include <NXOpen/Xform.hxx>

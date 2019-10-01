@@ -19,9 +19,9 @@
 #include "TYCheckGap.hpp"
 #include <uf_disp.h>
 #include <uf_modl.h>
-#include "../Common/Common_Function.h"
-#include "../Common/Common_UI.h"
-#include "../Common/Common_Function_UG.h"
+#include "../Common/Com.h"
+#include "../Common/Com_UI.h"
+#include "../Common/Com_UG.h"
 using namespace NXOpen;
 using namespace NXOpen::BlockStyler;
 

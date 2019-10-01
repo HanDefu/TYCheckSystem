@@ -475,35 +475,43 @@
 			Name="Common"
 			>
 			<File
-				RelativePath=".\Common\Common_Function.cpp"
+				RelativePath=".\Common\Com.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Common\Common_Function.h"
+				RelativePath=".\Common\Com.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Common\Common_Function_Attribute.cpp"
+				RelativePath=".\Common\Com_Attribute.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Common\Common_Function_Attribute.h"
+				RelativePath=".\Common\Com_Attribute.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Common\Common_Function_UG.cpp"
+				RelativePath=".\Common\Com_Draft.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Common\Common_Function_UG.h"
+				RelativePath=".\Common\Com_Draft.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Common\Common_UI.cpp"
+				RelativePath=".\Common\Com_UG.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Common\Common_UI.h"
+				RelativePath=".\Common\Com_UG.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Common\Com_UI.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Common\Com_UI.h"
 				>
 			</File>
 		</Filter>

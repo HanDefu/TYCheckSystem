@@ -1,8 +1,8 @@
-#include "Common_Function.h"
+#include "Com.h"
 #include <math.h>
 #include <float.h>
 #include <uf_assem.h>
-#include "Common_Function_UG.h"
+#include "Com_UG.h"
 #include <windows.h>
 #include <uf_vec.h>
 #include <sql.h>

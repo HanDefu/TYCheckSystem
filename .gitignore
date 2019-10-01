@@ -8,6 +8,11 @@ YTCAD/Temp
 *.rar
 *.zip
 *.pdb
+*.manifest
+*.deb
+*.htm
+*.res
+*.idb
 
 # Prerequisites
 *.d

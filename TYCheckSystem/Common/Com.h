@@ -9,7 +9,7 @@
 #include <NXOpen\TaggedObject.hxx>
 #include "../TY_Def.h"
 //#include "Common.h"
-//#include "Common_Function.h"
+//#include "Com.h"
 
 using namespace std;
 using namespace NXOpen;

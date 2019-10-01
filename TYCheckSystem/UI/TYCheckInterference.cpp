@@ -17,11 +17,11 @@
 //These includes are needed for the following template code
 //------------------------------------------------------------------------------
 #include "TYCheckInterference.hpp"
-#include "../Common/Common_UI.h"
+#include "../Common/Com_UI.h"
 #include "../TY_Def.h"
 #include <uf_disp.h>
 #include <uf_modl.h>
-#include "../Common/Common_Function.h"
+#include "../Common/Com.h"
 using namespace NXOpen;
 using namespace NXOpen::BlockStyler;
 

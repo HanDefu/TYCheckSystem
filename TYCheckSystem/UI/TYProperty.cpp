@@ -36,9 +36,9 @@
 //------------------------------------------------------------------------------
 #include "TYProperty.hpp"
 #include "../TYGlobalData.h"
-#include "../Common/Common_UI.h"
+#include "../Common/Com_UI.h"
 #include <uf_assem.h>
-#include "../Common/Common_Function_Attribute.h"
+#include "../Common/Com_Attribute.h"
 using namespace NXOpen;
 using namespace NXOpen::BlockStyler;
 

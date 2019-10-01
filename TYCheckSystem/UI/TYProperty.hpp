@@ -127,6 +127,8 @@ private:
     NXOpen::BlockStyler::UIBlock* stringTechReq;// Block type: Multiline String
 
 
+	//技术要求NX7.0不限制条数，但是每条长度限制60个中文字
+
 	//辅助
 	int m_customerSel;
 	int m_firstNameSel;

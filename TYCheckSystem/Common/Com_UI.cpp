@@ -1,4 +1,4 @@
-#include "Common_UI.h"
+#include "Com_UI.h"
 
 #include <NXOpen/BlockStyler_PropertyList.hxx>
 #include <uf_styler.h>

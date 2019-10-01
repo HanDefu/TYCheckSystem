@@ -1,4 +1,4 @@
-#include "Common_Function_UG.h"
+#include "Com_UG.h"
 #include <NXOpen/Session.hxx>
 #include <NXOpen/NXMessageBox.hxx>
 #include <NXOpen/NXException.hxx>
@@ -104,7 +104,7 @@
 #include <NXOpen/DatumPlane.hxx>
 #include <NXOpen/Preferences_PartVisualizationLine.hxx>
 #include <NXOpen/Features_OffsetFaceBuilder.hxx>
-#include "Common_Function_Attribute.h"
+#include "Com_Attribute.h"
 #include "../TY_Def.h"
 
 using namespace NXOpen;
