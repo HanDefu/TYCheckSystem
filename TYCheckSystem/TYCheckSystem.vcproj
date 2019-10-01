@@ -285,6 +285,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
+				DisableSpecificWarnings="4996;4267;4309;4101;4244;"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -479,6 +480,14 @@
 			</File>
 			<File
 				RelativePath=".\Common\Common_Function.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Common\Common_Function_Attribute.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Common\Common_Function_Attribute.h"
 				>
 			</File>
 			<File

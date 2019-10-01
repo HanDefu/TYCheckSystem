@@ -69,4 +69,14 @@ extern int KONKA_STYLER_ask_item_value_string( int dialog_id, char *item, char *
 
 void UI_SetSeletSolidBody(NXOpen::BlockStyler::UIBlock* block);
 
+
+
+//-----------------NX7---------------//
+void UI_EnumSetValues(NXOpen::BlockStyler::UIBlock* block, std::vector<NXString> & values);
+void UI_EnumGetValues(NXOpen::BlockStyler::UIBlock* block, std::vector<NXString> & values);
+
+void UI_EnumGetBlockString(NXOpen::BlockStyler::UIBlock* block, NXString & value);
+
+void UI_StringsSetValues(NXOpen::BlockStyler::UIBlock* block, std::vector<NXString> & values);
+void UI_StringsGetValues(NXOpen::BlockStyler::UIBlock* block, std::vector<NXString> & values);
 #endif

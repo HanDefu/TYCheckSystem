@@ -241,7 +241,7 @@ extern int KONKA_STYLER_ask_item_value_string( int dialog_id, char *item, char *
 	}
 
 	if(value != 0)
-        strcpy(value, value_data.value.string);
+        strcpy_s(value, strlen(value_data.value.string), value_data.value.string);
 	
 	return 0;
 }
@@ -294,6 +294,63 @@ void UI_SetSeletSolidBody(NXOpen::BlockStyler::UIBlock* block)
 	delete pAttr;
 	pAttr = NULL;
 
+}
+
+void UI_EnumSetValues(NXOpen::BlockStyler::UIBlock* block, std::vector<NXString> & values)
+{
+	NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
+	pAttr = block->GetProperties();
+
+	pAttr->SetEnumMembers("Value",values);
+
+	delete pAttr;
+	pAttr = NULL;
+
+}
+
+void UI_EnumGetValues(NXOpen::BlockStyler::UIBlock* block, std::vector<NXString> & values)
+{
+	NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
+	pAttr = block->GetProperties();
+
+	values = pAttr->GetEnumMembers("Value");
+
+	delete pAttr;
+	pAttr = NULL;
+}
+
+void UI_StringsSetValues(NXOpen::BlockStyler::UIBlock* block, std::vector<NXString> & values)
+{
+	NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
+	pAttr = block->GetProperties();
+
+	pAttr->SetStrings("Value",values);
+
+	delete pAttr;
+	pAttr = NULL;
+
+}
+
+void UI_StringsGetValues(NXOpen::BlockStyler::UIBlock* block, std::vector<NXString> & values)
+{
+	NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
+	pAttr = block->GetProperties();
+
+	values = pAttr->GetStrings("Value");
+
+	delete pAttr;
+	pAttr = NULL;
+}
+
+void UI_EnumGetBlockString(NXOpen::BlockStyler::UIBlock* block, NXString & value)
+{
+	NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
+	pAttr = block->GetProperties();
+
+	value = pAttr->GetEnumAsString("Value");
+
+	delete pAttr;
+	pAttr = NULL;
 }
 
 

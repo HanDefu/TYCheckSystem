@@ -142,6 +142,14 @@ extern "C" DllExport void  ufusr(char *param, int *retcod, int param_len)
 		{
 			TY_CMD_ExportDwg();
 		}
+
+
+		if(strcmp(param, "CUSTOM_TY_CREATE_STANDARDPART_PROPERTY") == 0)//标准件属性
+		{
+			TYProperty::Show_TYProperty(1);
+		}
+
+		 
 	}
 	catch(std::exception& ex)
 	{

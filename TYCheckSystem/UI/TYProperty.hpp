@@ -88,7 +88,7 @@ public:
     static Session *theSession;
     static UI *theUI;
     TYProperty();
-    static void Show_TYProperty();
+    static void Show_TYProperty(int workType = 0);//1 标准件模式  //0自绘零件模式
     ~TYProperty();
     int Show();
     
@@ -106,14 +106,21 @@ public:
     int update_cb(NXOpen::BlockStyler::UIBlock* block);
     int filter_cb(NXOpen::BlockStyler::UIBlock*  block, NXOpen::TaggedObject* selectObject);
     
+
+	void ClearData();
+	void UpdateHeatAndFace();
+	void UpdateMaterial();
+	void UpdateTech();
+	vNXString GetCurMaterial();
+
 private:
     std::string theDialogName;
     NXOpen::BlockStyler::BlockDialog* theDialog;
     NXOpen::BlockStyler::UIBlock* groupSelect;// Block type: Group
     NXOpen::BlockStyler::UIBlock* selectionBodies;// Block type: Selection
     NXOpen::BlockStyler::UIBlock* groupProperty;// Block type: Group
-    NXOpen::BlockStyler::UIBlock* enumMainClass;// Block type: Enumeration
-    NXOpen::BlockStyler::UIBlock* enumSubClass;// Block type: Enumeration
+    NXOpen::BlockStyler::UIBlock* enumFirstName;// Block type: Enumeration
+    NXOpen::BlockStyler::UIBlock* enumSecondName;// Block type: Enumeration
     NXOpen::BlockStyler::UIBlock* enumMaterial;// Block type: Enumeration
     NXOpen::BlockStyler::UIBlock* enumHeatProcess;// Block type: Enumeration
     NXOpen::BlockStyler::UIBlock* enumFaceProcess;// Block type: Enumeration
@@ -125,6 +132,8 @@ private:
 	int m_firstNameSel;
 	int m_secondNameSel;
 	int m_materialSel;
+
+	int m_workType;//1 标准件模式  //0自绘零件模式
     
 };
 #endif //TYPROPERTY_H_INCLUDED

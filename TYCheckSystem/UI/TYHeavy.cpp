@@ -21,6 +21,7 @@
 #include "../Common/Common_Function.h"
 #include "../Common/Common_UI.h"
 #include "../Common/Common_Function_UG.h"
+#include "../Common/Common_Function_Attribute.h"
 #include "uf_assem.h"
 using namespace NXOpen;
 using namespace NXOpen::BlockStyler;
@@ -265,7 +266,7 @@ double TYHeavy::GetBodyGrid(tag_t body)
 	//Ä¬ÈÏÌúµÄÃÜ¶È7.8g/cm3
 	double grid = 7.8;
 	char cgrid[32] = "";
-	int has = USER_ask_obj_string_attr( body , TY_ATTR_DENSITY , cgrid );
+	int has = TYCOM_GetObjectStringAttribute( body , TY_ATTR_DENSITY , cgrid );
 	if(has)
 	    grid = atof(cgrid);
 

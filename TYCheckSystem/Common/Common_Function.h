@@ -140,16 +140,7 @@ bool isTwoSegmentIntersect(NXOpen::Point3d A, NXOpen::Point3d B, NXOpen::Point3d
 std::wstring str2wstr(const std::string &str);
 bool   ExistFile(char   *szName);
  char* newGUID();
-extern int BYD_set_OBJ_string_attr( tag_t part_tag, char title[64], const char name_str[1024] );
-extern int BYD_set_obj_integer_attr( tag_t part_tag, char title[64], int data );
-extern int BYD_set_obj_real_attr( tag_t part_tag, char title[64], double data );
-int EF_ask_obj_real_attr( tag_t obj , char *title , double *real_data );
-int EF_ask_obj_integer_attr( tag_t obj , char *title , int *integer_data );
-int EF_ask_obj_integer_attr_Ori( tag_t obj , char *title , int *integer_data );
 
-
-int USER_ask_obj_string_attr( tag_t obj , char *title , char *string );
-bool USER_ask_obj_has_attr( const tag_t obj , char *title );
 wchar_t* CharToWchar(const char * pchar);
 char* WCHARTOCHAR(const wchar_t * pchar);
 wchar_t * UTF8ToUnicode(const char* str);

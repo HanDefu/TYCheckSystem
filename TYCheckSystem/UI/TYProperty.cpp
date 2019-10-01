@@ -35,6 +35,10 @@
 //These includes are needed for the following template code
 //------------------------------------------------------------------------------
 #include "TYProperty.hpp"
+#include "../TYGlobalData.h"
+#include "../Common/Common_UI.h"
+#include <uf_assem.h>
+#include "../Common/Common_Function_Attribute.h"
 using namespace NXOpen;
 using namespace NXOpen::BlockStyler;
 
@@ -73,6 +77,7 @@ TYProperty::TYProperty()
 		m_firstNameSel = 0;
 		m_secondNameSel = 0;
 		m_materialSel = 0;
+		m_workType = 0;//默认自绘模式
 	}
 	catch(exception& ex)
 	{
@@ -110,12 +115,13 @@ int TYProperty::Show()
 //------------------------------------------------------------------------------
 //Method name: Show_TYProperty
 //------------------------------------------------------------------------------
-void TYProperty::Show_TYProperty()
+void TYProperty::Show_TYProperty(int workType)
 {
 	try
 	{
 		theTYProperty = new TYProperty();
 		// The following method shows the dialog immediately
+		theTYProperty->m_workType = workType;
 		theTYProperty->Show();
 	}
 	catch(exception& ex)
@@ -140,8 +146,8 @@ void TYProperty::initialize_cb()
 		groupSelect = theDialog->TopBlock()->FindBlock("groupSelect");
 		selectionBodies = theDialog->TopBlock()->FindBlock("selectionBodies");
 		groupProperty = theDialog->TopBlock()->FindBlock("groupProperty");
-		enumMainClass = theDialog->TopBlock()->FindBlock("enumMainClass");
-		enumSubClass = theDialog->TopBlock()->FindBlock("enumSubClass");
+		enumFirstName = theDialog->TopBlock()->FindBlock("enumMainClass");
+		enumSecondName = theDialog->TopBlock()->FindBlock("enumSubClass");
 		enumMaterial = theDialog->TopBlock()->FindBlock("enumMaterial");
 		enumHeatProcess = theDialog->TopBlock()->FindBlock("enumHeatProcess");
 		enumFaceProcess = theDialog->TopBlock()->FindBlock("enumFaceProcess");
@@ -163,7 +169,28 @@ void TYProperty::dialogShown_cb()
 {
 	try
 	{
-		//---- Enter your callback code here -----
+		UI_EnumSetValues(enumFirstName, TYGBDATA->m_nameFirst);
+
+
+		if (TYGBDATA->m_nameFirst.size() > 0)
+		{
+			UI_EnumSetValues(enumFirstName, TYGBDATA->m_nameFirst);
+			if (m_firstNameSel < TYGBDATA->m_nameFirst.size())
+			    UI_EnumSetCurrentSel(enumFirstName,m_firstNameSel);
+		}
+		
+		if(TYGBDATA->m_nameSecond.size() > m_firstNameSel)
+		{
+			UI_EnumSetValues(enumSecondName, TYGBDATA->m_nameSecond[m_firstNameSel]);
+			if (m_secondNameSel <  TYGBDATA->m_nameSecond[m_firstNameSel].size())
+			    UI_EnumSetCurrentSel(enumSecondName, m_secondNameSel);
+		}
+
+		
+		UpdateMaterial();
+		UI_EnumSetCurrentSel(enumMaterial, m_materialSel);
+		UpdateHeatAndFace();
+		UpdateTech();
 	}
 	catch(exception& ex)
 	{
@@ -179,7 +206,65 @@ int TYProperty::apply_cb()
 {
 	try
 	{
-		//---- Enter your callback code here -----
+		NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
+		//bodies
+		pAttr = selectionBodies->GetProperties();
+		std::vector<NXOpen::TaggedObject *> objsBodies = pAttr->GetTaggedObjectVector("SelectedObjects");
+		delete pAttr;
+		pAttr = NULL;
+
+		int cursel = 0;
+
+
+		//名称
+		NXString firstName, secondName;
+		UI_EnumGetBlockString(enumFirstName, firstName);
+		UI_EnumGetBlockString(enumSecondName, secondName);
+		//name = first + second;
+
+		//技术要求
+		std::vector<NXString> requs;
+		UI_StringsGetValues(stringTechReq,requs);
+
+		//材料
+		NXString material;
+		UI_EnumGetBlockString(enumMaterial, material);
+
+		//热处理
+		NXString heatProcess;
+		UI_EnumGetBlockString(enumHeatProcess, heatProcess);
+
+		//表面处理
+		NXString faceProcess;
+		UI_EnumGetBlockString(enumFaceProcess, faceProcess);
+
+		double density = TYGBDATA->GetDensity(material);
+
+
+		for(int i = 0; i < objsBodies.size(); i++)
+		{
+			if (m_workType == 1 && i > 0)//标准件只赋一个属性
+				continue;
+
+			char attriValue[128] = "";
+
+			tag_t thisBody = 0;
+			if( UF_ASSEM_is_occurrence( objsBodies[i]->Tag() ))
+				thisBody = UF_ASSEM_ask_prototype_of_occ ( objsBodies[i]->Tag() ) ;
+			else
+				thisBody = objsBodies[i]->Tag();
+
+
+			UF_OBJ_set_blank_status(objsBodies[i]->Tag(),UF_OBJ_BLANKED);
+			TYCOM_SetObjectStringAttribute( thisBody, ATTR_TYCOM_PROPERTY_SOLID_NAME, firstName.getLocaleText());
+			TYCOM_SetObjectStringAttribute( thisBody, ATTR_TYCOM_PROPERTY_SOLID_NAME2, secondName.getLocaleText());
+			TYCOM_SetObjectAttributeLong(thisBody, ATTR_TYCOM_PROPERTY_TECH_REQUIREMENT, requs);
+			TYCOM_SetObjectStringAttribute( thisBody, ATTR_TYCOM_PROPERTY_MATERIAL, material.getLocaleText());
+			TYCOM_SetObjectStringAttribute( thisBody, ATTR_TYCOM_PROPERTY_HEAT_PROCESS, heatProcess.getLocaleText());
+			TYCOM_SetObjectStringAttribute( thisBody, ATTR_TYCOM_PROPERTY_FACE_PROCESS, faceProcess.getLocaleText());
+			TYCOM_SetObjectRealAttribute( thisBody, TY_ATTR_DENSITY, density);
+		}
+
 	}
 	catch(exception& ex)
 	{
@@ -200,17 +285,25 @@ int TYProperty::update_cb(NXOpen::BlockStyler::UIBlock* block)
 		{
 			//---------Enter your code here-----------
 		}
-		else if(block == enumMainClass)
+		else if(block == enumFirstName)
 		{
 			//---------Enter your code here-----------
+			UI_EnumGetCurrentSel(enumFirstName, m_firstNameSel);
+			UI_EnumSetValues(enumSecondName,TYGBDATA->m_nameSecond[m_firstNameSel]);
+
+			UpdateMaterial();
+			UpdateTech();
+			UpdateHeatAndFace();
 		}
-		else if(block == enumSubClass)
+		else if(block == enumSecondName)
 		{
-			//---------Enter your code here-----------
+			UpdateMaterial();
+			UpdateTech();
+			UpdateHeatAndFace();
 		}
 		else if(block == enumMaterial)
 		{
-			//---------Enter your code here-----------
+			UpdateHeatAndFace();
 		}
 		else if(block == enumHeatProcess)
 		{
@@ -274,3 +367,51 @@ int TYProperty::filter_cb(NXOpen::BlockStyler::UIBlock*  block, NXOpen::TaggedOb
 {
 	return(UF_UI_SEL_ACCEPT);
 }
+
+void TYProperty::ClearData()
+{
+	
+}
+
+void TYProperty::UpdateHeatAndFace()
+{
+	NXString firstName,material;
+	UI_EnumGetBlockString(enumFirstName, firstName);
+	UI_EnumGetBlockString(enumMaterial, material);
+
+
+	vNXString faceProcesses = TYGBDATA->GetFaceProcess(firstName,material);
+	UI_EnumSetValues(enumFaceProcess,faceProcesses);
+
+
+	vNXString heatProcesses = TYGBDATA->GetHeatProcess(firstName,material);
+	UI_EnumSetValues(enumHeatProcess,heatProcesses);
+}
+
+void TYProperty::UpdateMaterial()
+{
+	int curselFirst = 0;
+	int curselSecond = 0;
+
+	UI_EnumGetCurrentSel(enumFirstName, curselFirst);
+	UI_EnumGetCurrentSel(enumSecondName, curselSecond);
+
+
+	vNXString materials = TYGBDATA->GetMaterial(curselFirst,curselSecond);
+	
+	UI_EnumSetValues(enumMaterial,materials);
+}
+
+void TYProperty::UpdateTech()
+{
+	int curselFirst = 0;
+	int curselSecond = 0;
+
+	UI_EnumGetCurrentSel(enumFirstName, curselFirst);
+	UI_EnumGetCurrentSel(enumSecondName, curselSecond);
+
+	vNXString techReqs = TYGBDATA->GetTechRequirement(curselFirst,curselSecond);
+
+	UI_StringsSetValues(stringTechReq,techReqs);
+}
+

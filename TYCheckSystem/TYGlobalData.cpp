@@ -27,8 +27,9 @@ int TYGlobalData::GetPropertyExcelData()
 	// Load a workbook with one sheet, display its contents and save into another file.
 	const char *env_name = "TY_DATA_DIR";
 	char file_name[TY_STR_LEN] = "";
-	strcpy(file_name, getenv(env_name));
-	strcat(file_name,"\\Parameter\\TY中文Property.xls");
+	char * env = getenv(env_name);
+	strcpy(file_name, env);
+	strcat(file_name, "\\Parameter\\TYProperty.xls");
 
 	bool isOk = excel.Load(file_name);	
 	if (!isOk)
@@ -69,7 +70,7 @@ int TYGlobalData::GetPropertyExcelData()
 						finish = true;
 						break;
 					}
-					m_nameTypes.push_back(NXString(aa));
+					m_nameFirst.push_back(NXString(aa));
 				}
 				else
 				{
@@ -82,7 +83,7 @@ int TYGlobalData::GetPropertyExcelData()
 			}
 			if(finish)
 				break;
-			m_names.push_back(strs);
+			m_nameSecond.push_back(strs);
 		}
 	}
 
@@ -215,7 +216,7 @@ int TYGlobalData::GetPropertyExcelData()
 			}
 			if(finish)
 				break;
-			m_customerHeatProcess.push_back(vhp);
+			m_nameHeatProcess.push_back(vhp);
 		}
 	}
 	//表面处理表
@@ -257,7 +258,7 @@ int TYGlobalData::GetPropertyExcelData()
 			}
 			if(finish)
 				break;
-			m_customerFaceProcess.push_back(nsp);
+			m_nameFaceProcess.push_back(nsp);
 		}
 	}
 
@@ -325,4 +326,224 @@ int TYGlobalData::GetPropertyExcelData()
 		}
 	}
 	return 0;
+}
+
+vNXString TYGlobalData::GetMaterial(int firstNameSel, int secondNameSel)
+{
+	vNXString strs;
+
+	if (firstNameSel > m_nameFirst.size())
+		return strs;
+
+	//处理材料表
+	NXString first, second;
+	first = m_nameFirst[firstNameSel];
+
+	if (secondNameSel > m_nameSecond[firstNameSel].size())
+		return strs;
+
+	second = m_nameSecond[firstNameSel][secondNameSel];
+
+	for(int i = 0; i < m_nameMaterial.size(); i++)
+	{
+		if(strcmp(m_nameMaterial[i].m_nameFirst.GetText(), first.GetText()) == 0 && 
+			strcmp(m_nameMaterial[i].m_nameSecond.GetText(), second.GetText()) == 0)
+		{
+			return m_nameMaterial[i].m_materials;
+		}
+	}
+	return strs;
+}
+
+vNXString TYGlobalData::GetMaterial(NXString firstName, NXString secondName)
+{
+	vNXString strs;
+
+	for(int i = 0; i < m_nameMaterial.size(); i++)
+	{
+		if(strcmp(m_nameMaterial[i].m_nameFirst.GetText(), firstName.GetText()) == 0 && 
+			strcmp(m_nameMaterial[i].m_nameSecond.GetText(), secondName.GetText()) == 0)
+		{
+			return m_nameMaterial[i].m_materials;
+		}
+	}
+	return strs;
+}
+
+
+vNXString TYGlobalData::GetTechRequirement(int firstNameSel, int secondNameSel)
+{
+	vNXString strs;
+
+	if (firstNameSel > m_nameFirst.size())
+		return strs;
+
+	//处理材料表
+	NXString first, second;
+	first = m_nameFirst[firstNameSel];
+
+	if (secondNameSel > m_nameSecond[firstNameSel].size())
+		return strs;
+
+	second = m_nameSecond[firstNameSel][secondNameSel];
+
+	for(int i = 0; i < m_nameTech.size(); i++)
+	{
+		if(strcmp(m_nameTech[i].m_nameFirst.GetLocaleText(), first.GetLocaleText()) == 0 && 
+			strcmp(m_nameTech[i].m_nameSecond.GetLocaleText(), second.GetLocaleText()) == 0)
+		{
+			return m_nameTech[i].m_tech;
+		}
+	}
+	return strs;
+}
+
+vNXString TYGlobalData::GetTechRequirement(NXString firstName, NXString secondName)
+{
+	vNXString strs;
+
+
+	for(int i = 0; i < m_nameTech.size(); i++)
+	{
+		if(strcmp(m_nameTech[i].m_nameFirst.GetLocaleText(), firstName.GetLocaleText()) == 0 && 
+			strcmp(m_nameTech[i].m_nameSecond.GetLocaleText(), secondName.GetLocaleText()) == 0)
+		{
+			return m_nameTech[i].m_tech;
+		}
+	}
+	return strs;
+}
+
+
+vNXString TYGlobalData::GetHeatProcess(int firstNameSel, int secondNameSel, int materialSel)
+{
+	vNXString strs;
+
+	if (firstNameSel > m_nameFirst.size())
+		return strs;
+
+	//处理材料表
+	NXString firstName, material;
+	firstName = m_nameFirst[firstNameSel];
+
+	vNXString materials =  GetMaterial(firstNameSel, secondNameSel);
+
+	if (materials.size() <= materialSel)
+	{
+		return strs;
+	}
+
+	material = materials[materialSel];
+
+	for(int i = 0; i < m_nameHeatProcess.size(); i++)
+	{
+		if(strcmp(m_nameHeatProcess[i].m_nameFirst.GetLocaleText(), firstName.GetLocaleText()) == 0 && 
+			strcmp(m_nameHeatProcess[i].m_material.GetLocaleText(), material.GetLocaleText()) == 0)
+		{
+			return m_nameHeatProcess[i].m_heatProcess;
+		}
+	}
+	return strs;
+}
+
+vNXString TYGlobalData::GetHeatProcess(NXString firstName, NXString material)
+{
+	vNXString strs;
+
+	for(int i = 0; i < m_nameHeatProcess.size(); i++)
+	{
+		if(strcmp(m_nameHeatProcess[i].m_nameFirst.GetLocaleText(), firstName.GetLocaleText()) == 0 && 
+			strcmp(m_nameHeatProcess[i].m_material.GetLocaleText(), material.GetLocaleText()) == 0)
+		{
+			return m_nameHeatProcess[i].m_heatProcess;
+		}
+	}
+	return strs;
+}
+
+
+vNXString TYGlobalData::GetFaceProcess(int firstNameSel, int secondNameSel, int materialSel)
+{
+	vNXString strs;
+
+	if (firstNameSel > m_nameFirst.size())
+		return strs;
+
+	//处理材料表
+	NXString firstName, material;
+	firstName = m_nameFirst[firstNameSel];
+
+	vNXString materials =  GetMaterial(firstNameSel, secondNameSel);
+
+	if (materials.size() <= materialSel)
+	{
+		return strs;
+	}
+
+	material = materials[materialSel];
+
+	for(int i = 0; i < m_nameFaceProcess.size(); i++)
+	{
+		if(strcmp(m_nameFaceProcess[i].m_nameFirst.GetLocaleText(), firstName.GetLocaleText()) == 0 && 
+			strcmp(m_nameFaceProcess[i].m_material.GetLocaleText(), material.GetLocaleText()) == 0)
+		{
+			return m_nameFaceProcess[i].m_surfaceProcess;
+		}
+	}
+	return strs;
+}
+
+vNXString TYGlobalData::GetFaceProcess(NXString firstName, NXString material)
+{
+	vNXString strs;
+
+	for(int i = 0; i < m_nameFaceProcess.size(); i++)
+	{
+		if(strcmp(m_nameFaceProcess[i].m_nameFirst.GetLocaleText(), firstName.GetLocaleText()) == 0 && 
+			strcmp(m_nameFaceProcess[i].m_material.GetLocaleText(), material.GetLocaleText()) == 0)
+		{
+			return m_nameFaceProcess[i].m_surfaceProcess;
+		}
+	}
+	return strs;
+}
+
+double TYGlobalData::GetDensity(NXString material)
+{
+	//从材料读到密度
+	NXString strDensi; 
+	for(int i = 0; i < m_materialDensity.size(); i++)
+	{
+		if(strcmp(m_materialDensity[i].m_material.GetLocaleText(), material.GetLocaleText()) == 0)
+		{
+			strDensi = m_materialDensity[i].m_Density;
+			return atof(strDensi.GetLocaleText());
+		}
+	}
+
+	return 0;
+}
+
+void  TYGlobalData::GetDensity(NXString material, NXString &density)
+{
+	//从材料读到密度
+	NXString strDensi; 
+	for(int i = 0; i < m_materialDensity.size(); i++)
+	{
+		if(strcmp(m_materialDensity[i].m_material.GetLocaleText(), material.GetLocaleText()) == 0)
+		{
+			density = m_materialDensity[i].m_Density;
+			return;
+		}
+	}
+}
+
+void TYGlobalData::ClearData()
+{
+	m_nameFirst.clear();
+	m_nameSecond.clear();
+	m_nameMaterial.clear();
+	m_nameTech.clear();
+	m_nameHeatProcess.clear();
+	m_nameFaceProcess.clear();
 }

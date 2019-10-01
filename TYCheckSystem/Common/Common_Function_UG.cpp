@@ -104,6 +104,8 @@
 #include <NXOpen/DatumPlane.hxx>
 #include <NXOpen/Preferences_PartVisualizationLine.hxx>
 #include <NXOpen/Features_OffsetFaceBuilder.hxx>
+#include "Common_Function_Attribute.h"
+#include "../TY_Def.h"
 
 using namespace NXOpen;
 using namespace std;
@@ -1354,44 +1356,8 @@ extern void UF_map_abs2wcs    /* Map point from Work coordinate system  */
 }
 
 
-int TYCOM_GetMirrorBodiesForOneBody1(tag_t seedBody, vtag_t &mirrorBodies)
-{
-	if(seedBody == 0)
-		return -1;
-
-	vtag_t allBodies;
-	TYCOM_GetCurrentPartSolidBodies2(allBodies);
 
 
-	return TYCOM_GetMirrorBodiesForOneBody1(seedBody,allBodies,mirrorBodies);
-}
-
-int TYCOM_GetMirrorBodiesForOneBody1(tag_t seedBody, vtag_t& allBodies, vtag_t &mirrorBodies)
-{
-	if(seedBody == 0)
-		return -1;
-
-	char attriValue[128] = "";
-	int has = USER_ask_obj_string_attr( seedBody , ATTR_TYCOM_MIRROR_OBJ , attriValue );
-	if(!has)
-		return -2;
-
-	for(int i = 0; i < allBodies.size(); i++)
-	{
-		if(allBodies[i] == seedBody)
-			continue;
-
-		char attriValue2[128] = "";
-	    int has2 = USER_ask_obj_string_attr( allBodies[i] , ATTR_TYCOM_MIRROR_OBJ , attriValue2 );
-		if(!has2)
-			continue;
-
-		if(strcmp(attriValue, attriValue2) == 0)
-			mirrorBodies.push_back(allBodies[i]);
-	}
-
-	return 0;
-}
 
 void AddTagToVector( tag_t objTag,vtag_t &vecList )
 {
@@ -1400,175 +1366,6 @@ void AddTagToVector( tag_t objTag,vtag_t &vecList )
     {
         vecList.push_back(objTag);
     }
-}
-
-int TYCOM_GetGoupBodiesForOneBody(tag_t seedBody, vtag_t& allBodies, vtag_t &groupBodies)
-{
-    int type = 3;
-    vtag_t sameBodies;
-    vtag_t weldBodies;
-    TYCOM_GetWeldBodiesForOneBody(seedBody,allBodies,groupBodies);
-    if( groupBodies.size() > 0 )
-        type = 2;
-    TYCOM_GetSameBodiesForOneBody(seedBody,allBodies,sameBodies);
-    if( sameBodies.size() > 0 )
-        type = 1; //可能是焊接后相同件
-    //sameBodies.push_back(seedBody);
-    AddTagToVector(seedBody,sameBodies);
-    for( int idx = 0; idx < sameBodies.size(); ++idx )
-    {
-        vtag_t mirrorBodies;
-        TYCOM_GetMirrorBodiesForOneBody1(sameBodies[idx],allBodies,mirrorBodies);
-        AddTagToVector(sameBodies[idx],groupBodies);
-        for( int jdx = 0; jdx < mirrorBodies.size(); ++jdx )
-        {
-            type = 0; //可能是焊接后镜像件
-            AddTagToVector(mirrorBodies[jdx],groupBodies);
-        }
-    }
-    if( 2 == type )
-    {
-        AddTagToVector(seedBody,groupBodies);//单个焊接件
-    }
-    return type;
-}
-
-int TYCOM_GetMirrorBodiesForOneBody(tag_t seedBody, vtag_t& allBodies, vtag_t &mirrorBodies)
-{
-    int type = -1;
-    char attriValue[128] = "";
-	if(seedBody == 0)
-		return -1;
-
-    char attributes[][256]={ATTR_TYCOM_MIRROR_OBJ,ATTR_TYCOM_SAME_OBJ,ATTR_TYCOM_WELD_OBJ};
-    for( int idx = 0; idx < 3; ++idx )
-    {
-        int has = USER_ask_obj_string_attr( seedBody , attributes[idx] , attriValue );
-        {
-            if( has )
-            {
-                type = idx;
-                for(int i = 0; i < allBodies.size(); i++)
-                {
-                    if(allBodies[i] == seedBody)
-                        continue;
-
-                    char attriValue2[128] = "";
-                    int has2 = USER_ask_obj_string_attr( allBodies[i] , attributes[idx] , attriValue2 );
-                    if(!has2)
-                        continue;
-
-                    if(strcmp(attriValue, attriValue2) == 0)
-                        mirrorBodies.push_back(allBodies[i]);
-                }
-                break;
-            }
-        }
-    }
-	return type;
-}
-
-int TYCOM_GetSameBodiesForOneBody(tag_t seedBody, vtag_t &sameBodies)
-{
-	if(seedBody == 0)
-		return -1;
-
-	vtag_t allBodies;
-	TYCOM_GetCurrentPartSolidBodies2(allBodies);
-
-
-	return TYCOM_GetSameBodiesForOneBody(seedBody,allBodies,sameBodies);
-}
-
-int TYCOM_GetSameBodiesForOneBody(tag_t seedBody, vtag_t& allBodies, vtag_t &sameBodies)
-{
-	if(seedBody == 0)
-		return -1;
-
-	char attriValue[128] = "";
-	int has = USER_ask_obj_string_attr( seedBody , ATTR_TYCOM_SAME_OBJ , attriValue );
-	if(!has)
-		return -2;
-
-	for(int i = 0; i < allBodies.size(); i++)
-	{
-		if(allBodies[i] == seedBody)
-			continue;
-
-		char attriValue2[128] = "";
-	    int has2 = USER_ask_obj_string_attr( allBodies[i] , ATTR_TYCOM_SAME_OBJ , attriValue2 );
-		if(!has2)
-			continue;
-
-		if(strcmp(attriValue, attriValue2) == 0)
-			sameBodies.push_back(allBodies[i]);
-	}
-
-	return 0;
-}
-
-int TYCOM_GetWeldBodiesForOneBody(tag_t seedBody, vtag_t &weldBodies)
-{
-	if(seedBody == 0)
-		return -1;
-
-	vtag_t allBodies;
-	TYCOM_GetCurrentPartSolidBodies2(allBodies);
-
-
-	return TYCOM_GetWeldBodiesForOneBody(seedBody,allBodies,weldBodies);
-}
-
-int TYCOM_GetWeldBodiesForOneBody(tag_t seedBody, vtag_t& allBodies, vtag_t &weldBodies)
-{
-	if(seedBody == 0)
-		return -1;
-
-	char attriValue[128] = "";
-	int has = USER_ask_obj_string_attr( seedBody , ATTR_TYCOM_WELD_OBJ , attriValue );
-	if(!has)
-		return -2;
-
-	for(int i = 0; i < allBodies.size(); i++)
-	{
-		if(allBodies[i] == seedBody)
-			continue;
-
-		char attriValue2[128] = "";
-	    int has2 = USER_ask_obj_string_attr( allBodies[i] , ATTR_TYCOM_WELD_OBJ , attriValue2 );
-		if(!has2)
-			continue;
-
-		if(strcmp(attriValue, attriValue2) == 0)
-			weldBodies.push_back(allBodies[i]);
-	}
-
-	return 0;
-}
-
-int TYCOM_GetGroupSelIndexs(NXString gruopNumber, vint &selIndexs)
-{
-	vtag_t bodies;
-	TYCOM_GetCurrentPartSolidBodies2(bodies);
-	for(int i = 0; i < bodies.size(); i++)
-	{
-		char value[128] = "";
-
-		int has = USER_ask_obj_string_attr(bodies[i], ATTR_TYCOM_PROPERTY_GROUP_NUMBER, value);
-		if(has)
-		{
-			NXString str(value);
-			if(strcmp(str.GetText(), gruopNumber.GetText()) ==0)
-			{
-				int selIndex = 0;
-				int has2 = EF_ask_obj_integer_attr_Ori(bodies[i], ATTR_TYCOM_PROPERTY_GROUP_SUBINDEX, &selIndex);
-
-				if(vFind(selIndexs,selIndex) == -1)
-					selIndexs.push_back(selIndex);
-			}
-		}
-	}
-	return 0;
 }
 
 
@@ -3161,81 +2958,7 @@ int TYCOM_InstanceGeometry2(tag_t body, tag_t plane, bool associate, tag_t &outb
 
 	return 0;
 }
-int TYCOM_set_obj_attr_Long2(tag_t obj, NXString title, NXString &value)
-{
-    NXOpen::Session *theSession = NXOpen::Session::GetSession();
-    NXOpen::Part *workPart(theSession->Parts()->Work());
-    tag_t obj_tag = obj;
-    if( UF_ASSEM_is_occurrence( obj ))
-	{
-		obj_tag = UF_ASSEM_ask_prototype_of_occ ( obj ) ;
-    }
 
-    std::vector<NXOpen::NXObject *> objects1(1);
-
-	NXObject* pobj = dynamic_cast<NXObject*> (NXObjectManager::Get(obj_tag));
-
-    objects1[0] = pobj;
-
-    NXOpen::AttributePropertiesBuilder *attributePropertiesBuilder1;
-    attributePropertiesBuilder1 = theSession->AttributeManager()->CreateAttributePropertiesBuilder(workPart, objects1, NXOpen::AttributePropertiesBuilder::OperationTypeNone);
-      
-    attributePropertiesBuilder1->SetDataType(NXOpen::AttributePropertiesBaseBuilder::DataTypeOptionsString);
-    
-    attributePropertiesBuilder1->SetTitle(title);
-    
-    attributePropertiesBuilder1->SetStringValue(value);
-    
-    NXOpen::NXObject *nXObject1;
-    nXObject1 = attributePropertiesBuilder1->Commit();
-    
-    NXOpen::Session::UndoMarkId id1;
-    id1 = theSession->GetNewestUndoMark(NXOpen::Session::MarkVisibilityVisible);
-    
-    int nErrs1;
-    nErrs1 = theSession->UpdateManager()->DoUpdate(id1);
-    
-    attributePropertiesBuilder1->Destroy();
-    return 0;
-}
-
-int TYCOM_set_obj_attr_Long(tag_t obj, NXString title, NXString &value)
-{
-    NXOpen::Session *theSession = NXOpen::Session::GetSession();
-    NXOpen::Part *workPart(theSession->Parts()->Work());
-    NXOpen::Part *displayPart(theSession->Parts()->Display());
-    
-	TaggedObject * tagobj = NXOpen::NXObjectManager::Get(obj);
-	NXObject* pbody = dynamic_cast<NXObject*> (tagobj);
-	if(pbody == NULL)
-		return -1;
-
-    std::vector<NXOpen::NXObject *> objects1(1);
-    objects1[0] = pbody;
-
-    NXOpen::AttributePropertiesBuilder *attributePropertiesBuilder1;
-    attributePropertiesBuilder1 = theSession->AttributeManager()->CreateAttributePropertiesBuilder(workPart, objects1, NXOpen::AttributePropertiesBuilder::OperationTypeNone);
-    
-    attributePropertiesBuilder1->SetArray(false);
-    attributePropertiesBuilder1->SetDataType(NXOpen::AttributePropertiesBaseBuilder::DataTypeOptionsString);
-    attributePropertiesBuilder1->SetUnits("MilliMeter");
-    
-   
-    attributePropertiesBuilder1->SetTitle(title);
-    attributePropertiesBuilder1->SetStringValue(value);
-    
-    attributePropertiesBuilder1->CreateAttribute();
-
-    
-    NXOpen::NXObject *nXObject1;
-    nXObject1 = attributePropertiesBuilder1->Commit();
-    //int nErrs1;
-    //nErrs1 = theSession->UpdateManager()->DoUpdate(id1);
-    
-    attributePropertiesBuilder1->Destroy();
-
-	return 0;
-}
 logical TYCOM_get_obj_attr_Long2(tag_t obj, NXString title, NXString &value)
 {
     logical has = false;
@@ -4012,7 +3735,219 @@ int TYCOM_WaveLinkBodyToWorkPart(tag_t body)
     waveLinkBuilder1->Destroy();
 
 	return 0;
-}*/
+}
+
+/*
+int TYCOM_GetMirrorBodiesForOneBody1(tag_t seedBody, vtag_t& allBodies, vtag_t &mirrorBodies)
+{
+	if(seedBody == 0)
+		return -1;
+
+	char attriValue[128] = "";
+	int has = USER_ask_obj_string_attr( seedBody , ATTR_TYCOM_MIRROR_OBJ , attriValue );
+	if(!has)
+		return -2;
+
+	for(int i = 0; i < allBodies.size(); i++)
+	{
+		if(allBodies[i] == seedBody)
+			continue;
+
+		char attriValue2[128] = "";
+	    int has2 = USER_ask_obj_string_attr( allBodies[i] , ATTR_TYCOM_MIRROR_OBJ , attriValue2 );
+		if(!has2)
+			continue;
+
+		if(strcmp(attriValue, attriValue2) == 0)
+			mirrorBodies.push_back(allBodies[i]);
+	}
+
+	return 0;
+}
+int TYCOM_GetMirrorBodiesForOneBody(tag_t seedBody, vtag_t& allBodies, vtag_t &mirrorBodies)
+{
+int type = -1;
+char attriValue[128] = "";
+if(seedBody == 0)
+return -1;
+
+char attributes[][256]={ATTR_TYCOM_MIRROR_OBJ,ATTR_TYCOM_SAME_OBJ,ATTR_TYCOM_WELD_OBJ};
+for( int idx = 0; idx < 3; ++idx )
+{
+int has = USER_ask_obj_string_attr( seedBody , attributes[idx] , attriValue );
+{
+if( has )
+{
+type = idx;
+for(int i = 0; i < allBodies.size(); i++)
+{
+if(allBodies[i] == seedBody)
+continue;
+
+char attriValue2[128] = "";
+int has2 = USER_ask_obj_string_attr( allBodies[i] , attributes[idx] , attriValue2 );
+if(!has2)
+continue;
+
+if(strcmp(attriValue, attriValue2) == 0)
+mirrorBodies.push_back(allBodies[i]);
+}
+break;
+}
+}
+}
+return type;
+}
+
+int TYCOM_GetSameBodiesForOneBody(tag_t seedBody, vtag_t &sameBodies)
+{
+if(seedBody == 0)
+return -1;
+
+vtag_t allBodies;
+TYCOM_GetCurrentPartSolidBodies2(allBodies);
+
+
+return TYCOM_GetSameBodiesForOneBody(seedBody,allBodies,sameBodies);
+}
+
+int TYCOM_GetSameBodiesForOneBody(tag_t seedBody, vtag_t& allBodies, vtag_t &sameBodies)
+{
+if(seedBody == 0)
+return -1;
+
+char attriValue[128] = "";
+int has = USER_ask_obj_string_attr( seedBody , ATTR_TYCOM_SAME_OBJ , attriValue );
+if(!has)
+return -2;
+
+for(int i = 0; i < allBodies.size(); i++)
+{
+if(allBodies[i] == seedBody)
+continue;
+
+char attriValue2[128] = "";
+int has2 = USER_ask_obj_string_attr( allBodies[i] , ATTR_TYCOM_SAME_OBJ , attriValue2 );
+if(!has2)
+continue;
+
+if(strcmp(attriValue, attriValue2) == 0)
+sameBodies.push_back(allBodies[i]);
+}
+
+return 0;
+}
+
+int TYCOM_GetWeldBodiesForOneBody(tag_t seedBody, vtag_t &weldBodies)
+{
+if(seedBody == 0)
+return -1;
+
+vtag_t allBodies;
+TYCOM_GetCurrentPartSolidBodies2(allBodies);
+
+
+return TYCOM_GetWeldBodiesForOneBody(seedBody,allBodies,weldBodies);
+}
+
+int TYCOM_GetWeldBodiesForOneBody(tag_t seedBody, vtag_t& allBodies, vtag_t &weldBodies)
+{
+if(seedBody == 0)
+return -1;
+
+char attriValue[128] = "";
+int has = USER_ask_obj_string_attr( seedBody , ATTR_TYCOM_WELD_OBJ , attriValue );
+if(!has)
+return -2;
+
+for(int i = 0; i < allBodies.size(); i++)
+{
+if(allBodies[i] == seedBody)
+continue;
+
+char attriValue2[128] = "";
+int has2 = USER_ask_obj_string_attr( allBodies[i] , ATTR_TYCOM_WELD_OBJ , attriValue2 );
+if(!has2)
+continue;
+
+if(strcmp(attriValue, attriValue2) == 0)
+weldBodies.push_back(allBodies[i]);
+}
+
+return 0;
+}
+
+int TYCOM_GetGroupSelIndexs(NXString gruopNumber, vint &selIndexs)
+{
+vtag_t bodies;
+TYCOM_GetCurrentPartSolidBodies2(bodies);
+for(int i = 0; i < bodies.size(); i++)
+{
+char value[128] = "";
+
+int has = USER_ask_obj_string_attr(bodies[i], ATTR_TYCOM_PROPERTY_GROUP_NUMBER, value);
+if(has)
+{
+NXString str(value);
+if(strcmp(str.GetText(), gruopNumber.GetText()) ==0)
+{
+int selIndex = 0;
+int has2 = EF_ask_obj_integer_attr_Ori(bodies[i], ATTR_TYCOM_PROPERTY_GROUP_SUBINDEX, &selIndex);
+
+if(vFind(selIndexs,selIndex) == -1)
+selIndexs.push_back(selIndex);
+}
+}
+}
+return 0;
+}
+
+
+int TYCOM_GetGoupBodiesForOneBody(tag_t seedBody, vtag_t& allBodies, vtag_t &groupBodies)
+{
+int type = 3;
+vtag_t sameBodies;
+vtag_t weldBodies;
+TYCOM_GetWeldBodiesForOneBody(seedBody,allBodies,groupBodies);
+if( groupBodies.size() > 0 )
+type = 2;
+TYCOM_GetSameBodiesForOneBody(seedBody,allBodies,sameBodies);
+if( sameBodies.size() > 0 )
+type = 1; //可能是焊接后相同件
+//sameBodies.push_back(seedBody);
+AddTagToVector(seedBody,sameBodies);
+for( int idx = 0; idx < sameBodies.size(); ++idx )
+{
+vtag_t mirrorBodies;
+TYCOM_GetMirrorBodiesForOneBody1(sameBodies[idx],allBodies,mirrorBodies);
+AddTagToVector(sameBodies[idx],groupBodies);
+for( int jdx = 0; jdx < mirrorBodies.size(); ++jdx )
+{
+type = 0; //可能是焊接后镜像件
+AddTagToVector(mirrorBodies[jdx],groupBodies);
+}
+}
+if( 2 == type )
+{
+AddTagToVector(seedBody,groupBodies);//单个焊接件
+}
+return type;
+}
+
+int TYCOM_GetMirrorBodiesForOneBody1(tag_t seedBody, vtag_t &mirrorBodies)
+{
+if(seedBody == 0)
+return -1;
+
+vtag_t allBodies;
+TYCOM_GetCurrentPartSolidBodies2(allBodies);
+
+
+return TYCOM_GetMirrorBodiesForOneBody1(seedBody,allBodies,mirrorBodies);
+}
+
+*/
+
 
 vtag_t TYCOM_GetBodiesFromObjects(vtag_t &objs)
 {

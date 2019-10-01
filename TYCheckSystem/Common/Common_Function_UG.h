@@ -293,8 +293,7 @@ int TYCOM_get_obj_attr_Long(tag_t obj, NXString title, NXString &value);
 logical TYCOM_get_obj_attr_Long2(tag_t obj, NXString title, NXString &value);
 int TYCOM_InstanceGeometry(vtag_t &bodies, tag_t plane, bool associate);
 int TYCOM_InstanceGeometry2(tag_t body, tag_t plane, bool associate, tag_t &outbody);
-int TYCOM_set_obj_attr_Long2(tag_t obj, NXString title, NXString &value);
-int TYCOM_set_obj_attr_Long(tag_t body, NXString title, NXString &value);
+
 int TYCOM_SolidIntersect(tag_t first, tag_t second, tag_t &resolid);
 int TYCOM_SplitBody(tag_t &solid, NXOpen::Plane * plane1, vtag_t &splitBodies);
 int TYCOM_CreateDatumPlane(NXOpen::Point3d origin, NXOpen::Vector3d & normal, tag_t &plane);

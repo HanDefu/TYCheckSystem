@@ -59,7 +59,23 @@ public:
 		return &instance;
 	}
 
+	vNXString GetMaterial(int firstNameSel, int secondNameSel);
+	vNXString GetMaterial(NXString firstName, NXString secondName);
+	vNXString GetTechRequirement(int firstNameSel, int secondNameSel);
+	vNXString GetTechRequirement(NXString firstName, NXString secondName);
+
+	vNXString GetFaceProcess(int firstNameSel, int secondNameSel, int materialSel);
+	vNXString GetFaceProcess(NXString firstName, NXString material);
+
+	vNXString GetHeatProcess(int firstNameSel, int secondNameSel, int materialSel);
+	vNXString GetHeatProcess(NXString firstName, NXString material);
+
+	double GetDensity(NXString material);
+	void GetDensity(NXString material, NXString &density);
+
 	void Run();
+
+	void ClearData();
 
 private:
 	TYGlobalData();
@@ -69,15 +85,15 @@ private:
 	int GetPropertyExcelData();
 public:
 
-	vNXString m_nameTypes;//名称类别1 First
-	vvNXString m_names;//名称类别2 Second
+	vNXString m_nameFirst;//名称主类
+	vvNXString m_nameSecond;//名称子类
 
 	vSNameMaterial m_nameMaterial;//名称材料对照
 
 	vSNameTech m_nameTech;//名称技术要求对照表
 
-	vSNameHeatProcess m_customerHeatProcess;//客户热处理
-	vSNameSurfaceProcess m_customerFaceProcess;//客户表面处理
+	vSNameHeatProcess m_nameHeatProcess;//客户热处理
+	vSNameSurfaceProcess m_nameFaceProcess;//客户表面处理
 
 	vSNameLayer m_nameLayer;
 	vSMaterialDensity m_materialDensity;
