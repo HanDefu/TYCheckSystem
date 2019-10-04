@@ -189,8 +189,9 @@ void TYStandPart::dialogShown_cb()
 			{
 				RoyStdData.InitalData(env_name,"\\standard\\TYStandardReg.xls");
 			}
-
-
+			else
+				RoyStdData.RefreshData(0,0,0);
+			
 			vNXString strs = RoyStdData.GetFirstClassNames();
 			UI_EnumSetValues(enumFirstName, strs);
 			UI_EnumSetValues(enumSecondName, RoyStdData.GetSecondClassNames());
@@ -218,6 +219,10 @@ void TYStandPart::dialogShown_cb()
 				}
 				UI_ListBox_SetItems(listSearchResult,results);
 			}
+
+			UI_LogicalSetValue(toggleSubtract,false);
+			UI_SetShow(enumPocketMethod,false);
+			UI_SetShow(selectionPocketTargets,false);
 		}
 		else
 		{
@@ -349,6 +354,8 @@ int TYStandPart::apply_cb()
 			int err = UF_ASSEM_add_part_to_assembly(workPart->Tag(),desName,"TRUE",NULL,org,csys,-1,&instance,&error_status);
 			if(err)
 			{
+				char msg[132] = "";
+				UF_get_fail_message(err,msg);
 				UF_free_string_array(error_status.n_parts, error_status.file_names);
 				UF_free(error_status.statuses);
 				std_occ = NULL_TAG;
@@ -479,9 +486,9 @@ int TYStandPart::update_cb(NXOpen::BlockStyler::UIBlock* block)
 		{
 			//---------Enter your code here-----------
 			int idx1 = 0;
-			UI_EnumSetCurrentSel(enumFirstName,idx1);
+			UI_EnumGetCurrentSel(enumFirstName,idx1);
 			int idx2 = 0;
-			UI_EnumSetCurrentSel(enumSecondName,idx2);
+			UI_EnumGetCurrentSel(enumSecondName,idx2);
 
 			RoyStdData.RefreshData(idx1,idx2,0);
 			UI_ListBox_SetItems(listParts,RoyStdData.GetThirdClassNames());
@@ -508,19 +515,18 @@ int TYStandPart::update_cb(NXOpen::BlockStyler::UIBlock* block)
 		{
 			//---------Enter your code here-----------
 			int idx1 = 0;
-			UI_EnumSetCurrentSel(enumFirstName,idx1);
+			UI_EnumGetCurrentSel(enumFirstName,idx1);
 			int idx2 = 0;
-			UI_EnumSetCurrentSel(enumSecondName,idx2);
+			UI_EnumGetCurrentSel(enumSecondName,idx2);
 			int idx3 = UI_ListBox_GetSelectItem(listParts);
             int idx4 = UI_ListBox_GetSelectItem(listParmeters);
 
 
 			StlNXStringVectorVector expValues = RoyStdData.GetCurrentExpValues();
-			StlDoubleVector valuelist;
+			vNXString valuelist;
 			for( int kdx = 0; kdx < expValues[idx4].size(); ++kdx )
-			{
-				valuelist.push_back(atof(expValues[idx4].at(kdx).GetText()));
-			}
+				valuelist.push_back(expValues[idx4].at(kdx).GetText());
+			
 			logical expcankeyin = RoyStdData.GetCurrentExpCanInput().at(idx4);
 			StlNXStringVector listitems;
 			UI_ListBox_GetItems(listParmeters,listitems);
@@ -532,8 +538,8 @@ int TYStandPart::update_cb(NXOpen::BlockStyler::UIBlock* block)
 			{
 				UI_SetShow(doublePara,true);
 				UI_SetShow(enumNoKeyinPara,false);
-				UI_DoubleSetOptions(doublePara,valuelist);
-				UI_DoubleSetValue(doublePara,atof(rightStr.GetLocaleText()));
+				UI_StringSetOptions(doublePara,valuelist);
+				UI_StringSetValue(doublePara,rightStr.GetLocaleText());
 				UI_BlockSetLabel(doublePara, leftStr.GetLocaleText());
 			}
 			else
@@ -549,17 +555,20 @@ int TYStandPart::update_cb(NXOpen::BlockStyler::UIBlock* block)
 		else if(block == doublePara)
 		{
 			//---------Enter your code here-----------
-			int idx = listParmeters->GetProperties()->GetInteger("SelectedItemIndex");
+			int idx = UI_ListBox_GetSelectItem(listParmeters);
+			
 			if( idx > -1 )
 			{
-				double curval = doublePara->GetProperties()->GetDouble("Value");
+				NXString strValue;
+				UI_StringGetValue(doublePara, strValue);
+				double curval = atof(strValue.getLocaleText());
 				NXString curname = doublePara->GetProperties()->GetString("Label");
 				StlNXStringVector expressions = listParmeters->GetProperties()->GetStrings("ListItems");
 				char str[133]="";
 				sprintf(str,"%g",curval);
 				expressions[idx]=NXString(curname+"="+str);
 				UI_ListBox_SetItems(listParmeters,expressions);
-				listParmeters->GetProperties()->SetInteger("SelectedItemIndex",idx);
+				UI_ListBox_SetSelectItem(listParmeters,idx);
 				SetStdDefaultName();
 				PrieviewAddSTD(1);
 			}
@@ -567,10 +576,12 @@ int TYStandPart::update_cb(NXOpen::BlockStyler::UIBlock* block)
 		else if(block == enumNoKeyinPara)
 		{
 			//---------Enter your code here-----------
-			int idx = listParmeters->GetProperties()->GetInteger("SelectedItemIndex");
+			int idx = UI_ListBox_GetSelectItem(listParmeters);
 			if( idx < 0 )
 				return 0;
-			NXString curval = enumNoKeyinPara->GetProperties()->GetEnumAsString("Value");
+
+			NXString curval;
+			UI_EnumGetBlockString(enumNoKeyinPara, curval);
 			NXString curname = enumNoKeyinPara->GetProperties()->GetString("Label");
 			StlNXStringVector expressions = listParmeters->GetProperties()->GetStrings("ListItems");
 			expressions[idx]=NXString(curname+"="+curval);
@@ -595,7 +606,7 @@ int TYStandPart::update_cb(NXOpen::BlockStyler::UIBlock* block)
 
 			}
 			UI_ListBox_SetItems(listParmeters,expressions);
-			listParmeters->GetProperties()->SetInteger("SelectedItemIndex",idx);
+			UI_ListBox_SetSelectItem(listParmeters,idx);
 			SetStdDefaultName();
 			PrieviewAddSTD(1);
 		}
@@ -633,6 +644,10 @@ int TYStandPart::update_cb(NXOpen::BlockStyler::UIBlock* block)
 		else if(block == toggleSubtract)
 		{
 			//---------Enter your code here-----------
+			bool isSubtract = false;
+			UI_LogicalGetValue(toggleSubtract,isSubtract);
+			UI_SetShow(enumPocketMethod,isSubtract);
+			UI_SetShow(selectionPocketTargets,isSubtract);
 		}
 		else if(block == togglePreview)
 		{
@@ -703,7 +718,7 @@ void TYStandPart::UpdateExpUI( )
 	logical isparame = RoyStdData.GetCurrentStdPartIsPara();
 	UI_SetShow(groupParameter, isparame);
 	logical ispocket = RoyStdData.GetCurrentStdPartIsPock();
-	UI_SetShow(toggleSubtract, ispocket);
+	UI_SetShow(groupPocket, ispocket);
 	NXString bmp = RoyStdData.GetCurrentStdPartBitmap();
 	UI_BlockSetBitmap(labelLegend, bmp);
 
@@ -725,11 +740,10 @@ void TYStandPart::UpdateExpUI( )
 		UI_ListBox_SetItems(listParmeters,expressions);
 		UI_ListBox_SetSelectItem(listParmeters, 0);
 
-		StlDoubleVector valuelist;
+		StlNXStringVector valuelist;
 		for( int kdx = 0; kdx < expValues[0].size(); ++kdx )
-		{
-			valuelist.push_back(atof(expValues[0].at(kdx).GetText()));
-		}
+			valuelist.push_back(expValues[0].at(kdx).GetText());
+
 		if( valuelist.size() > 0 )
 		{
 			logical expcankeyin = RoyStdData.GetCurrentExpCanInput().at(0);
@@ -739,10 +753,12 @@ void TYStandPart::UpdateExpUI( )
 				UI_SetShow(doublePara, true);
 				UI_SetShow(enumNoKeyinPara, false);
 			
-				UI_DoubleSetOptions(doublePara, valuelist);
+				UI_StringSetOptions(doublePara, valuelist);
 				double value = 0;
 				EF_eval_exp(expressions[0].GetLocaleText(),&value);
-				UI_DoubleSetValue(doublePara,value);
+				char data[32] = "";
+				sprintf(data,"%.1f",value);
+				UI_StringSetValue(doublePara,data);
 				UI_BlockSetLabel(doublePara, expressionNames[0]);
 			}
 			else
@@ -756,7 +772,7 @@ void TYStandPart::UpdateExpUI( )
 				char str[64]="";
 				EF_eval_exp(expressions[0].GetLocaleText(),&value);
 				sprintf_s(str,"%g",value);
-				enumNoKeyinPara->GetProperties()->SetEnumAsString("Value",str);
+				enumNoKeyinPara->GetProperties()->SetEnum("Value",0);
 			}
 		}
 	}// end of if(isparame)

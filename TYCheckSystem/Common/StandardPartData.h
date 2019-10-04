@@ -39,106 +39,33 @@ public:
 	void RefreshData(int class1idx=0,int class2idx=0, int class3idx=0);
 	StlNXStringVectorVector GetCurrentExpValues( );
 
-	StlNXStringVector GetFirstClassNames( )
-	{
-		return m1_1_firstClassTypes;
-	}
-	StlNXStringVector GetSecondClassNames( )
-	{
-		return m2_1_secondClassTypes;
-	}
-	StlNXStringVector GetThirdClassNames( )
-	{
-		return m2_2_thirdClassNames[currentclass2idx];
-	}
-
-	NXString GetCurrentStdPartModel( )
-	{
-		return m2_4_thirdClassModelFiles[currentclass2idx].at(currentclass3idx);
-	}
-
-	NXString GetCurrentStdPartBitmap( )
-	{
-		return m2_5_thirdClassBitmapFiles[currentclass2idx].at(currentclass3idx);
-	}
-
-	logical GetCurrentStdPartIsPara(  )
-	{
-		return m2_6_thirdClassIsParameterized[currentclass2idx].at(currentclass3idx);
-	}
-
-	logical GetCurrentStdPartIsPock( )
-	{
-		return m2_7_thirdClassIsToPocket[currentclass2idx].at(currentclass3idx);
-	}
-
-	StlNXStringVector GetCurrentExpNames(  )
-	{
-		return m3_1_currentExpName;
-	}
-
-	StlLogicalVector GetCurrentExpCanInput(  )
-	{
-		return m3_3_currentExpCanInput;
-	}
-
-	StlLogicalVector GetCurrentExpRename(  )
-	{
-		return m3_7_currentExpRename;
-	}
-
-	logical GetIsSpecialParamsTable()
-	{
-		return isSpecialParamsTable;
-	}
-	void SetSpecialParamIndex( int idx )
-	{
-		specialParamIndex = idx;
-	}
-	int GetSpecialParamIndex( )
-	{
-		return specialParamIndex;
-	}
-	logical GetIsInit()
-	{
-		return isInit;
-	}
-	int GetClass1Index()
-	{
-		return currentclass1idx;
-	}
-	int GetClass2Index()
-	{
-		return currentclass2idx;
-	}
-	int GetClass3Index()
-	{
-		return currentclass3idx;
-	}
-	void SetLastUIExpressions(StlNXStringVector& exps)
-	{
-		m_lastUIExpressions = exps;
-	}
-	StlNXStringVector GetLastUIExpressions()
-	{
-		return m_lastUIExpressions;
-	}
-	StlNXStringVector GetAssoAttrNames()
-	{
-		return m3_5_currentAssoAttrName;
-	}
-	StlNXStringVector GetAssoAttrValues()
-	{
-		return m3_6_currentAssoAttrValue;
-	}
-	NXString GetCurrentStdClassName()
-	{
-		return m1_1_firstClassTypes[currentclass1idx]+"-"+m2_1_secondClassTypes[currentclass2idx]+"-"+m2_2_thirdClassNames[currentclass2idx].at(currentclass3idx);
-	}
+	StlNXStringVector GetFirstClassNames( );
+	StlNXStringVector GetSecondClassNames( );
+	StlNXStringVector GetThirdClassNames( );
+	NXString GetCurrentStdPartModel( );
+	NXString GetCurrentStdPartBitmap( );
+	logical GetCurrentStdPartIsPara(  );
+	logical GetCurrentStdPartIsPock( );
+	StlNXStringVector GetCurrentExpNames(  );
+	StlLogicalVector GetCurrentExpCanInput(  );
+	StlLogicalVector GetCurrentExpRename(  );
+	logical GetIsSpecialParamsTable();
+	void SetSpecialParamIndex( int idx );
+	int GetSpecialParamIndex( );
+	logical GetIsInit();
+	int GetClass1Index();
+	int GetClass2Index();
+	int GetClass3Index();
+	void SetLastUIExpressions(StlNXStringVector& exps);
+	StlNXStringVector GetLastUIExpressions();
+	StlNXStringVector GetAssoAttrNames();
+	StlNXStringVector GetAssoAttrValues();
+	NXString GetCurrentStdClassName();
     StlNXStringVector GetStandardSearchDataName();
     void GetStandardSearchDataIndex( int idx, int* idx1,int* idx2, int* idx3 );
 public:
     StandardSearchData standardSearchData;
+
 private:
 
 	int Load_Level_1_Data(const char* regFileFullName);
@@ -151,7 +78,7 @@ private:
 	int currentclass3idx;
 	logical isSpecialParamsTable;
 	int specialParamIndex;
-	logical isInit;
+	//static int isInit;
 	StlNXStringVector m_lastUIExpressions;
 
 	// data from level 1 data file

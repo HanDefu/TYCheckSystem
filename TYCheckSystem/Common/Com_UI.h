@@ -28,7 +28,7 @@ void UI_BlockSetBitmap(NXOpen::BlockStyler::UIBlock* block, const NXString &bitm
 
 //This function set the max and min value of input double block.
 void UI_DoubleSetMaxMinValue(NXOpen::BlockStyler::UIBlock* block, double max, double min);
-void UI_DoubleSetOptions(NXOpen::BlockStyler::UIBlock* block, vdouble &options);
+void UI_StringSetOptions(NXOpen::BlockStyler::UIBlock* block, vNXString &options);
 
 //This function set the enum current selection.
 void UI_EnumSetCurrentSel(NXOpen::BlockStyler::UIBlock* block, int cursel);

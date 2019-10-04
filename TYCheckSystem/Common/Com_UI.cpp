@@ -16,16 +16,13 @@ void UI_DoubleSetMaxMinValue(NXOpen::BlockStyler::UIBlock* block, double max, do
 	pAttr = NULL;
 }
 
-void UI_DoubleSetOptions(NXOpen::BlockStyler::UIBlock* block, vdouble &options)
+void UI_StringSetOptions(NXOpen::BlockStyler::UIBlock* block, vNXString &options)
 {
-	vint conData;
-	for (int i = 0; i < options.size(); i++)
-	{
-		conData.push_back((int)options[i]);
-	}
+
 	NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
 	pAttr = block->GetProperties();
-	pAttr->SetDoubleVector("ComboOptions", conData);
+	//std::vector<NXString> pnames = pAttr->GetPropertyNames();
+	pAttr->SetStrings("ListItems", options);
 	delete pAttr;
 	pAttr = NULL;
 }

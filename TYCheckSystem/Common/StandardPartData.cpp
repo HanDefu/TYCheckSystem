@@ -6,6 +6,8 @@
 #include <uf_so.h>
 #include <uf_wave.h>
 
+static int isInit = false;
+
 using namespace YExcel;
 StandardPartData::StandardPartData()
 {
@@ -18,7 +20,6 @@ StandardPartData::StandardPartData()
 
 StandardPartData::~StandardPartData()
 {
-	isInit = false;
 }
 StlNXStringVector StandardPartData::GetStandardSearchDataName()
 {
@@ -96,6 +97,9 @@ int StandardPartData::Load_Level_1_Data( const char* regFileFullName )
 			{
 				BasicExcelCell *cel = sheet1->Cell(i,0);
 				NXString name = cel->Get();
+				if (strlen(name.GetLocaleText()) == 0)
+					break;
+
 				m1_1_firstClassTypes.push_back(name);
 				BasicExcelCell *cel2 = sheet1->Cell(i,1);
 				NXString regpath(cel2->Get().c_str());
@@ -128,6 +132,10 @@ int StandardPartData::Load_Level_2_Data( int idx )
 	currentclass2idx = -1; //force to refresh level 3 data
 	currentclass3idx = -1;
 	bool isOk = excel.Load(m1_2_firstClassRegFiles[idx].GetText());	
+	char cFilePath[256] = "";
+	char cFileName[64] = "";
+	uc4576(m1_2_firstClassRegFiles[idx].GetText(), 2, cFilePath, cFileName);
+
 	if( isOk )
 	{
 		int numSheet = excel.GetTotalWorkSheets();
@@ -150,19 +158,27 @@ int StandardPartData::Load_Level_2_Data( int idx )
 				{
 					BasicExcelCell *cel = sheet1->Cell(i,0);
 					std::string name = cel->Get();
+					if (name.length() == 0)
+						break;
+
 					sheetclassNames.push_back(name);
 
 					BasicExcelCell *cel2 = sheet1->Cell(i,1);
 					std::string regpath = cel2->Get();
-					sheetclassDatas.push_back(standardRoot+NXString(regpath.c_str()));
+
+					BasicExcelCell *celFolder = sheet1->Cell(i,6);
+					std::string folderName = celFolder->Get();
+
+					
+					sheetclassDatas.push_back(NXString(cFilePath) + NXString("\\") + NXString(folderName.c_str())+ NXString("\\") + NXString(regpath.c_str()));
 
 					BasicExcelCell *cel3 = sheet1->Cell(i,2);
 					std::string modelpath = cel3->Get();
-					sheetclassModels.push_back(standardRoot+NXString(modelpath.c_str()));
+					sheetclassModels.push_back(NXString(cFilePath) + NXString("\\") + NXString(folderName.c_str())+ NXString("\\") +NXString(modelpath.c_str()));
 
 					BasicExcelCell *cel4 = sheet1->Cell(i,3);
 					std::string bitmappath = cel4->Get();
-					sheetclassBitmaps.push_back(standardRoot+NXString(bitmappath.c_str()));
+					sheetclassBitmaps.push_back(NXString(cFilePath) + NXString("\\") + NXString(folderName.c_str())+ NXString("\\")+NXString(bitmappath.c_str()));
 
 					BasicExcelCell *cel5 = sheet1->Cell(i,4);
 					std::string isParam = cel5->Get();
@@ -211,6 +227,11 @@ int StandardPartData::Load_Level_3_Data( int idx2, int idx3  )
 	NXString expDataFile = m2_3_thirdClassDataFiles[idx2].at(idx3);
 	BasicExcel excel;
 	bool isOk = excel.Load(expDataFile.GetText());	
+
+	char cFilePath[256] = "";
+	char cFileName[64] = "";
+	uc4576(expDataFile.GetText(), 2, cFilePath, cFileName);
+
 	if( isOk )
 	{
 		BasicExcelWorksheet* sheet1 = excel.GetWorksheet(L"参数");
@@ -254,7 +275,7 @@ int StandardPartData::Load_Level_3_Data( int idx2, int idx3  )
 					BasicExcelCell *cel = sheet1->Cell(maxRows-SPECPARAMETER_OTHER_LINES+1,i);
 					std::string bmpPath = cel->Get();
 					if( 0 != bmpPath.compare("无") && 0 != bmpPath.compare(""))
-						m3_4_currentExpBitmaps.push_back(standardRoot+NXString(bmpPath));
+						m3_4_currentExpBitmaps.push_back(NXString(cFilePath) + NXString("\\") + NXString(bmpPath));
 					else
 						m3_4_currentExpBitmaps.push_back("");
 				}
@@ -296,25 +317,26 @@ int StandardPartData::Load_Level_3_Data( int idx2, int idx3  )
 						m3_3_currentExpCanInput.push_back(false);
 					BasicExcelCell *cel3 = sheet1->Cell(i,3);
 					std::string bmpPath = cel3->Get();
-					m3_4_currentExpBitmaps.push_back(standardRoot+NXString(bmpPath));
+					m3_4_currentExpBitmaps.push_back(NXString(cFilePath) + NXString("\\") +NXString(bmpPath));
 				}
 			}
-			
-	
-		BasicExcelWorksheet* sheet2 = excel.GetWorksheet(L"属性");
-		if (sheet2)
-		{
-			size_t maxRows = sheet2->GetTotalRows();
-			for(int i = 1; i < maxRows; i++)
+
+
+			BasicExcelWorksheet* sheet2 = excel.GetWorksheet("属性");
+			if (sheet2)
 			{
-				BasicExcelCell *cel = sheet2->Cell(i,0);
-				std::string expName = cel->Get();
-				m3_5_currentAssoAttrName.push_back(expName.c_str());
-				BasicExcelCell *cel2 = sheet2->Cell(i,1);
-				std::string values = cel2->Get();
-				m3_6_currentAssoAttrValue.push_back(NXString(values.c_str()));
-			}
-		}	
+				size_t maxRows = sheet2->GetTotalRows();
+				for(int i = 1; i < maxRows; i++)
+				{
+					BasicExcelCell *cel = sheet2->Cell(i,0);
+					std::string expName = cel->Get();
+					m3_5_currentAssoAttrName.push_back(expName.c_str());
+					BasicExcelCell *cel2 = sheet2->Cell(i,1);
+					std::string values = cel2->Get();
+					m3_6_currentAssoAttrValue.push_back(NXString(values.c_str()));
+				}
+			}	
+		}
 	}
 	return 0;
 }
@@ -351,6 +373,104 @@ StlNXStringVectorVector StandardPartData::GetCurrentExpValues(  )
 		return m3_2_currentExpValues;
 }
 
+
+StlNXStringVector StandardPartData::GetFirstClassNames( )
+{
+	return m1_1_firstClassTypes;
+}
+StlNXStringVector StandardPartData::GetSecondClassNames( )
+{
+	return m2_1_secondClassTypes;
+}
+StlNXStringVector StandardPartData::GetThirdClassNames( )
+{
+	return m2_2_thirdClassNames[currentclass2idx];
+}
+
+NXString StandardPartData::GetCurrentStdPartModel( )
+{
+	return m2_4_thirdClassModelFiles[currentclass2idx].at(currentclass3idx);
+}
+
+NXString StandardPartData::GetCurrentStdPartBitmap( )
+{
+	return m2_5_thirdClassBitmapFiles[currentclass2idx].at(currentclass3idx);
+}
+
+logical StandardPartData::GetCurrentStdPartIsPara(  )
+{
+	return m2_6_thirdClassIsParameterized[currentclass2idx].at(currentclass3idx);
+}
+
+logical StandardPartData::GetCurrentStdPartIsPock( )
+{
+	return m2_7_thirdClassIsToPocket[currentclass2idx].at(currentclass3idx);
+}
+
+StlNXStringVector StandardPartData::GetCurrentExpNames(  )
+{
+	return m3_1_currentExpName;
+}
+
+StlLogicalVector StandardPartData::GetCurrentExpCanInput(  )
+{
+	return m3_3_currentExpCanInput;
+}
+
+StlLogicalVector StandardPartData::GetCurrentExpRename(  )
+{
+	return m3_7_currentExpRename;
+}
+
+logical StandardPartData::GetIsSpecialParamsTable()
+{
+	return isSpecialParamsTable;
+}
+void StandardPartData::SetSpecialParamIndex( int idx )
+{
+	specialParamIndex = idx;
+}
+int StandardPartData::GetSpecialParamIndex( )
+{
+	return specialParamIndex;
+}
+
+logical StandardPartData::GetIsInit()
+{
+	return isInit;
+}
+int StandardPartData::GetClass1Index()
+{
+	return currentclass1idx;
+}
+int StandardPartData::GetClass2Index()
+{
+	return currentclass2idx;
+}
+int StandardPartData::GetClass3Index()
+{
+	return currentclass3idx;
+}
+void StandardPartData::SetLastUIExpressions(StlNXStringVector& exps)
+{
+	m_lastUIExpressions = exps;
+}
+StlNXStringVector StandardPartData::GetLastUIExpressions()
+{
+	return m_lastUIExpressions;
+}
+StlNXStringVector StandardPartData::GetAssoAttrNames()
+{
+	return m3_5_currentAssoAttrName;
+}
+StlNXStringVector StandardPartData::GetAssoAttrValues()
+{
+	return m3_6_currentAssoAttrValue;
+}
+NXString StandardPartData::GetCurrentStdClassName()
+{
+	return m1_1_firstClassTypes[currentclass1idx]+"-"+m2_1_secondClassTypes[currentclass2idx]+"-"+m2_2_thirdClassNames[currentclass2idx].at(currentclass3idx);
+}
 
 ////////////---------------------------------------//
 
