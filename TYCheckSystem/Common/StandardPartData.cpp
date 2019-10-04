@@ -300,8 +300,8 @@ int StandardPartData::Load_Level_3_Data( int idx2, int idx3  )
 				}
 			}
 			
-		}
-		BasicExcelWorksheet* sheet2 = excel.GetWorksheet(L"关联属性");
+	
+		BasicExcelWorksheet* sheet2 = excel.GetWorksheet(L"属性");
 		if (sheet2)
 		{
 			size_t maxRows = sheet2->GetTotalRows();

@@ -154,6 +154,10 @@ void TYStandPart::initialize_cb()
 		enumPocketMethod = theDialog->TopBlock()->FindBlock("enumPocketMethod");
 		selectionPocketTargets = theDialog->TopBlock()->FindBlock("selectionPocketTargets");
 		togglePreview = theDialog->TopBlock()->FindBlock("togglePreview");
+
+		//UI_SetShow(groupEdit,false);
+		//UI_SetShow(togglePreview,false);
+		//UI_SetShow(groupAssembly,false);
 	}
 	catch(exception& ex)
 	{
@@ -468,7 +472,7 @@ int TYStandPart::update_cb(NXOpen::BlockStyler::UIBlock* block)
 			RoyStdData.RefreshData(idx,0,0);
 			UI_EnumSetValues(enumSecondName,RoyStdData.GetSecondClassNames());
 			UI_ListBox_SetItems(listParts,RoyStdData.GetThirdClassNames());
-
+			UI_ListBox_SetSelectItem(listParts,0);
 			UpdateExpUI();
 		}
 		else if(block == enumSecondName)
@@ -481,6 +485,7 @@ int TYStandPart::update_cb(NXOpen::BlockStyler::UIBlock* block)
 
 			RoyStdData.RefreshData(idx1,idx2,0);
 			UI_ListBox_SetItems(listParts,RoyStdData.GetThirdClassNames());
+			UI_ListBox_SetSelectItem(listParts,0);
 			UpdateExpUI();
 		}
 		else if(block == listParts)
