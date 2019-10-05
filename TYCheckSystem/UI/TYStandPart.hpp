@@ -152,9 +152,7 @@ private:
 
 	tag_t stdPreviewInstance;
 	logical newCopy;
-	int first;
-
-	StandardPartData RoyStdData;
+	int m_previewIndex;
     
 };
 #endif //TYSTANDPART_H_INCLUDED

@@ -35,6 +35,8 @@ using namespace NXOpen::BlockStyler;
 Session *(TYStandPart::theSession) = NULL;
 UI *(TYStandPart::theUI) = NULL;
 
+static StandardPartData RoyStdData;
+
 //------------------------------------------------------------------------------
 // Declaration of global variables
 //------------------------------------------------------------------------------
@@ -59,6 +61,11 @@ TYStandPart::TYStandPart()
 		theDialog->AddFilterHandler(make_callback(this, &TYStandPart::filter_cb));
 		theDialog->AddInitializeHandler(make_callback(this, &TYStandPart::initialize_cb));
 		theDialog->AddDialogShownHandler(make_callback(this, &TYStandPart::dialogShown_cb));
+		m_previewIndex = 0;
+		stdPreviewInstance = NULL_TAG;
+		newCopy = false;
+
+
 	}
 	catch(exception& ex)
 	{
@@ -123,6 +130,7 @@ void TYStandPart::Show_TYStandPart()
 //------------------------------------------------------------------------------
 //Callback Name: initialize_cb
 //------------------------------------------------------------------------------
+//但是并没有new新的对话框，只是重新调用initialize_cb，重新调用了dialogShown_cb
 void TYStandPart::initialize_cb()
 {
 	try
@@ -158,28 +166,7 @@ void TYStandPart::initialize_cb()
 		//UI_SetShow(groupEdit,false);
 		//UI_SetShow(togglePreview,false);
 		//UI_SetShow(groupAssembly,false);
-	}
-	catch(exception& ex)
-	{
-		//---- Enter your exception handling code here -----
-		TYStandPart::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
-	}
-}
-
-//------------------------------------------------------------------------------
-//Callback Name: dialogShown_cb
-//This callback is executed just before the dialog launch. Thus any value set 
-//here will take precedence and dialog will be launched showing that value. 
-//------------------------------------------------------------------------------
-void TYStandPart::dialogShown_cb()
-{
-	try
-	{
-		//---- Enter your callback code here -----
-		stdPreviewInstance = NULL_TAG;
-		first = 0;
-		newCopy = false;
-
+		
 		// Load a workbook with one sheet, display its contents and save into another file.
 		//const char *env_name = "UGII_USER_DIR";
 		const char *env_name = getenv("TY_DATA_DIR");
@@ -190,12 +177,12 @@ void TYStandPart::dialogShown_cb()
 				RoyStdData.InitalData(env_name,"\\standard\\TYStandardReg.xls");
 			}
 			else
-				RoyStdData.RefreshData(0,0,0);
-			
+				RoyStdData.RefreshData(RoyStdData.GetClass1Index(),RoyStdData.GetClass2Index(),RoyStdData.GetClass3Index());
+
 			vNXString strs = RoyStdData.GetFirstClassNames();
 			UI_EnumSetValues(enumFirstName, strs);
 			UI_EnumSetValues(enumSecondName, RoyStdData.GetSecondClassNames());
-            UI_ListBox_SetItems(listParts, RoyStdData.GetThirdClassNames());
+			UI_ListBox_SetItems(listParts, RoyStdData.GetThirdClassNames());
 
 			UI_EnumSetCurrentSel(enumFirstName, RoyStdData.GetClass1Index());
 			UI_EnumSetCurrentSel(enumSecondName, RoyStdData.GetClass2Index());
@@ -228,6 +215,24 @@ void TYStandPart::dialogShown_cb()
 		{
 			TYStandPart::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, "Can not find ROYAL_STANDARD_DIR");
 		}
+	}
+	catch(exception& ex)
+	{
+		//---- Enter your exception handling code here -----
+		TYStandPart::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
+	}
+}
+
+//------------------------------------------------------------------------------
+//Callback Name: dialogShown_cb
+//This callback is executed just before the dialog launch. Thus any value set 
+//here will take precedence and dialog will be launched showing that value. 
+//------------------------------------------------------------------------------
+void TYStandPart::dialogShown_cb()
+{
+	try
+	{
+		
 	}
 	catch(exception& ex)
 	{
@@ -295,25 +300,6 @@ int TYStandPart::apply_cb()
 		NXString stdModelFile = RoyStdData.GetCurrentStdPartModel();
         //sprintf(sourceName,"%s\\standard\\screw.prt",p_env);
         
-        //Point3d originPoint = point_pos->GetProperties()->GetPoint("Point");
-		/*Point3d originPoint = manip_pos->GetProperties()->GetPoint("Origin");
-		Vector3d vecDirX = manip_pos->GetProperties()->GetVector("XAxis");
-		Vector3d vecDirY = manip_pos->GetProperties()->GetVector("YAxis");
-		csys[0] = vecDirX.X;
-		csys[1] = vecDirX.Y;
-		csys[2] = vecDirX.Z;
-		csys[3] = vecDirY.X;
-		csys[4] = vecDirY.Y;
-		csys[5] = vecDirY.Z;*/
-        //Vector3d vecDir = directionVec->GetProperties()->GetVector("Vector");
-        //double vec[3], mtx[9];
-        
-        /* vec[0] = vecDir.X; vec[1] = vecDir.Y; vec[2] = vecDir.Z;
-        UF_MTX3_initialize_z( vec ,mtx );
-        for( int idx = 0; idx < 6; ++idx )
-        {
-        csys[idx] = mtx[idx];
-        }*/
         Point3d originPoint;
 		std::vector<NXOpen::TaggedObject *> csysObjects;
 		UI_CSYS_GetSelected(csysPos, csysObjects);
@@ -384,24 +370,42 @@ int TYStandPart::apply_cb()
 		}
         if(NULL_TAG != instance)
 		{
+			if( NULL_TAG == std_occ )
+			{
+				tag_t work_occ = NULL_TAG;
+				work_occ = UF_ASSEM_ask_work_occurrence();
+				std_occ = UF_ASSEM_ask_part_occ_of_inst(work_occ, instance);
+			}
+
 			logical ispocket = false;
 			UI_LogicalGetValue(toggleSubtract, ispocket);
 			if( ispocket )
 			{
                 std::vector<NXOpen::TaggedObject* > objects =  UI_GetSelectObjects(selectionPocketTargets);
-				if( NULL_TAG == std_occ )
-				{
-					tag_t work_occ = NULL_TAG;
-					work_occ = UF_ASSEM_ask_work_occurrence();
-					std_occ = UF_ASSEM_ask_part_occ_of_inst(work_occ, instance);
-				}
 				StlTagVector target_list;
 				StlTagVector target_force;
                 for( int idx = 0; idx < objects.size(); ++idx )
                     target_force.push_back(objects[idx]->Tag());
-				TYCOM_GetCurrentPartSolidBodies(target_list);
+				
+				int pocketMethod = 0;
+				UI_EnumGetCurrentSel(enumPocketMethod,pocketMethod);
+				if(pocketMethod == 0)//自动
+				    TYCOM_GetCurrentPartSolidBodies(target_list);
+				else//手动
+				{
+                    target_list = UI_GetSelectObjects2(selectionPocketTargets);
+				}
 				Royal_standard_pocket(std_occ,target_list,target_force);
 			}
+
+			//wave link bodies and remove instance
+			vtag_t trueBodies;
+			tag_t body_waved = 0;
+			int num_true = Royal_ask_refset_objs("TRUE",std_occ,trueBodies);
+			for (int i = 0; i < trueBodies.size(); i++)
+			    TYCOM_WaveLinkBody(trueBodies[i], workPart->Tag(), body_waved);
+			UF_ASSEM_remove_instance(instance);
+			uc4561(desName,2);//remove the file
 		}
         //UF_PART_save();
     }
@@ -436,7 +440,7 @@ int TYStandPart::update_cb(NXOpen::BlockStyler::UIBlock* block)
 					results.push_back(namestosearch[idx]);
 				}
 			}
-			UI_ListBox_SetItems(listParts,results);
+			UI_ListBox_SetItems(listSearchResult,results);
 		}
 		else if(block == buttonSearch)
 		{
@@ -632,13 +636,13 @@ int TYStandPart::update_cb(NXOpen::BlockStyler::UIBlock* block)
 			NXOpen::NXMatrix *matrix = coord_system->Orientation();
 
 			NXOpen::Matrix3x3 mx3 = matrix->Element();*/
-			if( first > 0 )
+			if( m_previewIndex > 0 )
 			{
-				PrieviewAddSTD(0);
+				PrieviewAddSTD(m_previewIndex+1);
 			}
 			else
 			{
-				first++;
+				m_previewIndex++;
 			}
 		}
 		else if(block == toggleSubtract)
@@ -647,7 +651,18 @@ int TYStandPart::update_cb(NXOpen::BlockStyler::UIBlock* block)
 			bool isSubtract = false;
 			UI_LogicalGetValue(toggleSubtract,isSubtract);
 			UI_SetShow(enumPocketMethod,isSubtract);
-			UI_SetShow(selectionPocketTargets,isSubtract);
+			UI_EnumSetCurrentSel(enumPocketMethod,0);
+			UI_SetShow(selectionPocketTargets,false);
+		}
+		else if(block == enumPocketMethod)
+		{
+			//---------Enter your code here-----------
+			int sel = 0;
+			UI_EnumGetCurrentSel(enumPocketMethod,sel);
+			if(sel == 1)
+			    UI_SetShow(selectionPocketTargets,true);
+			else
+                UI_SetShow(selectionPocketTargets,false);
 		}
 		else if(block == togglePreview)
 		{
@@ -812,8 +827,9 @@ void TYStandPart::SetStdDefaultName()
 
 void TYStandPart::PrieviewAddSTD( int updateflag )
 {
-	logical isPreview = false;//toggle_preview->GetProperties()->GetLogical("Value");
-	if( !isPreview || first < 1 )
+	logical isPreview  = false;
+	UI_LogicalGetValue(togglePreview,isPreview);
+	if( !isPreview || m_previewIndex < 1 )
 	{
 		return;
 	}
@@ -857,7 +873,7 @@ void TYStandPart::PrieviewAddSTD( int updateflag )
 		UI_ListBox_GetItems(listParmeters,all_express);
 		RoyStdData.SetLastUIExpressions(all_express);
 		std::vector<NXOpen::TaggedObject* > csysObjects;
-		UI_CSYS_SetSelected(csysPos, csysObjects);
+		UI_CSYS_GetSelected(csysPos, csysObjects);
 		if( csysObjects.size() > 0 )
 		{
 			tag_t csys_tag = csysObjects[0]->Tag();

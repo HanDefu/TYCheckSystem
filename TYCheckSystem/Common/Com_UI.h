@@ -71,6 +71,7 @@ void UI_ListBox_SetSelectItem(NXOpen::BlockStyler::UIBlock* block, int sel);
 
 
 std::vector<NXOpen::TaggedObject *> UI_GetSelectObjects(NXOpen::BlockStyler::UIBlock* block);
+std::vector<tag_t> UI_GetSelectObjects2(NXOpen::BlockStyler::UIBlock* block);
 
 tag_t UI_GetPlaneTag(NXOpen::BlockStyler::UIBlock* block);
 

@@ -15,7 +15,7 @@ StandardPartData::StandardPartData()
 	currentclass2idx = -1;
 	currentclass3idx = -1;
 	specialParamIndex = 0;
-	isInit = false;
+	//isInit = false;
 }
 
 StandardPartData::~StandardPartData()

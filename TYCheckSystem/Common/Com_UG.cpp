@@ -804,7 +804,8 @@ int TYCOM_GetPartSolidBodies(tag_t part, vtag_t &bodies)
 	if(part == NULL_TAG)
 		return 0;
 	tag_t feature = NULL_TAG;
-	UF_OBJ_cycle_objs_in_part( part, UF_solid_type, &feature );
+	
+	UF_OBJ_cycle_objs_in_part( TYCOM_Prototype(part), UF_solid_type, &feature );
     while ( feature != NULL_TAG )
     {
 		UF_OBJ_ask_type_and_subtype(feature, &type, &subtype);

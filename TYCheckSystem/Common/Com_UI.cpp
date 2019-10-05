@@ -317,6 +317,24 @@ std::vector<NXOpen::TaggedObject *> UI_GetSelectObjects(NXOpen::BlockStyler::UIB
 	return objs;
 }
 
+std::vector<tag_t> UI_GetSelectObjects2(NXOpen::BlockStyler::UIBlock* block)
+{
+	NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
+	std::vector<NXOpen::TaggedObject *> objs;
+	//bodies
+	pAttr = block->GetProperties();
+	objs = pAttr->GetTaggedObjectVector("SelectedObjects");
+
+	delete pAttr;
+	pAttr = 0;
+	vtag_t tobjs;
+	for (int i = 0; i < objs.size(); i++)
+	{
+		tobjs.push_back(objs[i]->Tag());
+	}
+	return tobjs;
+}
+
 tag_t UI_GetPlaneTag(NXOpen::BlockStyler::UIBlock* block)
 {
 	NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
