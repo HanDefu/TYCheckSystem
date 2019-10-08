@@ -41,6 +41,7 @@
 #include "../Common/Com_UG.h"
 #include "../Tool/Excel/BasicExcel.hpp"
 #include "../Common/Com.h"
+#include "../TYBomData.h"
 using namespace YExcel;
 
 
@@ -152,6 +153,7 @@ void TYBom::initialize_cb()
 		group = theDialog->TopBlock()->FindBlock("group");
 		stringPathName = theDialog->TopBlock()->FindBlock("stringPathName");
 		buttonSelect = theDialog->TopBlock()->FindBlock("buttonSelect");
+		stringNO = theDialog->TopBlock()->FindBlock("stringNO");
 
 		UI_LogicalSetValue(toggleAll, true);
 		UI_SetShow(selectionBodies,false);
@@ -243,6 +245,9 @@ int TYBom::apply_cb()
 			return 0;
 		}
 
+		NXString str;
+		UI_StringGetValue(stringNO, str);
+		TYBomData::SetProjectNo(str);
 		TY_WT_Bom(bomBodies, xlsFilePathName);
 	}
 	catch(exception& ex)
@@ -342,9 +347,68 @@ int TYBom::filter_cb(NXOpen::BlockStyler::UIBlock*  block, NXOpen::TaggedObject*
 	return(UF_UI_SEL_ACCEPT);
 }
 
+int TY_BOM_WriteOneBody(BasicExcelWorksheet* sheet, int rowIndex, int index, tag_t body)
+{
+	TYBomData bomData(body);
+
+	BasicExcelCell *cel = 0;
+
+	char str[128] = "";
+
+	//第一列 NUM
+	cel = sheet->Cell(rowIndex,0);
+	sprintf(str, "%d", index);//第几个
+	cel->Set(str);
+
+	//第一列 DETAIL
+	if (index < 10)
+		sprintf(str, "00%d", index);//第几个
+	else if(index < 100)
+		sprintf(str, "0%d", index);//第几个
+	else
+		sprintf(str, "%d", index);//第几个
+
+	cel = sheet->Cell(rowIndex,1);
+	NXString nxstr = bomData.m_projectNo + NXString(str);
+	cel->Set(nxstr.getLocaleText());
+
+
+	//第三列:MAT_L
+	/*cel = sheet->Cell(rowIndex,2);
+	cel->Set(bomData.m_material.getLocaleText());
+
+
+	//第四列:DIA_THK
+	cel = sheet->Cell(rowIndex,3);
+	cel->Set(bomData.m_size.getLocaleText());
+
+
+	//第五列:QTY
+	cel = sheet->Cell(rowIndex,4);
+	cel->Set("1");
+
+
+	//第六列:DESCRIPTION
+	cel = sheet->Cell(rowIndex,5);
+	nxstr = bomData.m_firstName + NXString("_") + bomData.m_secondName;
+	cel->Set(nxstr.getLocaleText());
+
+
+	//第七列:ADD_DESCRIP
+	cel = sheet->Cell(rowIndex,6);
+	cel->Set("prt");
+
+
+	//第八列:HEAT TREAT
+	cel = sheet->Cell(rowIndex,7);
+	cel->Set(bomData.m_heatProcess.getLocaleText());*/
+
+	return 0;
+}
+
 int TY_WT_Bom(vtag_t bodies, NXString xlsFilePathName)
 {
-	int startRow = 1;
+	int startRow = 3;
 
 	//客户处理
 	BasicExcel excel;
@@ -354,19 +418,19 @@ int TY_WT_Bom(vtag_t bodies, NXString xlsFilePathName)
 		uc1601("加载数据文件失败，请检测",1);
 		return -1;
 	}
-	
-	/*BasicExcelWorksheet* sheet1 = excel.GetWorksheet(L"客户表");
+
+	BasicExcelWorksheet* sheet1 = excel.GetWorksheet(L"总表");
 	if (sheet1)
 	{
-		size_t maxRows = sheet1->GetTotalRows();
-		for(int i = 1; i < maxRows; i++)
+	
+		for (int i = 0; i < bodies.size(); i++)
 		{
-			BasicExcelCell *cel = sheet1->Cell(i,1);
-			const wchar_t* aa = cel->GetWString();
-			m_customers.push_back(NXString(WCHARTOCHAR(aa)));
+			TY_BOM_WriteOneBody(sheet1, startRow + i, i+1, bodies[i]);
 		}
-	}*/
+	}
 
+	excel.SaveAs("D:\\aa.xls");
 
+	
     return 0;
 }

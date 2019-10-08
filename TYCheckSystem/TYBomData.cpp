@@ -3,6 +3,10 @@
 #include "Common\Com_UG.h"
 #include "Common\Com_Attribute.h"
 
+//注意这里不初始化 在vs2008编译器中会导致链接错误
+NXString TYBomData::m_projectNo = "";
+
+
 TYBomData::TYBomData(tag_t body)
 {
     FromBody(body);
@@ -29,7 +33,9 @@ int TYBomData::FromBody(tag_t body)
 	double xLen = 0,yLen = 0,zLen = 0;
 	int ret = TY_GetBodyXYZLen_aligned(body,  xLen, yLen, zLen);
 	char str[128] = "";
-	sprintf(str, "%dX%dX%d", (int)xLen + 1, (int)yLen + 1, (int)zLen + 1);
+	sprintf(str, "%dX%dX%d", (xLen - (int)xLen) > TOL ? (int)xLen + 1 : (int)xLen  , 
+		                     (yLen - (int)yLen) > TOL ? (int)yLen + 1 : (int)yLen,
+							 (zLen - (int)zLen) > TOL ? (int)zLen + 1 : (int)zLen);
     m_size = str;
 
 	m_count = "1";

@@ -12,6 +12,8 @@ public:
 	~TYBomData();
 	int FromBody(tag_t body);
 
+	static void SetProjectNo(NXString no){m_projectNo = no;}
+
 public:
 	NXString m_index;
 	NXString m_firstName;
@@ -26,6 +28,9 @@ public:
 	NXString m_station;
 	NXString m_level;
 	NXString m_tyoe;
+
+
+	static NXString m_projectNo;//DetailÒ»À¸µÄ×Ü±àºÅ
 };
 
 typedef std::vector<TYBomData> vTYBomData;

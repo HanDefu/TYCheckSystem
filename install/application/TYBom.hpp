@@ -9,7 +9,7 @@
 //        Created by: Administrator
 //              Version: NX 7
 //              Date: 10-08-2019  (Format: mm-dd-yyyy)
-//              Time: 16:02
+//              Time: 20:35
 //
 //==============================================================================
 
@@ -112,6 +112,7 @@ private:
     NXOpen::BlockStyler::UIBlock* group;// Block type: Group
     NXOpen::BlockStyler::UIBlock* stringPathName;// Block type: String
     NXOpen::BlockStyler::UIBlock* buttonSelect;// Block type: Button
+    NXOpen::BlockStyler::UIBlock* stringNO;// Block type: String
     
 };
 #endif //TYBOM_H_INCLUDED

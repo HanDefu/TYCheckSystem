@@ -9,7 +9,7 @@
 //        Created by: Administrator
 //              Version: NX 7
 //              Date: 10-08-2019  (Format: mm-dd-yyyy)
-//              Time: 16:02 (Format: hh-mm)
+//              Time: 20:35 (Format: hh-mm)
 //
 //==============================================================================
 
@@ -231,6 +231,7 @@ TYBom::~TYBom()
             group = theDialog->TopBlock()->FindBlock("group");
             stringPathName = theDialog->TopBlock()->FindBlock("stringPathName");
             buttonSelect = theDialog->TopBlock()->FindBlock("buttonSelect");
+            stringNO = theDialog->TopBlock()->FindBlock("stringNO");
         }
         catch(exception& ex)
         {
@@ -294,6 +295,10 @@ TYBom::~TYBom()
             //---------Enter your code here-----------
             }
             else if(block == buttonSelect)
+            {
+            //---------Enter your code here-----------
+            }
+            else if(block == stringNO)
             {
             //---------Enter your code here-----------
             }

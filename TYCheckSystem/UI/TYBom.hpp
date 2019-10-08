@@ -107,7 +107,7 @@ private:
 	NXOpen::BlockStyler::UIBlock* group;// Block type: Group
 	NXOpen::BlockStyler::UIBlock* stringPathName;// Block type: String
 	NXOpen::BlockStyler::UIBlock* buttonSelect;// Block type: Button
-    
+    NXOpen::BlockStyler::UIBlock* stringNO;// Block type: String
 };
 
 
