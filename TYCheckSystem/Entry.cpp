@@ -38,6 +38,7 @@
 #include "Command.h"
 #include <uf_ui.h>
 #include "TYGlobalData.h"
+#include "UI\TYBom.hpp"
 
 using namespace NXOpen;
 
@@ -101,7 +102,7 @@ extern "C" DllExport void  ufusr(char *param, int *retcod, int param_len)
 
 		if(strcmp(param, "CUSTOM_TY_BOM") == 0)//BOM
 		{
-			TY_CMD_Bom();
+			TYBom::Show_TYBom();
 		}
 
 		if(strcmp(param, "CUSTOM_TY_BAIKEXIAN") == 0)//°Ù¿ÌÏß

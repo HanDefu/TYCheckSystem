@@ -106,6 +106,7 @@
 #include <NXOpen/Features_OffsetFaceBuilder.hxx>
 #include "Com_Attribute.h"
 #include "../Common/TY_Def.h"
+#include <uf_mtx.h>
 
 using namespace NXOpen;
 using namespace std;
@@ -3963,4 +3964,145 @@ vtag_t TYCOM_GetBodiesFromObjects(vtag_t &objs)
 		}
 	}
 	return bodies;
+}
+
+int TYCOM_OptionDialog(NXString title, vNXString &options)
+{
+	char cp1[256] = "";
+	strcpy(cp1,title.getLocaleText());
+	char cp3[16][38];
+	for (int i = 0; i < options.size(); i++)
+	{
+		strcpy(cp3[i],options[i].getLocaleText());
+	}
+	int ret = uc1603 ( cp1, 0, cp3, options.size());
+	if (ret == 1 || ret == 2 || ret == 5)
+		return 0;
+	else
+		return ret - 5;
+}
+
+int TY_GetBodyXDir(tag_t body, double vecx[3])
+{
+	vecx[0] = 1;
+	vecx[1] = 0;
+	vecx[2] = 0;
+
+	char str[133]="";
+	int irc = TYCOM_GetObjectStringAttribute(body,ATTR_NORMAL_DIR_X_X,str);
+	if(irc == 1)
+	    vecx[0] = atof(str);
+	else
+		return -1;
+	
+	
+	irc = TYCOM_GetObjectStringAttribute(body,ATTR_NORMAL_DIR_X_Y,str);
+	if(irc == 1)
+		vecx[1] = atof(str);
+	else
+		return -1;
+
+	irc = TYCOM_GetObjectStringAttribute(body,ATTR_NORMAL_DIR_X_Z,str);
+	if(irc == 1)
+		vecx[2] = atof(str);
+	else
+		return -1;
+
+	return 0;
+}
+
+int TY_GetBodyYDir(tag_t body, double vecx[3])
+{
+	vecx[0] = 0;
+	vecx[1] = 1;
+	vecx[2] = 0;
+
+	char str[133]="";
+	int irc = TYCOM_GetObjectStringAttribute(body,ATTR_NORMAL_DIR_Y_X,str);
+	if(irc == 1)
+		vecx[0] = atof(str);
+	else
+		return -1;
+
+
+	irc = TYCOM_GetObjectStringAttribute(body,ATTR_NORMAL_DIR_Y_Y,str);
+	if(irc == 1)
+		vecx[1] = atof(str);
+	else
+		return -1;
+
+	irc = TYCOM_GetObjectStringAttribute(body,ATTR_NORMAL_DIR_Y_Z,str);
+	if(irc == 1)
+		vecx[2] = atof(str);
+	else
+		return -1;
+
+	return 0;
+}
+
+int TY_GetBodyMatrix(tag_t body, double mtx [ 9 ])
+{
+	double x[3] = {0};
+	double y[3] = {0};
+    int ret = TY_GetBodyXDir(body, x);
+	if (ret != 0)
+		return ret;
+
+	ret = TY_GetBodyYDir(body, y);
+	if (ret != 0)
+		return ret;
+	
+	return UF_MTX3_initialize(x, y, mtx);
+}
+
+tag_t TY_GetBodyMatrix(tag_t body)
+{
+	double mtx[9] = {0};
+	double x[3] = {0};
+	double y[3] = {0};
+	int ret = TY_GetBodyXDir(body, x);
+	if (ret != 0)
+		return ret;
+
+	ret = TY_GetBodyYDir(body, y);
+	if (ret != 0)
+		return ret;
+
+	ret = UF_MTX3_initialize(x, y, mtx);
+	if (ret != 0)
+		return 0;
+	tag_t mxid = 0;
+	UF_CSYS_create_matrix(mtx, &mxid);
+	return mxid;
+}
+
+tag_t TY_GetBodyCSYS(tag_t body, const double csys_origin [ 3 ])
+{
+	tag_t mx = TY_GetBodyMatrix(body);
+	if (mx == 0)
+		return 0;
+
+	tag_t csys = 0;
+	UF_CSYS_create_csys(csys_origin, mx, &csys);
+	return csys;
+}
+
+int TY_GetBodyXYZLen_aligned(tag_t body, double &xLen,double &yLen,double &zLen)
+{
+
+	double csys_origin [ 3 ] = {0,0,0};
+	tag_t csys = TY_GetBodyCSYS(body, csys_origin);
+	if (csys == 0)
+		return -1;
+	
+	double min_corner[3] = {0};
+	double  directions[3][3] = {0};
+	double  distances[3] = {0};
+	int ret = UF_MODL_ask_bounding_box_aligned(body,csys,false, min_corner,  directions, distances);
+	if (ret)
+		return ret;
+	xLen = distances[0];
+	yLen = distances[1];
+	zLen = distances[2];
+	return ret;
 }

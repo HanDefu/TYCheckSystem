@@ -9,6 +9,7 @@ extern int TYCOM_SetObjectRealAttribute( tag_t part_tag, char title[64], double 
 
 bool TYCOM_GetObjectHasAttribute( const tag_t obj , char *title );
 int TYCOM_GetObjectStringAttribute( tag_t obj , char *title , char *string );
+int TYCOM_GetObjectStringAttribute( tag_t obj , char *title , NXString &string );
 
 
 int EF_ask_obj_real_attr( tag_t obj , char *title , double *real_data );

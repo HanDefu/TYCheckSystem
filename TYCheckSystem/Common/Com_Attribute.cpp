@@ -80,6 +80,31 @@ int TYCOM_GetObjectStringAttribute( tag_t obj , char *title , char *string )
 	return true ;
 }  
 
+int TYCOM_GetObjectStringAttribute( tag_t obj , char *title , NXString &string )
+{
+	char str[256] = "";
+	UF_ATTR_value_t  value ;
+	int		ret;
+
+	strcpy( str , "" ) ;
+	if( obj == NULL_TAG ) return false ;
+	//if( UF_ASSEM_is_occurrence( obj )) {
+	//obj = UF_ASSEM_ask_prototype_of_occ ( obj ) ;
+	// }
+
+	ret = UF_ATTR_read_value( obj, title, UF_ATTR_any, &value );
+	if( value.type == UF_ATTR_string ) 
+	{
+		strcpy( str , value.value.string ) ;
+		//		USER_remove_space( string ) ;//³ýµô×Ö·û´®Á½¶ËµÄ¿Õ¸ñ
+		UF_free(value.value.string) ;
+	}
+	else 
+		return false ;
+	string = str;
+	return true ;
+}  
+
 bool TYCOM_GetObjectHasAttribute( const tag_t obj , char *title )
 {
 	UF_ATTR_value_t  value ;

@@ -363,6 +363,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\TYBomData.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\TYBomData.h"
+				>
+			</File>
+			<File
 				RelativePath=".\TYGlobalData.cpp"
 				>
 			</File>
@@ -382,6 +390,14 @@
 			</File>
 			<File
 				RelativePath=".\UI\TYBaiWeiXian.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\UI\TYBom.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\UI\TYBom.hpp"
 				>
 			</File>
 			<File

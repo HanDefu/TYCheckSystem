@@ -272,10 +272,16 @@ tag_t Create_wcs_by_dir2( double x_dir[3], double z_dir[3]);
 double GetSuggestScaleforPartDrawing(tag_t component, double shlen, double shhei);
 double GetSuggestScaleforAssemDrawing( tag_t part, double shlen, double shhei );
 vtag_t TYCOM_GetBodiesFromObjects(vtag_t &objs);
+int TYCOM_OptionDialog(NXString title, vNXString &options);
 
 
+int TY_GetBodyXDir(tag_t body, double vecx[3]);
+int TY_GetBodyYDir(tag_t body, double vecx[3]);
+int TY_GetBodyMatrix(tag_t body, double mtx [ 9 ]);
+tag_t TY_GetBodyMatrix(tag_t body);
+tag_t TY_GetBodyCSYS(tag_t body, const double csys_origin [ 3 ]);
 
-
+int TY_GetBodyXYZLen_aligned(tag_t body, double &xLen,double &yLen,double &zLen);
 
 /*
 int TYCOM_WaveLinkBodyToWorkPart(tag_t body);

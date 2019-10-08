@@ -213,17 +213,17 @@ int TYColor::apply_cb()
 
 			char str[133]="";
 			sprintf(str,"%g",normal1[0]);
-			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_DRAFTING_X_DIR_X,str);
+			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_NORMAL_DIR_Y_X,str);
 			sprintf(str,"%g",normal1[1]);
-			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_DRAFTING_X_DIR_Y,str);
+			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_NORMAL_DIR_Y_Y,str);
 			sprintf(str,"%g",normal1[2]);
-			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_DRAFTING_X_DIR_Z,str);
+			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_NORMAL_DIR_Y_Z,str);
 			sprintf(str,"%g",normal2[0]);
-			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_DRAFTING_NORMAL_DIR_X,str);
+			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_NORMAL_DIR_X_X,str);
 			sprintf(str,"%g",normal2[1]);
-			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_DRAFTING_NORMAL_DIR_Y,str);
+			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_NORMAL_DIR_X_Y,str);
 			sprintf(str,"%g",normal2[2]);
-			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_DRAFTING_NORMAL_DIR_Z,str);
+			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_NORMAL_DIR_X_Z,str);
 
 			
 		}

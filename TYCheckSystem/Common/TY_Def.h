@@ -51,6 +51,15 @@ typedef std::vector<StlNXStringVector> StlNXStringVectorVector;
 typedef std::vector<StlLogicalVector> StlLogicalVectorVector;
 
 
+#define ATTR_NORMAL_DIR_X_X "ATTR_NORMAL_DIR_X_X"
+#define ATTR_NORMAL_DIR_X_Y "ATTR_NORMAL_DIR_X_Y"
+#define ATTR_NORMAL_DIR_X_Z "ATTR_NORMAL_DIR_X_Z"
+
+#define ATTR_NORMAL_DIR_Y_X "ATTR_NORMAL_DIR_Y_X"
+#define ATTR_NORMAL_DIR_Y_Y "ATTR_NORMAL_DIR_Y_Y"
+#define ATTR_NORMAL_DIR_Y_Z "ATTR_NORMAL_DIR_Y_Z"
+
+
 #define TY_STR_LEN 256
 #define MAX_FSPEC_BUFSIZE 256
 #define TY_GAP_DIS 0.1 //悬空检测
@@ -136,14 +145,6 @@ typedef std::vector<StlLogicalVector> StlLogicalVectorVector;
 //组合件的情况 第四层出几个图纸
 #define WELD_DRAFTING_NUMBER 1500
 
-
-#define ATTR_DRAFTING_NORMAL_DIR_X "ATTR_DRAFTING_NORMAL_DIR_X"
-#define ATTR_DRAFTING_NORMAL_DIR_Y "ATTR_DRAFTING_NORMAL_DIR_Y"
-#define ATTR_DRAFTING_NORMAL_DIR_Z "ATTR_DRAFTING_NORMAL_DIR_Z"
-
-#define ATTR_DRAFTING_X_DIR_X "ATTR_DRAFTING_X_DIR_X"
-#define ATTR_DRAFTING_X_DIR_Y "ATTR_DRAFTING_X_DIR_Y"
-#define ATTR_DRAFTING_X_DIR_Z "ATTR_DRAFTING_X_DIR_Z"
 
 #define NX_VERSION_60
 

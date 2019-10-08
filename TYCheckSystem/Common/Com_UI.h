@@ -95,4 +95,7 @@ void UI_StringsGetValues(NXOpen::BlockStyler::UIBlock* block, std::vector<NXStri
 
 void UI_CSYS_GetSelected(NXOpen::BlockStyler::UIBlock* block, std::vector<NXOpen::TaggedObject *> &obj);
 void UI_CSYS_SetSelected(NXOpen::BlockStyler::UIBlock* block, std::vector<NXOpen::TaggedObject *> &obj);
+
+void UI_FilePathGetValue(NXOpen::BlockStyler::UIBlock* block, NXString &value);
+void UI_FilePathSetValue(NXOpen::BlockStyler::UIBlock* block, NXString value);
 #endif

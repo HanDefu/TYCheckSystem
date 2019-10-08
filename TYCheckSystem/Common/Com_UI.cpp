@@ -449,6 +449,26 @@ void UI_CSYS_SetSelected(NXOpen::BlockStyler::UIBlock* block, std::vector<NXOpen
 	delete pAttr;
 	pAttr = NULL;
 }
+//This function set the value of a double block.
+void UI_FilePathSetValue(NXOpen::BlockStyler::UIBlock* block, NXString value)
+{
+	NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
+	pAttr = block->GetProperties();
+	pAttr->SetString("Path", value);
+	delete pAttr;
+	pAttr = NULL;
+}
+
+//This function get the value of a double block.
+void UI_FilePathGetValue(NXOpen::BlockStyler::UIBlock* block, NXString &value)
+{
+	NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
+	pAttr = block->GetProperties();
+	value = pAttr->GetString("Path");
+	delete pAttr;
+	pAttr = NULL;
+}
+
 
 
 
