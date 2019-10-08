@@ -19,7 +19,9 @@ bool Block::Create(const wchar_t* filename)
 	wcstombs(name, filename, filenameLength);
 	name[filenameLength] = 0;
 
+	setlocale(LC_ALL,"Chinese-simplified");//设置中文环境 
 	file_.open(name, ios_base::out | ios_base::trunc);
+	setlocale(LC_ALL,"C"); 
 	file_.close();
 	file_.clear();
 
@@ -36,18 +38,11 @@ bool Block::Open(const wchar_t* filename, ios_base::openmode mode)
 	// Open existing file for reading or writing or both
 	size_t filenameLength = wcslen(filename);
 	filename_.resize(filenameLength+1, 0);
-	
-	//20190930支持中文文件名测试
-	/*wcstombs(&*(filename_.begin()), filename, filenameLength);
-	file_.open(&*(filename_.begin()), mode | ios_base::binary);*/
+	wcstombs(&*(filename_.begin()), filename, filenameLength);
 
 	setlocale(LC_ALL,"Chinese-simplified");//设置中文环境 
-	file_.open(&*(filename_.begin()), mode_ | ios_base::binary);
+	file_.open(&*(filename_.begin()), mode | ios_base::binary);
 	setlocale(LC_ALL,"C"); 
-
-
-
-
 	if (!file_.is_open()) return false;
 
 	mode_ = mode;
@@ -156,7 +151,9 @@ bool Block::Write(size_t index, const char* block)
 	}
 	file_.close();
 	file_.clear();
+	setlocale(LC_ALL,"Chinese-simplified");//设置中文环境 
 	file_.open(&*(filename_.begin()), mode_ | ios_base::binary);
+	setlocale(LC_ALL,"C"); 
 	return file_.is_open();		
 }
 
@@ -258,10 +255,14 @@ bool Block::Erase(size_t index)
 			}
 		}
 		file_.close();
+		setlocale(LC_ALL,"Chinese-simplified");//设置中文环境 
 		file_.open(&*(filename_.begin()), ios_base::out | ios_base::trunc | ios_base::binary);
+		setlocale(LC_ALL,"C"); 
 		file_.write(buffer, fileSize_);	// Write the new file.
 		file_.close();
+		setlocale(LC_ALL,"Chinese-simplified");//设置中文环境 
 		file_.open(&*(filename_.begin()), mode_ | ios_base::binary);
+		setlocale(LC_ALL,"C"); 
 		delete[] buffer;
 		return true;
 	}
@@ -300,10 +301,14 @@ bool Block::Erase(vector<size_t>& indices)
 	indexEnd_ -= maxIndices;
 	
 	file_.close();
+	setlocale(LC_ALL,"Chinese-simplified");//设置中文环境 
 	file_.open(&*(filename_.begin()), ios_base::out | ios_base::trunc | ios_base::binary);
+	setlocale(LC_ALL,"C"); 
 	file_.write(buffer, fileSize_);	// Write the new file.
 	file_.close();
+	setlocale(LC_ALL,"Chinese-simplified");//设置中文环境 
 	file_.open(&*(filename_.begin()), mode_ | ios_base::binary);
+	setlocale(LC_ALL,"C"); 
 	delete[] buffer;
 	return true;
 }
@@ -499,7 +504,7 @@ bool CompoundFile::Create(const wchar_t* filename)
 	propertyTrees_->parent_ = 0;
 	propertyTrees_->self_ = properties_[0];
 	propertyTrees_->index_ = 0;
-	currentDirectoTYCOM_ = propertyTrees_;
+	currentDirectory_ = propertyTrees_;
 
 	return true;
 }
@@ -520,7 +525,7 @@ bool CompoundFile::Open(const char* filename, ios_base::openmode mode)
 	// Load properties
 	propertyTrees_ = new PropertyTree;	
 	LoadProperties();
-	currentDirectoTYCOM_ = propertyTrees_;
+	currentDirectory_ = propertyTrees_;
 
 	return true;
 }
@@ -547,7 +552,7 @@ bool CompoundFile::Close()
 	}
 
 	previousDirectories_.clear();
-	currentDirectoTYCOM_ = 0;
+	currentDirectory_ = 0;
 
 	return file_.Close();
 }
@@ -564,7 +569,7 @@ int CompoundFile::ChangeDirectory(const wchar_t* path)
 // PURPOSE: Change to a different directory in the compound file.
 // PROMISE: Current directory will not be changed if directory is not present.
 {
-	previousDirectories_.push_back(currentDirectoTYCOM_);
+	previousDirectories_.push_back(currentDirectory_);
 
 	// Handle special cases
 	if (wcscmp(path, L".") == 0) 	
@@ -576,9 +581,9 @@ int CompoundFile::ChangeDirectory(const wchar_t* path)
 	if (wcscmp(path, L"..") == 0)
 	{
 		// Go up 1 directory
-		if (currentDirectoTYCOM_->parent_ != 0)
+		if (currentDirectory_->parent_ != 0)
 		{
-			currentDirectoTYCOM_ = currentDirectoTYCOM_->parent_;
+			currentDirectory_ = currentDirectory_->parent_;
 		}
 		previousDirectories_.pop_back();
 		return SUCCESS;
@@ -586,7 +591,7 @@ int CompoundFile::ChangeDirectory(const wchar_t* path)
 	if (wcscmp(path, L"\\") == 0)
 	{
 		// Go to root directory
-		currentDirectoTYCOM_ = propertyTrees_;
+		currentDirectory_ = propertyTrees_;
 		previousDirectories_.pop_back();
 		return SUCCESS;
 	}
@@ -598,7 +603,7 @@ int CompoundFile::ChangeDirectory(const wchar_t* path)
 	if (pathLength > 0 && path[0] == L'\\')
 	{
 		// Start from root directory
-		currentDirectoTYCOM_ = propertyTrees_;
+		currentDirectory_ = propertyTrees_;
 		++ipos;
 		++npos;
 	}
@@ -612,16 +617,16 @@ int CompoundFile::ChangeDirectory(const wchar_t* path)
 		wchar_t* directory = new wchar_t[npos-ipos+1];
 		copy (path+ipos, path+npos, directory);
 		directory[npos-ipos] = 0;
-		currentDirectoTYCOM_ = FindProperty(currentDirectoTYCOM_, directory);
+		currentDirectory_ = FindProperty(currentDirectory_, directory);
 		delete[] directory;
 		ipos = npos + 1;
 		npos = ipos;
-		if (currentDirectoTYCOM_ == 0)
+		if (currentDirectory_ == 0)
 		{
 			// Directory not found
-			currentDirectoTYCOM_ = previousDirectories_.back();
+			currentDirectory_ = previousDirectories_.back();
 			previousDirectories_.pop_back();
-			return DIRECTOTYCOM_NOT_FOUND;
+			return DIRECTORY_NOT_FOUND;
 		}
 	} while (npos < pathLength);
 	previousDirectories_.pop_back();
@@ -633,11 +638,11 @@ int CompoundFile::MakeDirectory(const wchar_t* path)
 // PROMISE: Directory will not be created if it is already present or
 // PROMISE: a file with the same name is present.
 {
-	previousDirectories_.push_back(currentDirectoTYCOM_);
+	previousDirectories_.push_back(currentDirectory_);
 	Property* property = new Property;
 	property->propertyType_ = 1;
 	int ret = MakeProperty(path, property);
-	currentDirectoTYCOM_ = previousDirectories_.back();
+	currentDirectory_ = previousDirectories_.back();
 	previousDirectories_.pop_back();
 	SaveHeader();
 	SaveBAT();
@@ -649,24 +654,24 @@ int CompoundFile::PresentWorkingDirectory(wchar_t* path)
 // PURPOSE: Get the full path of the current directory in the compound file.
 // REQUIRE: path must be large enough to receive the full path information.
 {
-	previousDirectories_.push_back(currentDirectoTYCOM_);
+	previousDirectories_.push_back(currentDirectory_);
 	vector<wchar_t> fullpath;
 	do
 	{
-		size_t directoryLength = wcslen(currentDirectoTYCOM_->self_->name_);
+		size_t directoryLength = wcslen(currentDirectory_->self_->name_);
 		vector<wchar_t> directory(directoryLength+1);
 		directory[0] = L'\\';
-		copy (currentDirectoTYCOM_->self_->name_,
-			  currentDirectoTYCOM_->self_->name_+directoryLength,
+		copy (currentDirectory_->self_->name_,
+			  currentDirectory_->self_->name_+directoryLength,
 			  directory.begin()+1);
 		fullpath.insert(fullpath.begin(), directory.begin(), directory.end());		
-	} while (currentDirectoTYCOM_ = currentDirectoTYCOM_->parent_);
+	} while (currentDirectory_ = currentDirectory_->parent_);
 
 	fullpath.erase(fullpath.begin(), fullpath.begin()+11);
 	if (fullpath.empty()) fullpath.push_back(L'\\');
 	copy (fullpath.begin(), fullpath.end(), path);
 	path[fullpath.size()] = 0;
-	currentDirectoTYCOM_ = previousDirectories_.back();
+	currentDirectory_ = previousDirectories_.back();
 	previousDirectories_.pop_back();
 	return SUCCESS;
 }
@@ -674,22 +679,22 @@ int CompoundFile::PresentWorkingDirectory(wchar_t* path)
 int CompoundFile::PresentWorkingDirectory(vector<wchar_t>& path)
 // PURPOSE: Get the full path of the current directory in the compound file.
 {
-	previousDirectories_.push_back(currentDirectoTYCOM_);
+	previousDirectories_.push_back(currentDirectory_);
 	path.clear();
 	do
 	{
-		size_t directoryLength = wcslen(currentDirectoTYCOM_->self_->name_);
+		size_t directoryLength = wcslen(currentDirectory_->self_->name_);
 		vector<wchar_t> directory(directoryLength+1);
 		directory[0] = L'\\';
-		copy (currentDirectoTYCOM_->self_->name_,
-			  currentDirectoTYCOM_->self_->name_+directoryLength,
+		copy (currentDirectory_->self_->name_,
+			  currentDirectory_->self_->name_+directoryLength,
 			  directory.begin()+1);
 		path.insert(path.begin(), directory.begin(), directory.end());		
-	} while (currentDirectoTYCOM_ = currentDirectoTYCOM_->parent_);
+	} while (currentDirectory_ = currentDirectory_->parent_);
 
 	path.erase(path.begin(), path.begin()+11);
 	if (path.empty()) path.push_back(L'\\');
-	currentDirectoTYCOM_ = previousDirectories_.back();
+	currentDirectory_ = previousDirectories_.back();
 	previousDirectories_.pop_back();
 	return SUCCESS;
 }
@@ -699,8 +704,8 @@ int CompoundFile::RemoveDirectory(const wchar_t* path)
 // PROMISE: Directory will not be removed if it has subdirectories or files under it.
 {
 	PropertyTree* directory = FindProperty(path);
-	if (directory == 0) return DIRECTOTYCOM_NOT_FOUND;
-	if (directory->self_->childProp_ != -1) return DIRECTOTYCOM_NOT_EMPTY;
+	if (directory == 0) return DIRECTORY_NOT_FOUND;
+	if (directory->self_->childProp_ != -1) return DIRECTORY_NOT_EMPTY;
 	DeletePropertyTree(directory);
 	SaveHeader();
 	SaveBAT();
@@ -712,16 +717,16 @@ int CompoundFile::DelTree(const wchar_t* path)
 // PURPOSE: Remove everything in the path in the compound file, including
 // PURPOSE: any files and subdirectories.
 {
-	previousDirectories_.push_back(currentDirectoTYCOM_);
+	previousDirectories_.push_back(currentDirectory_);
 	PropertyTree* directory = FindProperty(path);
-	if (directory == 0) return DIRECTOTYCOM_NOT_FOUND;
+	if (directory == 0) return DIRECTORY_NOT_FOUND;
 	if (directory->self_->childProp_ != -1)
 	{
 		size_t maxChildren = directory->children_.size();
 		wchar_t* curpath = new wchar_t[65535];
 		for (size_t i=0; i<maxChildren; ++i)
 		{
-			currentDirectoTYCOM_ = directory->children_[i];
+			currentDirectory_ = directory->children_[i];
 			PresentWorkingDirectory(curpath);
 			if (directory->children_[i]->self_->propertyType_ == 1)
 			{	
@@ -749,28 +754,28 @@ int CompoundFile::DelTree(const wchar_t* path)
 		RemoveFile(path);
 	}
 
-	currentDirectoTYCOM_ = previousDirectories_.back();
+	currentDirectory_ = previousDirectories_.back();
 	previousDirectories_.pop_back();
 	return SUCCESS;
 }
 
 int CompoundFile::DirectoryList(vector<vector<wchar_t> >& list, const wchar_t* path)
 {
-	previousDirectories_.push_back(currentDirectoTYCOM_);
+	previousDirectories_.push_back(currentDirectory_);
 	if (path != 0)
 	{
 		int ret = ChangeDirectory(path);
 		if (ret != SUCCESS) return ret;
 	}
 	list.clear();
-	size_t maxChildren = currentDirectoTYCOM_->children_.size();
+	size_t maxChildren = currentDirectory_->children_.size();
 	vector<wchar_t> name(32);
 	for (size_t i=0; i<maxChildren; ++i)
 	{
-		wcscpy(&*(name.begin()), currentDirectoTYCOM_->children_[i]->self_->name_);
+		wcscpy(&*(name.begin()), currentDirectory_->children_[i]->self_->name_);
 		list.push_back(name);
 	}
-	currentDirectoTYCOM_ = previousDirectories_.back();
+	currentDirectory_ = previousDirectories_.back();
 	previousDirectories_.pop_back();
 	return SUCCESS;
 }
@@ -782,11 +787,11 @@ int CompoundFile::MakeFile(const wchar_t* path)
 // PROMISE: File will not be created if it is already present or
 // PROMISE: a directory with the same name is present.
 {
-	previousDirectories_.push_back(currentDirectoTYCOM_);
+	previousDirectories_.push_back(currentDirectory_);
 	Property* property = new Property;
 	property->propertyType_ = 2;
 	int ret = MakeProperty(path, property);
-	currentDirectoTYCOM_ = previousDirectories_.back();
+	currentDirectory_ = previousDirectories_.back();
 	previousDirectories_.pop_back();
 	SaveHeader();
 	SaveBAT();
@@ -2002,7 +2007,7 @@ int CompoundFile::MakeProperty(const wchar_t* path, CompoundFile::Property* prop
 	// create it.
 	if (wcslen(path) != 0)
 	{
-		if (path[0] == L'\\') currentDirectoTYCOM_ = propertyTrees_;
+		if (path[0] == L'\\') currentDirectory_ = propertyTrees_;
 	}
 	SplitPath(path, parentpath, propertyname);
 
@@ -2034,7 +2039,7 @@ int CompoundFile::MakeProperty(const wchar_t* path, CompoundFile::Property* prop
 		wcscpy(property->name_, propertyname);
 		delete[] propertyname;
 		property->nameSize_ = propertynameLength*2+2;
-		if (FindProperty(currentDirectoTYCOM_, property->name_) == 0)
+		if (FindProperty(currentDirectory_, property->name_) == 0)
 		{
 			// Find location to insert property
 			size_t maxProperties = properties_.size();
@@ -2049,7 +2054,7 @@ int CompoundFile::MakeProperty(const wchar_t* path, CompoundFile::Property* prop
 				IncreasePropertyReferences(propertyTrees_, index);
 			}
 			properties_.insert(properties_.begin()+index, property);
-			InsertPropertyTree(currentDirectoTYCOM_, property, index);
+			InsertPropertyTree(currentDirectory_, property, index);
 			return SUCCESS;
 		}
 		else return DUPLICATE_PROPERTY;
@@ -2096,7 +2101,7 @@ CompoundFile::PropertyTree* CompoundFile::FindProperty(const wchar_t* path)
 // PROMISE: Returns a pointer to the property tree of the property if property
 // PROMISE: is present, 0 if otherwise.
 {
-	previousDirectories_.push_back(currentDirectoTYCOM_);
+	previousDirectories_.push_back(currentDirectory_);
 
 	// Change to specified directory
 	wchar_t* parentpath = 0;
@@ -2104,7 +2109,7 @@ CompoundFile::PropertyTree* CompoundFile::FindProperty(const wchar_t* path)
 
 	if (wcslen(path) != 0)
 	{
-		if (path[0] == L'\\') currentDirectoTYCOM_ = propertyTrees_;
+		if (path[0] == L'\\') currentDirectory_ = propertyTrees_;
 	}
 
 	SplitPath(path, parentpath, filename);
@@ -2116,7 +2121,7 @@ CompoundFile::PropertyTree* CompoundFile::FindProperty(const wchar_t* path)
 		{
 			// Cannot change to specified directory
 			if (filename != 0) delete[] filename;
-			currentDirectoTYCOM_ = previousDirectories_.back();
+			currentDirectory_ = previousDirectories_.back();
 			previousDirectories_.pop_back();
 			PropertyTree* property = 0;
 			return property;
@@ -2127,10 +2132,10 @@ CompoundFile::PropertyTree* CompoundFile::FindProperty(const wchar_t* path)
 	PropertyTree* property = 0;
 	if (filename != 0) 
 	{
-		property = FindProperty(currentDirectoTYCOM_, filename);
+		property = FindProperty(currentDirectory_, filename);
 		delete[] filename;
 	}
-	currentDirectoTYCOM_ = previousDirectories_.back();
+	currentDirectory_ = previousDirectories_.back();
 	previousDirectories_.pop_back();
 	return property;	
 }
@@ -4200,7 +4205,6 @@ short Worksheet::CellTable::RowBlock::CellBlock::RowIndex()
 			return formula_.rowIndex_;
 	}
 	abort();
-	return 0;
 }
 short Worksheet::CellTable::RowBlock::CellBlock::ColIndex()
 {
@@ -4231,7 +4235,6 @@ short Worksheet::CellTable::RowBlock::CellBlock::ColIndex()
 			return formula_.colIndex_;
 	}
 	abort();
-	return 0;
 }
 
 /************************************************************************************************************/

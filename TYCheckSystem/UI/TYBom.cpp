@@ -54,7 +54,7 @@ using namespace NXOpen::BlockStyler;
 Session *(TYBom::theSession) = NULL;
 UI *(TYBom::theUI) = NULL;
 
-int TY_WT_Bom(vtag_t bodies, NXString xlsFilePathName);
+int TY_WT_Bom(vtag_t bodies, NXString srcName, NXString xlsFilePathName);
 
 //------------------------------------------------------------------------------
 // Declaration of global variables
@@ -227,7 +227,7 @@ int TYBom::apply_cb()
 		char *p_env = getenv("UGII_USER_DIR");
 		char srcspc[MAX_FSPEC_SIZE]="";
 		char desspc[MAX_FSPEC_SIZE]="";
-		sprintf_s(srcspc,"%s\\templates\\BOMTemplate.xls",p_env);
+		sprintf_s(srcspc,"%s\\威唐\\威唐BOM.xls",p_env);
 		UF_CFI_ask_file_exist(srcspc,&exist);
 		if( 0 != exist )
 		{
@@ -237,18 +237,18 @@ int TYBom::apply_cb()
 
 
 		//拷贝文件
-		uc4567( srcspc,xlsFilePathName.getLocaleText(),UF_CFI_COPY_ALWAYS_REPLACE,0,0);
+		/*uc4567( srcspc,xlsFilePathName.getLocaleText(),UF_CFI_COPY_ALWAYS_REPLACE,0,0);
 		UF_CFI_ask_file_exist(xlsFilePathName.getLocaleText(),&exist);
 		if (exist == 1)
 		{
 			uc1601("拷贝BOM模板文件失败",1);
 			return 0;
-		}
+		}*/
 
 		NXString str;
 		UI_StringGetValue(stringNO, str);
 		TYBomData::SetProjectNo(str);
-		TY_WT_Bom(bomBodies, xlsFilePathName);
+		TY_WT_Bom(bomBodies, srcspc, xlsFilePathName);
 	}
 	catch(exception& ex)
 	{
@@ -369,13 +369,13 @@ int TY_BOM_WriteOneBody(BasicExcelWorksheet* sheet, int rowIndex, int index, tag
 		sprintf(str, "%d", index);//第几个
 
 	cel = sheet->Cell(rowIndex,1);
-	NXString nxstr = bomData.m_projectNo + NXString(str);
+	NXString nxstr = bomData.m_projectNo + NXString("-") + NXString(str);
 	cel->Set(nxstr.getLocaleText());
 
 
 	//第三列:MAT_L
-	/*cel = sheet->Cell(rowIndex,2);
-	cel->Set(bomData.m_material.getLocaleText());
+	cel = sheet->Cell(rowIndex,2);
+	cel->SetWString(CharToWchar(bomData.m_material.getLocaleText()));
 
 
 	//第四列:DIA_THK
@@ -390,8 +390,8 @@ int TY_BOM_WriteOneBody(BasicExcelWorksheet* sheet, int rowIndex, int index, tag
 
 	//第六列:DESCRIPTION
 	cel = sheet->Cell(rowIndex,5);
-	nxstr = bomData.m_firstName + NXString("_") + bomData.m_secondName;
-	cel->Set(nxstr.getLocaleText());
+	nxstr = bomData.m_firstName + NXString("-") + bomData.m_secondName;
+	cel->SetWString(CharToWchar(nxstr.getLocaleText()));
 
 
 	//第七列:ADD_DESCRIP
@@ -401,18 +401,18 @@ int TY_BOM_WriteOneBody(BasicExcelWorksheet* sheet, int rowIndex, int index, tag
 
 	//第八列:HEAT TREAT
 	cel = sheet->Cell(rowIndex,7);
-	cel->Set(bomData.m_heatProcess.getLocaleText());*/
+	cel->SetWString(CharToWchar(bomData.m_heatProcess.getLocaleText()));
 
 	return 0;
 }
 
-int TY_WT_Bom(vtag_t bodies, NXString xlsFilePathName)
+int TY_WT_Bom(vtag_t bodies, NXString srcName, NXString xlsFilePathName)
 {
 	int startRow = 3;
 
 	//客户处理
 	BasicExcel excel;
-	bool isOk = excel.Load(xlsFilePathName.getLocaleText(),BasicExcel::WRITE);	
+	bool isOk = excel.Load(srcName.getLocaleText(),BasicExcel::WRITE);	
 	if (!isOk)
 	{
 		uc1601("加载数据文件失败，请检测",1);
@@ -429,7 +429,7 @@ int TY_WT_Bom(vtag_t bodies, NXString xlsFilePathName)
 		}
 	}
 
-	excel.SaveAs("D:\\aa.xls");
+	excel.SaveAs(xlsFilePathName.getLocaleText());
 
 	
     return 0;

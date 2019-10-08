@@ -250,7 +250,7 @@ class CompoundFile
 public:
 	enum {DUPLICATE_PROPERTY=-6,
 		  NAME_TOO_LONG=-5, FILE_NOT_FOUND=-4, 
-		  DIRECTOTYCOM_NOT_EMPTY=-3, DIRECTOTYCOM_NOT_FOUND=-2, 
+		  DIRECTORY_NOT_EMPTY=-3, DIRECTORY_NOT_FOUND=-2, 
 		  INVALID_PATH=-1, 
 		  SUCCESS=1};
 
@@ -434,7 +434,7 @@ protected:
 	void IncreasePropertyReferences(PropertyTree* parentTree, size_t index);
 	void DecreasePropertyReferences(PropertyTree* parentTree, size_t index);
 	PropertyTree* propertyTrees_;
-	PropertyTree* currentDirectoTYCOM_;
+	PropertyTree* currentDirectory_;
 	vector<Property*> properties_;
 	vector<PropertyTree*> previousDirectories_;
 };
