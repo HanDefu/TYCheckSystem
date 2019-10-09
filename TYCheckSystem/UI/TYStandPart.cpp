@@ -263,7 +263,7 @@ int TYStandPart::apply_cb()
         NXString cloneName;
         //char *p_env = getenv("UGII_USER_DIR");
         char sourceName[133] = "";
-        char part_fspec[ MAX_FSPEC_BUFSIZE ]="";
+        char part_fspec[ MAX_FSPEC_SIZE ]="";
         char desName[133] = "";
         double org[3] = {0.0}, csys[6] = {1,0,0,0,1,0};
         UF_PART_load_status_t error_status;
@@ -710,7 +710,7 @@ int TYStandPart::cancel_cb()
 		//---- Enter your callback code here -----
 		if(NULL_TAG != stdPreviewInstance && newCopy )
 		{
-			char part_fspec1[ MAX_FSPEC_BUFSIZE ]="";
+			char part_fspec1[ MAX_FSPEC_SIZE ]="";
 			tag_t cur_preview_std_tag = UF_ASSEM_ask_child_of_instance(stdPreviewInstance);
 			UF_PART_ask_part_name(cur_preview_std_tag,part_fspec1);
 			uc4561(part_fspec1,2);
@@ -849,9 +849,9 @@ void TYStandPart::PrieviewAddSTD( int updateflag )
 	}
 	if(NULL_TAG != stdPreviewInstance)
 	{
-		char fname[MAX_FSPEC_BUFSIZE] = "";
-		char desName[MAX_FSPEC_BUFSIZE] = "";
-		char part_fspec1[ MAX_FSPEC_BUFSIZE ]="";
+		char fname[MAX_FSPEC_SIZE] = "";
+		char desName[MAX_FSPEC_SIZE] = "";
+		char part_fspec1[ MAX_FSPEC_SIZE ]="";
 		tag_t cur_preview_std_tag = UF_ASSEM_ask_child_of_instance(stdPreviewInstance);
 		UF_PART_ask_part_name(cur_preview_std_tag,part_fspec1);
 		uc4576(part_fspec1, 2, desName, fname);
@@ -902,7 +902,7 @@ void TYStandPart::PrieviewAddSTD( int updateflag )
 			NXString cloneName;
 
 			char sourceName[133] = "";
-			char part_fspec[ MAX_FSPEC_BUFSIZE ]="";
+			char part_fspec[ MAX_FSPEC_SIZE ]="";
 
 			char desName[133] = "";
 			UF_PART_load_status_t error_status;

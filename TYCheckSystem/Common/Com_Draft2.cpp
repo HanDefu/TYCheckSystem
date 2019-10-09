@@ -1,4 +1,4 @@
-#include "Com_Draft.h"
+#include "Com_Draft2.h"
 #include <NXOpen/NXString.hxx>
 #include <NXOpen/Section.hxx>
 #include <NXOpen/Part.hxx>
@@ -294,15 +294,16 @@ static int GetTopViewProjectDirection( tag_t partTag, NXString& refset,double di
 		}
 		if( 1 == irc )
 		{
-			dir[0][0] = atof(VXx);
-			dir[0][1] = atof(VXy);
-			dir[0][2] = atof(VXz);
-			dir[2][0] = atof(VZx);
-			dir[2][1] = atof(VZy);
-			dir[2][2] = atof(VZz);
+			dir[0][0] = atof(VZx);
+			dir[0][1] = atof(VZy);
+			dir[0][2] = atof(VZz);
+
+			dir[1][0] = atof(VXx);
+			dir[1][1] = atof(VXy);
+			dir[1][2] = atof(VXz);
 			double tol = 0;
 			UF_MODL_ask_distance_tolerance(&tol);
-			UF_VEC3_cross(dir[2], dir[0], dir[1]);
+			UF_VEC3_cross(dir[0], dir[1], dir[2]);
 			/*UF_CALL(UF_VEC3_unitize(dir[0], tol, &mag, &csys[0]));
 			UF_CALL(UF_VEC3_unitize(dir[1], tol, &mag, &csys[3]));
 			UF_CALL(UF_VEC3_unitize(dir[2], tol, &mag, &csys[6]));*/
@@ -383,7 +384,7 @@ static tag_t CreateBaseView(tag_t partTag, NXString viewType, NXString& refset,P
 		double sheethei = drawingSheetBuilder1->Height();
 		drawingSheetBuilder1->Destroy();*/
 
-		NXOpen::Direction *direction1;
+		
 		NXOpen::Point3d origin1(0.0, 0.0, 0.0);
 		NXOpen::Vector3d vector1(0.0, 0.0, 1.0);
 		NXOpen::Vector3d vector2(1.0, 0.0, 0.0);
@@ -391,57 +392,34 @@ static tag_t CreateBaseView(tag_t partTag, NXString viewType, NXString& refset,P
 		int ret = GetTopViewProjectDirection(partTag,refset,dir);
 		if(ret == 0)
 		{
-			vector1.X = dir[2][0];
-			vector1.Y = dir[2][1];
-			vector1.Z = dir[2][2];
-			vector2.X = dir[0][0];
-			vector2.Y = dir[0][1];
-			vector2.Z = dir[0][2];
-		}
-		
-		/*tag_t body = GetReferencesetBody(part,refset);
-		if( NULL_TAG != body )
-		{
-			char VZx[133]="",VZy[133]="",VZz[133]="";
-			char VXx[133]="",VXy[133]="",VXz[133]="";
-			int irc = Roy_ask_obj_string_attr(body,ATTR_DRAFTING_NORMAL_DIR_X,VZx);
-			if( 0 == irc )
-			{
-				irc = Roy_ask_obj_string_attr(body,ATTR_DRAFTING_NORMAL_DIR_Y,VZy);
-			}
-			if( 0 == irc )
-			{
-				irc = Roy_ask_obj_string_attr(body,ATTR_DRAFTING_NORMAL_DIR_Z,VZz);
-			}
-			if( 0 == irc )
-			{
-				irc = Roy_ask_obj_string_attr(body,ATTR_DRAFTING_X_DIR_X,VXx);
-			}
-			if( 0 == irc )
-			{
-				irc = Roy_ask_obj_string_attr(body,ATTR_DRAFTING_X_DIR_Y,VXy);
-			}
-			if( 0 == irc )
-			{
-				irc = Roy_ask_obj_string_attr(body,ATTR_DRAFTING_X_DIR_Z,VXz);
-			}
-			if( 0 == irc )
-			{
-				vector1.X = atof(VZx);
-				vector1.Y = atof(VZy);
-				vector1.Z = atof(VZz);
-				vector2.X = atof(VXx);
-				vector2.Y = atof(VXy);
-				vector2.Z = atof(VXz);
-			}
-		}*/
+			vector1.X = dir[0][0];
+			vector1.Y = dir[0][1];
+			vector1.Z = dir[0][2];
 
+			double cross[3] ;
+			UF_VEC3_cross(dir[0],dir[1],cross);
+			UF_VEC3_cross(cross,dir[0],dir[1]);
+
+			vector2.X = -dir[1][0];
+			vector2.Y = -dir[1][1];
+			vector2.Z = -dir[1][2];
+		}
+
+		
+
+		
+		//注意这里定的是投影方向---是最重要的因素
+		NXOpen::Direction *direction1;
 		direction1 = workPart->Directions()->CreateDirection(origin1, vector1, NXOpen::SmartObject::UpdateOptionAfterModeling);
 		baseViewBuilder1->Style()->ViewStyleOrientation()->Ovt()->SetNormalDirection(direction1);
 
+		//注意：这里定的是投影图投出来以后，x方向（这个时候只有xy方向），x方向对应的三维空间的方向，其实就是定投影视图的旋转方向的
+		//这个很重要：他决定了了 右视图 和 下面的视图的 投影方向！！！！！！ 因为右边视图和下面视图我们是不能指定方向的,这个旋转方向直接决定了右侧和下侧看什么东西
 		NXOpen::Direction *direction2;
 		direction2 = workPart->Directions()->CreateDirection(origin1, vector2, NXOpen::SmartObject::UpdateOptionAfterModeling);
 		baseViewBuilder1->Style()->ViewStyleOrientation()->Ovt()->SetXDirection(direction2);
+
+		
 
         viewRefPoint.X = sheetlen/2;
 		viewRefPoint.Y = sheethei/2;
@@ -563,7 +541,7 @@ static int CreateBaseAndProjectViews( tag_t partTag, NXString& refset, double st
     Part *workPart(theSession->Parts()->Work());
 	NXOpen::Point3d point1(0, 0, 0.0);
 
-	//注意NX7.0 是TOP NX12.0是 Top
+	//注意NX7.0 是TOP NX12.0是 Top--这一句话看似多余，其实是为了让ug自动把model图纸挂到当前装配下
 	tag_t baseView = CreateBaseView(partTag,"TOP",refset, point1,stdscale,sheetlen,sheethei);
 
     tag_t proto = partTag;
@@ -593,8 +571,9 @@ static int CreateBaseAndProjectViews( tag_t partTag, NXString& refset, double st
              //UF_DRAW_update_one_view
     double sheetLen = point1.X*2;
     double sheetHei = point1.Y*2;
+	projectViewr = CreateProjectView(baseView,point1.X+50, point1.Y);
 	projectViewl = CreateProjectView(baseView,point1.X, point1.Y-50);
-    projectViewr = CreateProjectView(baseView,point1.X+50, point1.Y);
+    
 
 	//nx7.0 TFR-ISO nx12.0 Isometric
     tag_t IsometricView = CreateBaseView(partTag,"TFR-ISO", refset,point1,stdscale,sheetlen,sheethei);
@@ -626,7 +605,7 @@ static int CreateBaseAndProjectViews( tag_t partTag, NXString& refset, double st
 		viewHei = vhei2;
 	if( vlen2 > viewLen )
 		viewLen = vlen2;
-	if( viewHei >= drawingareaHei || viewLen >= drawingareaLen ) //adjust scale &&  stdscale < 19.9 || vhei2 >= drawingareaHei || vlen2 >= drawingareaLen 
+	/*if( viewHei >= drawingareaHei || viewLen >= drawingareaLen ) //adjust scale &&  stdscale < 19.9 || vhei2 >= drawingareaHei || vlen2 >= drawingareaLen 
     {
 		int err = 0;//-->A3 UF_DRAW_set_drawing_info
         double sug1 = (viewLen-25.4)/(drawingareaLen-25.4);
@@ -642,7 +621,7 @@ static int CreateBaseAndProjectViews( tag_t partTag, NXString& refset, double st
         return 1;
     }
     else
-    {
+    {*/
         int err = 0;
         UF_VIEW_delete(IsometricView,&err);
         Drawings::DrawingSheet *drawingSheet1= workPart->DrawingSheets()->CurrentDrawingSheet();
@@ -654,7 +633,7 @@ static int CreateBaseAndProjectViews( tag_t partTag, NXString& refset, double st
         NXOpen::NXObject *nXObject1;
         nXObject1 = drawingSheetBuilder1->Commit();
         drawingSheetBuilder1->Destroy();
-    }
+    //}
 	
 	if( drawingareaHei > viewHei && drawingareaLen > viewLen )
 	{
@@ -736,7 +715,17 @@ static void CreateDrawingSheet(NXString& name, double len, double hei )
 	UF_DRAW_open_drawing( new_drawing_tag );
 }
 
-static tag_t CreateDrawingViewDWG(tag_t part, tag_t& view, tag_t &projectViewl,tag_t &projectViewr,NXString& name,NXString& frame,NXString& typeStr,double viewbound[4],double &stdscale )
+//frame: "A3横","A3竖","A4横","A4竖"
+static tag_t CreateDrawingViewDWG(tag_t part, 
+								  tag_t body, 
+								  tag_t& view, 
+								  tag_t &projectViewl,
+								  tag_t &projectViewr,
+								  NXString& name,
+								  NXString& frame,
+								  NXString& typeStr,
+								  double viewbound[4],
+								  double &stdscale )
 {
 	UF_import_part_modes_t modes;
 	tag_t group = NULL_TAG;
@@ -757,73 +746,49 @@ static tag_t CreateDrawingViewDWG(tag_t part, tag_t& view, tag_t &projectViewl,t
     double sheetlen = 0, sheethei = 0;
 	if( 0 == strcmp("A3横",frame.GetLocaleText()))
 	{
-        /*drawing_info.size.custom_size[0]=297*scale;
-		drawing_info.size.custom_size[1]=420*scale;*/
         sheetlen = 420;
         sheethei = 297;
 		sprintf(titleblock,"%s\\templates\\A3.prt",p_env);
 	}
 	else if( 0 == strcmp("A3竖",frame.GetLocaleText()))
 	{
-		
-		/*drawing_info.size.custom_size[0]=420*scale;
-		drawing_info.size.custom_size[1]=297*scale;*/
         sheetlen = 297;
         sheethei = 420;
 		sprintf(titleblock,"%s\\templates\\A3V.prt",p_env);
 	}
-	else //if( 0 == strcmp("A4横",frame.GetLocaleText()))
+	else if( 0 == strcmp("A4横",frame.GetLocaleText()))
 	{
-		/*drawing_info.size.custom_size[0]=210*scale;
-		drawing_info.size.custom_size[1]=297*scale;*/
         sheetlen = 297;
         sheethei = 210;
 		sprintf(titleblock,"%s\\templates\\A4.prt",p_env);
 	}
+	else if( 0 == strcmp("A4竖",frame.GetLocaleText()))
+	{
+        sheetlen = 297;
+        sheethei = 210;
+		sprintf(titleblock,"%s\\templates\\A4.prt",p_env);
+	}
+	else
+		return NULL_TAG;
 
-    CreateDrawingSheet( name,sheetlen,sheethei );
+	double xyzLen[3] = {0};
+	TY_GetBodyXYZLen_aligned(body, xyzLen[0],xyzLen[1],xyzLen[2]);
+	double xAllLen = xyzLen[0] + xyzLen[1];
+	double yAllLen = xyzLen[1] + xyzLen[2];
+	double scale = TY_MAX(xAllLen/sheetlen, yAllLen/sheethei);
+	scale *= 4;
+	if (scale < 1)
+	{
+		scale = 1;
+	}
 
-    UF_PART_import(titleblock,&modes,dest_csys,dest_point,1,&group);
+    CreateDrawingSheet( name,sheetlen*scale,sheethei*scale );
 
-    //int
-    //    inx = 0,
-    //    num_bodies = 0;
-    //tag_t
-    //    * body_tags = NULL,
-    //    *tags = NULL;
-    //char  factors[3][ UF_MAX_EXP_BUFSIZE ]={"2","2","2"};
-    //double
-    //    new_scale = 0.;
-    //UF_GROUP_ask_group_data(group,&body_tags,&num_bodies);
-    //int irc = UF_MODL_create_scale( UF_SCALE_TYPE_UNIFORM, body_tags,
-    //                                   num_bodies, NULL_TAG, NULL_TAG, 
-    //                                   NULL_TAG, factors,  &tags );
+    UF_PART_import(titleblock,&modes,dest_csys,dest_point,scale,&group);
 
-    //UF_MODL_create_uniform_scale
-    //UF_MODL_create_scale
-    //Point3d pt;
-    //tag_t view = NULL_TAG;
     double sug = 0;
-    //double viewbound[4]={0,0,0,0};
-    /*int irc = CreateBaseAndProjectViews(part,name,stdscale,view,viewbound,sug);*/
-    int irc = CreateBaseAndProjectViews(part,name,stdscale,view,projectViewl,projectViewr,viewbound,sug,sheetlen,sheethei);
-    //double stdscale[] = {1.5,2,2.5,3,5,10};
-    while( 0 != irc )
-    {
-        if(stdscale < 10.0)
-            stdscale+=0.5;
-        else
-            stdscale+=5.0; 
-        while(stdscale<sug-0.1)
-        {
-            if(stdscale < 10.0)
-                stdscale+=0.5;
-            else
-                stdscale+=1.0;
-        }
-        irc = CreateBaseAndProjectViews(part,name,stdscale,view,projectViewl,projectViewr,viewbound,sug,sheetlen,sheethei);
-    }
-    //UF_PART_save();
+
+    int irc = CreateBaseAndProjectViews(part,name,stdscale,view,projectViewl,projectViewr,viewbound,sug,sheetlen*scale,sheethei*scale);
     return group;
 }
 
@@ -1405,7 +1370,8 @@ static int GZ_SetDrawingNoteInformation( tag_t thisBody, tag_t group, double sca
 				StlNXStringVector techRequs;
 				TYCOM_GetObjectAttributeLong(thisBody, ATTR_TYCOM_PROPERTY_TECH_REQUIREMENT, techRequs);
 				//tech = multiline_string0->GetValue();
-				EditLableNote(members[idx],techRequs);
+				if (techRequs.size() > 0)
+				    EditLableNote(members[idx],techRequs);
 			}
 			else if( 0 == strcmp("PARTNAME",note_name) )
 			{
@@ -1463,24 +1429,25 @@ static int GZ_SetDrawingNoteInformation( tag_t thisBody, tag_t group, double sca
 }
 
 
-int TY_AutoDrafting()
+int TY_AutoDrafting2()
 {
 	int errorCode = 0;
     try
     {
 		char inputfile[UF_CFI_MAX_PATH_NAME_SIZE]="";
 		char outputfile[UF_CFI_MAX_PATH_NAME_SIZE]="";
-		tag_t disp = UF_PART_ask_display_part();
-
 		char filePath[MAX_FSPEC_SIZE] = "";
 		char namestr[MAX_FSPEC_SIZE] = "";
 		char part_fspec1[MAX_FSPEC_SIZE] = "";
+
+
+		//第一步得到保存dwg文件的路径
+		tag_t disp = UF_PART_ask_display_part();
 		UF_PART_ask_part_name(disp,part_fspec1);
 		uc4576(part_fspec1, 2, filePath, namestr);
-
-
         NXString savepath(filePath);
 
+		//第二步得到所有的实体并创建引用集
 		vtag_t allBodies;
 		TYCOM_GetCurrentPartSolidBodies(allBodies);
      
@@ -1497,6 +1464,7 @@ int TY_AutoDrafting()
             CreateReferenceSet(bodies,refName);
         }
 
+		//第三步:创建一个dwg模板的part，这里面带了很多预先的设置
         tag_t newpart = CreateDWGPart();
         if( NULL_TAG == newpart )
             return 1;
@@ -1511,13 +1479,10 @@ int TY_AutoDrafting()
 			double viewldir[3][3]={0};
 			double viewrdir[3][3]={0};
             double viewbound[4] = {0};
-   //         double viewboundl[4] = {0};
-   //         double viewboundr[4] = {0};
-			//double viewcenter[3]={0};
-			//double pt2d[2] = {0};
-			//char viewName[133]="";
+
 			GetTopViewProjectDirection( disp, refNames[idx], direction );
-            tag_t group = CreateDrawingViewDWG(disp,view,viewl,viewr,refNames[idx],NXString("frame"),NXString("钢材"),viewbound,scale);
+
+            tag_t group = CreateDrawingViewDWG(disp,allBodies[idx],view,viewl,viewr,refNames[idx],NXString("A4横"),NXString("钢材"),viewbound,scale);
             GZ_SetDrawingNoteInformation(allBodies[idx],group,scale,refNames[idx]);
             RY_DWG_create_demention(disp,view,scale,direction);
 			for( int i = 0; i< 3; i++)
@@ -1543,9 +1508,10 @@ int TY_AutoDrafting()
     }
     catch(exception& ex)
     {
-        //---- Enter your exception handling code here -----
+		char str[256] = "";
+		strcpy(str,ex.what());
+		uc1601(str,1);
         errorCode = 1;
-        //autodrafting::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
     }
     return errorCode;
 }

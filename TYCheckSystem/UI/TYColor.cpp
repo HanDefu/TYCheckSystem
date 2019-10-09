@@ -22,6 +22,7 @@
 #include "../Common/Com_UG.h"
 #include <uf_vec.h>
 #include <uf_assem.h>
+#include <math.h>
 
 using namespace NXOpen;
 using namespace NXOpen::BlockStyler;
@@ -211,19 +212,40 @@ int TYColor::apply_cb()
 			UF_OBJ_set_color(firstFace , 186);
 			UF_OBJ_set_color(secondFace , 186);
 
+			//UF_VEC3_negate(normal1,normal1);
+			//UF_VEC3_negate(normal2,normal2);
+
 			char str[133]="";
-			sprintf(str,"%g",normal1[0]);
-			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_NORMAL_DIR_Y_X,str);
-			sprintf(str,"%g",normal1[1]);
-			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_NORMAL_DIR_Y_Y,str);
-			sprintf(str,"%g",normal1[2]);
-			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_NORMAL_DIR_Y_Z,str);
-			sprintf(str,"%g",normal2[0]);
+
+			/*sprintf(str,"%g", fabs(normal1[0]) < TOL ? 0 : normal1[0]);
 			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_NORMAL_DIR_X_X,str);
-			sprintf(str,"%g",normal2[1]);
+			sprintf(str,"%g",fabs(normal1[1]) < TOL ? 0 : normal1[1]);
 			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_NORMAL_DIR_X_Y,str);
-			sprintf(str,"%g",normal2[2]);
+			sprintf(str,"%g",fabs(normal1[2]) < TOL ? 0 : normal1[2]);
 			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_NORMAL_DIR_X_Z,str);
+
+			sprintf(str,"%g",fabs(normal2[0]) < TOL ? 0 : normal2[0]);
+			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_NORMAL_DIR_Y_X,str);
+			sprintf(str,"%g",fabs(normal2[1]) < TOL ? 0 : normal2[1]);
+			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_NORMAL_DIR_Y_Y,str);
+			sprintf(str,"%g",fabs(normal2[2]) < TOL ? 0 : normal2[2]);
+			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_NORMAL_DIR_Y_Z,str);*/
+
+			sprintf(str,"%g", normal1[0]);
+			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_NORMAL_DIR_X_X,str);
+			sprintf(str,"%g",normal1[1]);
+			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_NORMAL_DIR_X_Y,str);
+			sprintf(str,"%g",normal1[2]);
+			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_NORMAL_DIR_X_Z,str);
+
+			sprintf(str,"%g",normal2[0]);
+			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_NORMAL_DIR_Y_X,str);
+			sprintf(str,"%g",normal2[1]);
+			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_NORMAL_DIR_Y_Y,str);
+			sprintf(str,"%g",normal2[2]);
+			TYCOM_SetObjectStringAttribute(faceBody1,ATTR_NORMAL_DIR_Y_Z,str);
+
+			
 
 			
 		}

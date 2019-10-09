@@ -3992,21 +3992,15 @@ int TY_GetBodyXDir(tag_t body, double vecx[3])
 	int irc = TYCOM_GetObjectStringAttribute(body,ATTR_NORMAL_DIR_X_X,str);
 	if(irc == 1)
 	    vecx[0] = atof(str);
-	else
-		return -1;
 	
 	
 	irc = TYCOM_GetObjectStringAttribute(body,ATTR_NORMAL_DIR_X_Y,str);
 	if(irc == 1)
 		vecx[1] = atof(str);
-	else
-		return -1;
 
 	irc = TYCOM_GetObjectStringAttribute(body,ATTR_NORMAL_DIR_X_Z,str);
 	if(irc == 1)
 		vecx[2] = atof(str);
-	else
-		return -1;
 
 	return 0;
 }
@@ -4021,21 +4015,14 @@ int TY_GetBodyYDir(tag_t body, double vecx[3])
 	int irc = TYCOM_GetObjectStringAttribute(body,ATTR_NORMAL_DIR_Y_X,str);
 	if(irc == 1)
 		vecx[0] = atof(str);
-	else
-		return -1;
-
 
 	irc = TYCOM_GetObjectStringAttribute(body,ATTR_NORMAL_DIR_Y_Y,str);
 	if(irc == 1)
 		vecx[1] = atof(str);
-	else
-		return -1;
 
 	irc = TYCOM_GetObjectStringAttribute(body,ATTR_NORMAL_DIR_Y_Z,str);
 	if(irc == 1)
 		vecx[2] = atof(str);
-	else
-		return -1;
 
 	return 0;
 }

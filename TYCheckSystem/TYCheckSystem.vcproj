@@ -517,6 +517,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Common\Com_Draft2.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Common\Com_Draft2.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Common\Com_UG.cpp"
 				>
 			</File>

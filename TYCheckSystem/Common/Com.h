@@ -176,4 +176,7 @@ int report_error( char *file, int line, char *call, int irc);
 NXString GetDateStr();
 
 extern int report( char *file, int line, char *call, int irc);
+
+double TY_MAX(double a, double b);
+double TY_MIN(double a, double b);
 #endif

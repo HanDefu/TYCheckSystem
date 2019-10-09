@@ -158,9 +158,9 @@ void TYBom::initialize_cb()
 		UI_LogicalSetValue(toggleAll, true);
 		UI_SetShow(selectionBodies,false);
 
-		char filePath[MAX_FSPEC_BUFSIZE] = "";
-		char namestr[MAX_FSPEC_BUFSIZE] = "";
-		char part_fspec1[MAX_FSPEC_BUFSIZE] = "";
+		char filePath[MAX_FSPEC_SIZE] = "";
+		char namestr[MAX_FSPEC_SIZE] = "";
+		char part_fspec1[MAX_FSPEC_SIZE] = "";
 		tag_t disp = UF_PART_ask_display_part();
 		UF_PART_ask_part_name(disp,part_fspec1);
 		uc4578(part_fspec1, 2, filePath);

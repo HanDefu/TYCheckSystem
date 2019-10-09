@@ -1331,3 +1331,17 @@ extern int report( char *file, int line, char *call, int irc)
 	}
 	return(irc);
 }
+
+double TY_MAX(double a, double b)
+{
+    if (a > b)
+		return a;
+	return b;
+}
+
+double TY_MIN(double a, double b)
+{
+	if (a > b)
+		return b;
+	return a;
+}

@@ -1,6 +1,7 @@
 #include "Command.h"
 
 #include "Common/Com_Draft.h"
+#include "Common/Com_Draft2.h"
 
 int TY_CMD_ExportDwg()
 {
@@ -15,6 +16,6 @@ int TY_CMD_Bom()
 
 int TY_CMD_AutoDrafting()
 {
-    TY_AutoDrafting();
+    TY_AutoDrafting2();
     return 0;
 }
