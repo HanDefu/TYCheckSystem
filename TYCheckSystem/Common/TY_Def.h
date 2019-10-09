@@ -149,4 +149,6 @@ typedef std::vector<StlLogicalVector> StlLogicalVectorVector;
 
 #define NX_VERSION_60
 
+//全面修改出图按照视口比例1:1 图框自动缩放之前的备份
+
 
