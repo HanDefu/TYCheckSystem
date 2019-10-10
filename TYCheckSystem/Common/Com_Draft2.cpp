@@ -776,7 +776,7 @@ static tag_t CreateDrawingViewDWG(tag_t part,
 	double xAllLen = xyzLen[0] + xyzLen[1];
 	double yAllLen = xyzLen[1] + xyzLen[2];
 	double scale = TY_MAX(xAllLen/sheetlen, yAllLen/sheethei);
-	scale *= 4;
+	scale *= 2.5;
 	if (scale < 1)
 	{
 		scale = 1;

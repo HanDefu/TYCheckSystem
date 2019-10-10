@@ -227,7 +227,7 @@ int TYBom::apply_cb()
 		char *p_env = getenv("UGII_USER_DIR");
 		char srcspc[MAX_FSPEC_SIZE]="";
 		char desspc[MAX_FSPEC_SIZE]="";
-		sprintf_s(srcspc,"%s\\ÍþÌÆ\\ÍþÌÆBOM.xls",p_env);
+		sprintf_s(srcspc,"%s\\templates\\BOMTemplate.xls",p_env);
 		UF_CFI_ask_file_exist(srcspc,&exist);
 		if( 0 != exist )
 		{
