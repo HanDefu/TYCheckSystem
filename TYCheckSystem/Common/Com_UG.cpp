@@ -211,10 +211,11 @@ int TYCOM_AskMinimumDist(tag_t obj1, tag_t obj2, double &dis, double *pnt1, doub
 	double pt_on_obj1 [3] = {0.0, 0.0, 0.0}, pt_on_obj2 [3] = {0.0, 0.0, 0.0};
 	double guess1[3] = {0.0, 0.0, 0.0}, guess2[3] = {0.0, 0.0, 0.0};
 	int ret = 0;
-	UF_MODL_ask_minimum_dist(obj1, obj2, 
+	ret = UF_MODL_ask_minimum_dist(obj1, obj2, 
 		0, guess1, 
 		0, guess2,
         &dis, pt_on_obj1, pt_on_obj2);
+
 	if(pnt1 != NULL)
 	{
 		memcpy(pnt1, pt_on_obj1, sizeof(double) * 3);

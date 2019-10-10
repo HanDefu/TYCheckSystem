@@ -167,7 +167,7 @@ int TYCheckInterference::apply_cb()
 		for(int i = 0; i < pbodies.size(); i++)
 			bodies.push_back(pbodies[i]->Tag()); 
 
-		int ret = 0;
+		/*int ret = 0;
 		for(int i = 0; i < bodies.size(); i++)
 		{
 			for(int j = i+1; j < bodies.size(); j++)
@@ -185,6 +185,33 @@ int TYCheckInterference::apply_cb()
 				}
             }
 
+		}*/
+
+
+		double dis = 0;
+		int num = 0;
+		for(int i = 0; i < bodies.size(); i++)
+		{
+			for(int j = i+1; j < bodies.size(); j++)
+            {
+                int   result[1];
+                UF_MODL_check_interference(bodies[i],1,&bodies[j],result);
+                if( 1 == result[0] )
+                {
+					int ret = vFind(m_intsectBodies,bodies[i]);
+					if (ret < 0)
+					{
+						m_intsectBodies.push_back(bodies[i]);
+					}
+
+					ret = vFind(m_intsectBodies,bodies[j]);
+					if (ret < 0)
+					{
+						m_intsectBodies.push_back(bodies[j]);
+					}
+                    num++;
+                }
+            }
 		}
 
         logical response = 0;
@@ -194,7 +221,7 @@ int TYCheckInterference::apply_cb()
 		
 		char str[1024]="";
         if( m_intsectBodies.size() > 0 )
-		    sprintf(str, "共选择%d个检测实体\n其中%d处存在干涉,系统已经高亮显示\n",bodies.size(),m_intsectBodies.size());
+		    sprintf(str, "共选择%d个检测实体\n其中%d个实体存在干涉,系统已经高亮显示\n",bodies.size(),m_intsectBodies.size());
         else
             sprintf(str, "共选择%d个检测实体\n没有发现干涉\n",bodies.size());
 		UF_UI_write_listing_window(str);

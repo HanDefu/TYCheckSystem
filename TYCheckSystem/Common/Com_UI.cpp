@@ -356,9 +356,9 @@ tag_t UI_GetPlaneTag(NXOpen::BlockStyler::UIBlock* block)
 void UI_SetSeletSolidBody(NXOpen::BlockStyler::UIBlock* block)
 {
 	NXOpen::Selection::MaskTriple mt1;
-	mt1.Type = UF_feature_type;
-	mt1.Subtype = UF_feature_subtype;
-	//mt1.SolidBodySubtype = UF_UI_SEL_FEATURE_SOLID_BODY;
+	mt1.Type = UF_solid_type;
+	mt1.Subtype = UF_all_subtype;
+	mt1.SolidBodySubtype = UF_UI_SEL_FEATURE_SOLID_BODY;
 	std::vector<NXOpen::Selection::MaskTriple>  maskTriples;
 	maskTriples.push_back(mt1);
 
