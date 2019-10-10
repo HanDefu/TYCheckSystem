@@ -2061,7 +2061,12 @@ void CreateReferenceSet(vtag_t bodies,NXString& refsetName)
         UF_OBJ_cycle_by_name_and_type(workPart->Tag(), refsetName.GetText(),UF_reference_set_type, FALSE, &refset);
         if( refset != NULL_TAG )
         {
-            referenceSet1 = (ReferenceSet *)NXObjectManager::Get(refset);	
+            referenceSet1 = (ReferenceSet *)NXObjectManager::Get(refset);
+
+			int ret_count = 0;
+			tag_p_t  members = 0;
+			ret = UF_ASSEM_ask_ref_set_members(referenceSet1->Tag(), &ret_count, &members);
+			ret = UF_ASSEM_remove_ref_set_members(referenceSet1->Tag(),ret_count,members);
         }
         else
         {
@@ -4093,4 +4098,14 @@ int TY_GetBodyXYZLen_aligned(tag_t body, double &xLen,double &yLen,double &zLen)
 	yLen = distances[1];
 	zLen = distances[2];
 	return ret;
+}
+
+int TYCOM_GetObjectLayer(tag_t body)
+{
+	UF_OBJ_disp_props_t disp_props;
+	int ret = UF_OBJ_ask_display_properties(body, &disp_props);
+	if (ret != 0)
+		return -1;
+
+	return disp_props.layer;
 }

@@ -40,6 +40,7 @@
 #include <NXOpen/Annotations_AnnotationManager.hxx>
 #include "Com_UG.h"
 #include<uf_group.h>
+#include <algorithm>
 
 using namespace NXOpen;
 
@@ -1422,9 +1423,38 @@ static int GZ_SetDrawingNoteInformation( tag_t thisBody, tag_t group, double sca
 				tech.push_back(str);
 				EditLableNote(members[idx],tech);
 			}
+			else if( 0 == strcmp("DWGNO",note_name) )
+			{
+				StlNXStringVector tech;
+				char dwgno[256];
+				TYCOM_GetObjectStringAttribute( thisBody, TY_ATTR_DRAWING_NO, dwgno);
+				tech.push_back(dwgno);
+				EditLableNote(members[idx],tech);
+			}
 		}
 	}
 	UF_free(members);
+	return 0;
+}
+
+static  logical CompareBody(tag_t &body1, tag_t &body2)
+{
+	NXString dwgno1, dwgno2;
+	TYCOM_GetObjectStringAttribute( body1 , TY_ATTR_DRAWING_NO , dwgno1);
+	TYCOM_GetObjectStringAttribute( body2 , TY_ATTR_DRAWING_NO , dwgno2);
+
+	if (strlen(dwgno1.getLocaleText()) >0 && strlen(dwgno2.getLocaleText()) > 0)
+	{
+		if (strcmp(dwgno1.getLocaleText(),dwgno2.getLocaleText()) >= 0)
+		    return false;
+		return true;
+	}
+	return true;
+}
+
+static int SortBomBodies(vtag_t &bomBodies)
+{
+	std::sort(bomBodies.begin(),bomBodies.end(),CompareBody);   
 	return 0;
 }
 
@@ -1448,8 +1478,21 @@ int TY_AutoDrafting2()
         NXString savepath(filePath);
 
 		//第二步得到所有的实体并创建引用集
-		vtag_t allBodies;
-		TYCOM_GetCurrentPartSolidBodies(allBodies);
+		//注意威唐只要出小于150层的实体
+		vtag_t allBodies,partBodies;
+		TYCOM_GetCurrentPartSolidBodies(partBodies);
+		int layer = 0;
+		for (int i = 0; i < partBodies.size(); i++)
+		{
+			layer = TYCOM_GetObjectLayer(partBodies[i]);
+			if (layer < 150)
+			{
+				allBodies.push_back(partBodies[i]);
+			}
+		}
+
+		//bodies排序
+        SortBomBodies(allBodies);
      
 	    vNXString refNames;
         for( int idx = 0; idx < allBodies.size(); ++idx )
@@ -1496,7 +1539,13 @@ int TY_AutoDrafting2()
 				viewrdir[1][i] = direction[1][i];
             RY_DWG_create_demention(disp,viewr,scale,viewrdir);
             UF_PART_save();
-            sprintf(outputfile,"%s\\%s.dwg",savepath.GetLocaleText(),refNames[idx].GetLocaleText());
+
+			NXString dwgno;
+			TYCOM_GetObjectStringAttribute( allBodies[idx] , TY_ATTR_DRAWING_NO , dwgno);
+			if (dwgno.getLocaleText() != 0 && strlen(dwgno.getLocaleText()) > 0)
+			    sprintf(outputfile,"%s\\%s.dwg",savepath.GetLocaleText(),dwgno.GetLocaleText());
+			else
+                sprintf(outputfile,"%s\\%s.dwg",savepath.GetLocaleText(),refNames[idx].GetLocaleText());
             export_sheet_to_acad_dwg2d2(inputfile,outputfile,refNames[idx]);
         }
         UF_PART_close(newpart,0,1);

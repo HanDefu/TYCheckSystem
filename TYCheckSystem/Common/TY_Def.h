@@ -88,6 +88,9 @@ typedef std::vector<StlLogicalVector> StlLogicalVectorVector;
 //浓度
 #define TY_ATTR_DENSITY    "TY_ATTR_DENSITY"//密度 
 
+//Drawing NO
+#define TY_ATTR_DRAWING_NO    "TY_ATTR_DRAWING_NO"//图纸号
+
 
 //刻字专用
 #define ATTR_TYCOM_TEXT_SPLINE_BODY_HANDLE "ATTR_TYCOM_TEXT_SPLINE_BODY_HANDLE"

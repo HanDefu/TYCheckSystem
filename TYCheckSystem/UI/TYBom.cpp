@@ -42,6 +42,7 @@
 #include "../Tool/Excel/BasicExcel.hpp"
 #include "../Common/Com.h"
 #include "../TYBomData.h"
+#include "../Common/Com_Attribute.h"
 using namespace YExcel;
 
 
@@ -192,6 +193,52 @@ void TYBom::dialogShown_cb()
 	}
 }
 
+
+int GetPartNameFirstType(NXString str)
+{
+	if (str.getLocaleText() == NULL || strlen(str.getLocaleText()) == 0)
+		return 11;
+
+    if (strcmp(str.getLocaleText(),"检测类") == 0)
+		return 1;
+
+	if (strcmp(str.getLocaleText(),"支架类") == 0)
+		return 2;
+
+	if (strcmp(str.getLocaleText(),"轴套类") == 0)
+		return 3;
+
+	if (strcmp(str.getLocaleText(),"定位类") == 0)
+		return 4;
+
+	if (strcmp(str.getLocaleText(),"夹紧类") == 0)
+		return 5;
+
+	if (strcmp(str.getLocaleText(),"标准件") == 0)
+		return 101;
+
+	return 11;
+}
+
+
+static logical CompareBody(tag_t &body1, tag_t &body2)
+{
+	NXString body1Type, body2Type;
+    TYCOM_GetObjectStringAttribute( body1 , ATTR_TYCOM_PROPERTY_SOLID_NAME , body1Type);
+	TYCOM_GetObjectStringAttribute( body2 , ATTR_TYCOM_PROPERTY_SOLID_NAME , body2Type);
+
+    int itype1 = GetPartNameFirstType(body1Type);
+	int itype2 = GetPartNameFirstType(body2Type);
+
+    return itype1 < itype2;
+}
+
+static int SortBomBodies(vtag_t &bomBodies)
+{
+	std::sort(bomBodies.begin(),bomBodies.end(),CompareBody);   
+	return 0;
+}
+
 //------------------------------------------------------------------------------
 //Callback Name: apply_cb
 //------------------------------------------------------------------------------
@@ -208,6 +255,15 @@ int TYBom::apply_cb()
 			TYCOM_GetCurrentPartSolidBodies(bomBodies);
 		else
 			bomBodies = UI_GetSelectObjects2(selectionBodies);
+
+		if(bomBodies.size() == 0)
+		{
+			uc1601("没有选择实体对象",1);
+			return 0;
+		}
+
+		SortBomBodies(bomBodies);
+
 
 		NXString xlsFilePathName;
 		UI_StringGetValue(stringPathName, xlsFilePathName);
@@ -371,11 +427,13 @@ int TY_BOM_WriteOneBody(BasicExcelWorksheet* sheet, int rowIndex, int index, tag
 	cel = sheet->Cell(rowIndex,1);
 	NXString nxstr = bomData.m_projectNo + NXString("-") + NXString(str);
 	cel->Set(nxstr.getLocaleText());
+	TYCOM_SetObjectStringAttribute( body, TY_ATTR_DRAWING_NO, nxstr.getLocaleText());
 
 
 	//第三列:MAT_L
 	cel = sheet->Cell(rowIndex,2);
-	cel->SetWString(CharToWchar(bomData.m_material.getLocaleText()));
+	if (bomData.m_material.getLocaleText() != 0 && strlen(bomData.m_material.getLocaleText()) > 0)
+	    cel->SetWString(CharToWchar(bomData.m_material.getLocaleText()));
 
 
 	//第四列:DIA_THK
@@ -390,8 +448,11 @@ int TY_BOM_WriteOneBody(BasicExcelWorksheet* sheet, int rowIndex, int index, tag
 
 	//第六列:DESCRIPTION
 	cel = sheet->Cell(rowIndex,5);
-	nxstr = bomData.m_firstName + NXString("-") + bomData.m_secondName;
-	cel->SetWString(CharToWchar(nxstr.getLocaleText()));
+	if (bomData.m_firstName.getLocaleText() != 0 && strlen(bomData.m_firstName.getLocaleText()) > 0)
+	{
+		nxstr = bomData.m_firstName + NXString("-") + bomData.m_secondName;
+	    cel->SetWString(CharToWchar(nxstr.getLocaleText()));
+	}
 
 
 	//第七列:ADD_DESCRIP
@@ -401,6 +462,7 @@ int TY_BOM_WriteOneBody(BasicExcelWorksheet* sheet, int rowIndex, int index, tag
 
 	//第八列:HEAT TREAT
 	cel = sheet->Cell(rowIndex,7);
+	if (bomData.m_heatProcess.getLocaleText() != 0 && strlen(bomData.m_heatProcess.getLocaleText()) > 0)
 	cel->SetWString(CharToWchar(bomData.m_heatProcess.getLocaleText()));
 
 	return 0;

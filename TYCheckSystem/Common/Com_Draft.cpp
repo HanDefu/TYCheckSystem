@@ -1456,6 +1456,14 @@ static int GZ_SetDrawingNoteInformation( tag_t thisBody, tag_t group, double sca
 				tech.push_back(str);
 				EditLableNote(members[idx],tech);
 			}
+			else if( 0 == strcmp("DWGNO",note_name) )
+			{
+				StlNXStringVector tech;
+				char dwgno[256];
+				TYCOM_GetObjectStringAttribute( thisBody, TY_ATTR_DRAWING_NO, dwgno);
+				tech.push_back(dwgno);
+				EditLableNote(members[idx],tech);
+			}
 		}
 	}
 	UF_free(members);
