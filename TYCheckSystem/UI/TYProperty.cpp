@@ -39,6 +39,8 @@
 #include "../Common/Com_UI.h"
 #include <uf_assem.h>
 #include "../Common/Com_Attribute.h"
+#include "../Common/Com_WT.h"
+#include "../Common/Com_UG.h"
 using namespace NXOpen;
 using namespace NXOpen::BlockStyler;
 
@@ -239,6 +241,10 @@ int TYProperty::apply_cb()
 		UI_EnumGetBlockString(enumFaceProcess, faceProcess);
 
 		double density = TYGBDATA->GetDensity(material);
+        int ret = 0;
+
+		vtag_t partBodies;
+		TYCOM_GetCurrentPartSolidBodies(partBodies);
 
 
 		for(int i = 0; i < objsBodies.size(); i++)
@@ -263,6 +269,14 @@ int TYProperty::apply_cb()
 			TYCOM_SetObjectStringAttribute( thisBody, ATTR_TYCOM_PROPERTY_HEAT_PROCESS, heatProcess.getLocaleText());
 			TYCOM_SetObjectStringAttribute( thisBody, ATTR_TYCOM_PROPERTY_FACE_PROCESS, faceProcess.getLocaleText());
 			TYCOM_SetObjectRealAttribute( thisBody, TY_ATTR_DENSITY, density);
+
+			int indexProperty = 0;
+			ret = EF_ask_obj_integer_attr( thisBody , ATTR_TYCOM_PROPERTY_INDEX , &indexProperty );
+			if(ret != 0) //仅仅处理不存在的情况
+			{
+                 int maxIndex = TYCOM_GetMaxProperyIndex(partBodies);
+				 TYCOM_SetObjectIntAttribute( thisBody, ATTR_TYCOM_PROPERTY_INDEX, maxIndex+1 );
+			}
 		}
 
 	}
@@ -414,4 +428,5 @@ void TYProperty::UpdateTech()
 
 	UI_StringsSetValues(stringTechReq,techReqs);
 }
+
 

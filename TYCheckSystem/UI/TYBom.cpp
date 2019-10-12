@@ -43,6 +43,8 @@
 #include "../Common/Com.h"
 #include "../TYBomData.h"
 #include "../Common/Com_Attribute.h"
+#include "../Common/Com_WT.h"
+
 using namespace YExcel;
 
 
@@ -233,9 +235,33 @@ static logical CompareBody(tag_t &body1, tag_t &body2)
     return itype1 < itype2;
 }
 
-static int SortBomBodies(vtag_t &bomBodies)
+static int SortBomBodiesByType(vtag_t &bomBodies)
 {
 	std::sort(bomBodies.begin(),bomBodies.end(),CompareBody);   
+	return 0;
+}
+
+
+static logical CompareBodyByPropertyIndex(tag_t &body1, tag_t &body2)
+{
+	int indexProperty1 = 0, indexProperty2 = 0;
+	int ret1 = EF_ask_obj_integer_attr( body1 , ATTR_TYCOM_PROPERTY_INDEX , &indexProperty1 );
+	int ret2 = EF_ask_obj_integer_attr( body2 , ATTR_TYCOM_PROPERTY_INDEX , &indexProperty2 );
+	if (ret1 == 0 && ret2 == 0)
+		return indexProperty1 < indexProperty2;
+
+	if (ret1 == 0 && ret2 != 0)
+		return true;
+
+	if (ret1 != 0 && ret2 == 0)
+		return false;
+
+	return false;
+}
+
+static int SortBodiesByPropertyIndex(vtag_t &bomBodies)
+{
+	std::sort(bomBodies.begin(),bomBodies.end(),CompareBodyByPropertyIndex);   
 	return 0;
 }
 
@@ -262,7 +288,8 @@ int TYBom::apply_cb()
 			return 0;
 		}
 
-		SortBomBodies(bomBodies);
+		SortBodiesByPropertyIndex(bomBodies);
+		//SortBomBodiesByType(bomBodies);
 
 
 		NXString xlsFilePathName;
@@ -305,6 +332,14 @@ int TYBom::apply_cb()
 		UI_StringGetValue(stringNO, str);
 		TYBomData::SetProjectNo(str);
 		TY_WT_Bom(bomBodies, srcspc, xlsFilePathName);
+
+
+		char filePath[MAX_FSPEC_SIZE] = "";
+		char namestr[MAX_FSPEC_SIZE] = "";
+		uc4576(xlsFilePathName.GetLocaleText(), 2, filePath, namestr);
+		char cmd[512]="";
+		sprintf_s(cmd,"start %s",filePath);
+		system(cmd);    
 	}
 	catch(exception& ex)
 	{

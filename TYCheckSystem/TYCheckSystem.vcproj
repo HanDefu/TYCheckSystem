@@ -541,6 +541,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Common\Com_WT.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Common\Com_WT.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Common\StandardPartData.cpp"
 				>
 			</File>

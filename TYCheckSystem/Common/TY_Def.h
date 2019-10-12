@@ -65,6 +65,9 @@ typedef std::vector<StlLogicalVector> StlLogicalVectorVector;
 #define TY_GAP_DIS 0.1 //悬空检测
 #define MAX_FILE_NAME_LENGTH 64
 
+//客户属性Index出BOM和出图的顺序
+#define ATTR_TYCOM_PROPERTY_INDEX          "ATTR_TYCOM_PROPERTY_INDEX"
+
 //客户属性
 #define ATTR_TYCOM_PROPERTY_CUSTOMER          "ATTR_TYCOM_PROPERTY_CUSTOMER"
 

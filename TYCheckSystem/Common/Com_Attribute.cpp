@@ -257,6 +257,8 @@ int TYCOM_GetObjectAttributeLong(tag_t body, char *title, vNXString &values)
 	return 0;
 }
 
+
+
 /*int TYCOM_set_obj_attr_Long2(tag_t obj, NXString title, NXString &value)
 {
 	NXOpen::Session *theSession = NXOpen::Session::GetSession();
@@ -332,3 +334,5 @@ int TYCOM_set_obj_attr_Long(tag_t obj, NXString title, NXString &value)
 
 	return 0;
 }*/
+
+

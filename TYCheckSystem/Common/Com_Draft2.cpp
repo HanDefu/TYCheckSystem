@@ -1426,10 +1426,13 @@ static int GZ_SetDrawingNoteInformation( tag_t thisBody, tag_t group, double sca
 			else if( 0 == strcmp("DWGNO",note_name) )
 			{
 				StlNXStringVector tech;
-				char dwgno[256];
+				char dwgno[256] = "";
 				TYCOM_GetObjectStringAttribute( thisBody, TY_ATTR_DRAWING_NO, dwgno);
-				tech.push_back(dwgno);
-				EditLableNote(members[idx],tech);
+				if(strlen(dwgno) > 0)
+				{
+					tech.push_back(dwgno);
+					EditLableNote(members[idx],tech);
+				}
 			}
 		}
 	}
@@ -1443,12 +1446,22 @@ static  logical CompareBody(tag_t &body1, tag_t &body2)
 	TYCOM_GetObjectStringAttribute( body1 , TY_ATTR_DRAWING_NO , dwgno1);
 	TYCOM_GetObjectStringAttribute( body2 , TY_ATTR_DRAWING_NO , dwgno2);
 
+	if (dwgno1.getLocaleText() == 0 || dwgno2.getLocaleText() != 0)
+		return false;
+
+	if (dwgno1.getLocaleText() != 0 || dwgno2.getLocaleText() == 0)
+		return true;
+
+	if (dwgno1.getLocaleText() == 0 || dwgno2.getLocaleText() == 0)
+		return false;
+	
 	if (strlen(dwgno1.getLocaleText()) >0 && strlen(dwgno2.getLocaleText()) > 0)
 	{
 		if (strcmp(dwgno1.getLocaleText(),dwgno2.getLocaleText()) >= 0)
 		    return false;
 		return true;
 	}
+
 	return true;
 }
 
