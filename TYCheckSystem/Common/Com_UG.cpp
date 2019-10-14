@@ -4091,7 +4091,11 @@ int TY_GetBodyXYZLen_aligned(tag_t body, double &xLen,double &yLen,double &zLen)
 	double min_corner[3] = {0};
 	double  directions[3][3] = {0};
 	double  distances[3] = {0};
-	int ret = UF_MODL_ask_bounding_box_aligned(body,csys,false, min_corner,  directions, distances);
+	int ret = UF_MODL_ask_bounding_box_aligned(body,csys,true, min_corner,  directions, distances);
+	ret = UF_MODL_ask_bounding_box_exact(body,csys, min_corner,  directions, distances);
+
+	double boundingbox[6] = {0};
+	UF_MODL_ask_bounding_box(body, boundingbox);
 	if (ret)
 		return ret;
 	xLen = distances[0];

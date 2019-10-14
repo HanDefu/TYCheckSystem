@@ -512,7 +512,7 @@ int TY_WT_Bom(vtag_t bodies, NXString srcName, NXString xlsFilePathName)
 	bool isOk = excel.Load(srcName.getLocaleText(),BasicExcel::WRITE);	
 	if (!isOk)
 	{
-		uc1601("加载数据文件失败，请检测",1);
+		uc1601("加载BOM模板数据文件失败，请检测改文件是否存在或者是否被占用",1);
 		return -1;
 	}
 

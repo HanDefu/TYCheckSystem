@@ -1471,7 +1471,6 @@ static int SortBomBodies(vtag_t &bomBodies)
 	return 0;
 }
 
-
 int TY_AutoDrafting2()
 {
 	int errorCode = 0;
