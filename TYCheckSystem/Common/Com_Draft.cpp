@@ -1385,7 +1385,7 @@ static void EditLableNote(  tag_t orgNote, vNXString text )
 	}
 }
 
-static int GZ_SetDrawingNoteInformation( tag_t thisBody, tag_t group, double scale, NXString& DrawingNO )
+static int GZ_SetDrawingNoteInformation( tag_t thisBody, tag_t group, double scale, NXString& DrawingNO)
 {
 	int n = 0;
 	tag_t *members = NULL;

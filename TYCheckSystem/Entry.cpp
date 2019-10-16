@@ -39,6 +39,8 @@
 #include <uf_ui.h>
 #include "TYGlobalData.h"
 #include "UI\TYBom.hpp"
+#include "UI\TYAutoDraft.hpp"
+#include "Common/Com_Draft2.h"
 
 using namespace NXOpen;
 
@@ -97,7 +99,13 @@ extern "C" DllExport void  ufusr(char *param, int *retcod, int param_len)
 
 		if(strcmp(param, "CUSTOM_TY_AUTO_DRAFTING") == 0)//×Ô¶¯³öÍ¼
 		{
-			TY_CMD_AutoDrafting();
+			//TY_CMD_AutoDrafting();
+			//TYAutoDraft::Show_TYAutoDraft();
+			NXString drawer;
+			vtag_t allBodies;
+			TY_UI_AutoDraft(allBodies,drawer);
+			if (allBodies.size() > 0)
+		    	TY_AutoDrafting2(allBodies,drawer);
 		}
 
 		if(strcmp(param, "CUSTOM_TY_BOM") == 0)//BOM

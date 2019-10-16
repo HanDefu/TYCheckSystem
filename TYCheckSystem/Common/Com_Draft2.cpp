@@ -1351,7 +1351,7 @@ static void EditLableNote(  tag_t orgNote, vNXString text )
 	}
 }
 
-static int GZ_SetDrawingNoteInformation( tag_t thisBody, tag_t group, double scale, NXString& DrawingNO )
+static int GZ_SetDrawingNoteInformation( tag_t thisBody, tag_t group, double scale, NXString& DrawingNO, NXString &drawer )
 {
 	int n = 0;
 	tag_t *members = NULL;
@@ -1407,6 +1407,12 @@ static int GZ_SetDrawingNoteInformation( tag_t thisBody, tag_t group, double sca
 				tech.push_back("DRAWNO");
 				EditLableNote(members[idx],tech);;
 			}
+			else if( 0 == strcmp("DRAWER",note_name) )
+			{
+				StlNXStringVector tech;
+				tech.push_back(drawer);
+				EditLableNote(members[idx],tech);;
+			}
 			else if( 0 == strcmp("HEATPROCESS",note_name) )
 			{
 				StlNXStringVector tech;
@@ -1440,6 +1446,7 @@ static int GZ_SetDrawingNoteInformation( tag_t thisBody, tag_t group, double sca
 	return 0;
 }
 
+//按照用户出bom的顺序排号 TY_ATTR_DRAWING_NO出bom时候会设置上去
 static  logical CompareBody(tag_t &body1, tag_t &body2)
 {
 	NXString dwgno1, dwgno2;
@@ -1471,7 +1478,7 @@ static int SortBomBodies(vtag_t &bomBodies)
 	return 0;
 }
 
-int TY_AutoDrafting2()
+int TY_AutoDrafting2(vtag_t &allBodies, NXString drawer)
 {
 	int errorCode = 0;
     try
@@ -1489,20 +1496,7 @@ int TY_AutoDrafting2()
 		uc4576(part_fspec1, 2, filePath, namestr);
         NXString savepath(filePath);
 
-		//第二步得到所有的实体并创建引用集
-		//注意威唐只要出小于150层的实体
-		vtag_t allBodies,partBodies;
-		TYCOM_GetCurrentPartSolidBodies(partBodies);
-		int layer = 0;
-		for (int i = 0; i < partBodies.size(); i++)
-		{
-			layer = TYCOM_GetObjectLayer(partBodies[i]);
-			if (layer < 150)
-			{
-				allBodies.push_back(partBodies[i]);
-			}
-		}
-
+		
 		//bodies排序
         SortBomBodies(allBodies);
      
@@ -1538,7 +1532,7 @@ int TY_AutoDrafting2()
 			GetTopViewProjectDirection( disp, refNames[idx], direction );
 
             tag_t group = CreateDrawingViewDWG(disp,allBodies[idx],view,viewl,viewr,refNames[idx],NXString("A4横"),NXString("钢材"),viewbound,scale);
-            GZ_SetDrawingNoteInformation(allBodies[idx],group,scale,refNames[idx]);
+            GZ_SetDrawingNoteInformation(allBodies[idx],group,scale,refNames[idx],drawer);
             RY_DWG_create_demention(disp,view,scale,direction);
 			for( int i = 0; i< 3; i++)
 				viewldir[0][i] = direction[0][i];

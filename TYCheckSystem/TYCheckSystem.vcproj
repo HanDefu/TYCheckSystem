@@ -385,6 +385,14 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\UI\TYAutoDraft.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\UI\TYAutoDraft.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\UI\TYBaiWeiXian.cpp"
 				>
 			</File>

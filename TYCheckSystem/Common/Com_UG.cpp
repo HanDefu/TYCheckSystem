@@ -2080,6 +2080,7 @@ void CreateReferenceSet(vtag_t bodies,NXString& refsetName)
         //referenceSet1->AddObjectsToReferenceSet(components1);
         int nErrs3;
         nErrs3 = theSession->UpdateManager()->DoUpdate(markId5);
+		//theSession->DeleteUndoMark(markId5, "Create Reference Set");
     }
     catch(exception ex)
     {
