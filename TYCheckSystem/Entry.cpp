@@ -149,7 +149,6 @@ extern "C" DllExport void  ufusr(char *param, int *retcod, int param_len)
 		{
 			TYProperty::Show_TYProperty(1);
 		}
-
 		 
 	}
 	catch(std::exception& ex)
