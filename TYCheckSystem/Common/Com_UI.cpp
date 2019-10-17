@@ -369,7 +369,6 @@ void UI_SetSeletSolidBody(NXOpen::BlockStyler::UIBlock* block)
 	//pAttr->SetEnum("StepStatus", 1);
 	delete pAttr;
 	pAttr = NULL;
-
 }
 
 void UI_EnumSetValues(NXOpen::BlockStyler::UIBlock* block, std::vector<NXString> & values)

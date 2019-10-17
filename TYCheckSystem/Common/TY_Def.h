@@ -51,7 +51,8 @@ typedef std::vector<StlNXStringVector> StlNXStringVectorVector;
 typedef std::vector<StlLogicalVector> StlLogicalVectorVector;
 
 
-#define  TOL 0.008
+#define  TOL008 0.008
+#define  TOL0254 0.0254
 #define ATTR_NORMAL_DIR_X_X "ATTR_NORMAL_DIR_X_X"
 #define ATTR_NORMAL_DIR_X_Y "ATTR_NORMAL_DIR_X_Y"
 #define ATTR_NORMAL_DIR_X_Z "ATTR_NORMAL_DIR_X_Z"

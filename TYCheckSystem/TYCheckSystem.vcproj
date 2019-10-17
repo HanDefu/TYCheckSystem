@@ -362,22 +362,6 @@
 				RelativePath=".\Entry.hpp"
 				>
 			</File>
-			<File
-				RelativePath=".\TYBomData.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\TYBomData.h"
-				>
-			</File>
-			<File
-				RelativePath=".\TYGlobalData.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\TYGlobalData.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="UI"
@@ -592,6 +576,34 @@
 					>
 				</File>
 			</Filter>
+		</Filter>
+		<Filter
+			Name="ConfigData"
+			>
+			<File
+				RelativePath=".\ConfigData\TYBomData.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ConfigData\TYBomData.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ConfigData\TYGlobalData.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ConfigData\TYGlobalData.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ConfigData\TYHoleData.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ConfigData\TYHoleData.h"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath="..\ReadMe.txt"

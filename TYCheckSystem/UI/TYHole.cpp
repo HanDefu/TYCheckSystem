@@ -17,8 +17,34 @@
 //These includes are needed for the following template code
 //------------------------------------------------------------------------------
 #include "TYHole.hpp"
+#include <NXOpen/Part.hxx>
+#include <NXOpen/PartCollection.hxx>
+#include <NXOpen/Features_HolePackage.hxx>
+#include <NXOpen/Features_HolePackageBuilder.hxx>
+#include <NXOpen/Features_FeatureCollection.hxx>
+#include <NXOpen/PointCollection.hxx>
+#include <NXOpen/NXObjectManager.hxx>
+#include <NXOpen/Body.hxx>
+#include <NXOpen/CurveDumbRule.hxx>
+#include <NXOpen/ScRuleFactory.hxx>
+#include <NXOpen/DirectionCollection.hxx>
+#include "../Tool/Excel/BasicExcel.hpp"
+#include <uf.h>
+#include <uf_eval.h>
+#include <uf_csys.h>
+#include <uf_modl.h>
+#include <uf_ui.h>
+#include "../Common/Com_UG.h"
+#include <uf_assem.h>
+#include "../Common/Com_UI.h"
+#include "../ConfigData/TYHoleData.h"
+
+using namespace YExcel;
+
 using namespace NXOpen;
 using namespace NXOpen::BlockStyler;
+
+int CreateHoleBodyFace( Body *body1, const tag_t targetFace, bool manualDepth, double depthOri );
 
 //------------------------------------------------------------------------------
 // Initialize static variables
@@ -119,6 +145,8 @@ void TYHole::initialize_cb()
 		groupHoleDepth = theDialog->TopBlock()->FindBlock("groupHoleDepth");
 		enumAuto = theDialog->TopBlock()->FindBlock("enumAuto");
 		doubleHoleDepth = theDialog->TopBlock()->FindBlock("doubleHoleDepth");
+
+		UI_SetSeletSolidBody(selectionBody);
 	}
 	catch(exception& ex)
 	{
@@ -137,6 +165,14 @@ void TYHole::dialogShown_cb()
 	try
 	{
 		//---- Enter your callback code here -----
+		UI_DoubleSetValue(doubleHoleDepth,5.0);
+
+		int sel = 0;
+		UI_EnumGetCurrentSel(enumAuto, sel);
+		if (sel == 0)
+			UI_SetShow(doubleHoleDepth,false);
+		else
+			UI_SetShow(doubleHoleDepth,true);
 	}
 	catch(exception& ex)
 	{
@@ -152,7 +188,23 @@ int TYHole::apply_cb()
 {
 	try
 	{
-		//---- Enter your callback code here -----
+		std::vector<NXOpen::TaggedObject* > bodyobjects = UI_GetSelectObjects(selectionBody);
+		std::vector<NXOpen::TaggedObject* > faceobjects = UI_GetSelectObjects(selectFace);
+		if(bodyobjects.size()==0 && faceobjects.size()==0)
+			return 0;
+
+		double depth = 0;
+		UI_DoubleGetValue(doubleHoleDepth,depth);
+
+		int manualDepth = 0;
+		UI_EnumGetCurrentSel(enumAuto,manualDepth);
+
+
+		for( int idx = 0; idx < bodyobjects.size(); ++idx )
+		{
+			Body *body1 = dynamic_cast<Body *>(bodyobjects[idx]);
+			int num = CreateHoleBodyFace(body1, faceobjects[0]->Tag(),(bool)manualDepth, depth);
+		}
 	}
 	catch(exception& ex)
 	{
@@ -171,15 +223,19 @@ int TYHole::update_cb(NXOpen::BlockStyler::UIBlock* block)
 	{
 		if(block == selectionBody)
 		{
-			//---------Enter your code here-----------
 		}
 		else if(block == selectFace)
 		{
-			//---------Enter your code here-----------
 		}
 		else if(block == enumAuto)
 		{
 			//---------Enter your code here-----------
+			int sel = 0;
+			UI_EnumGetCurrentSel(enumAuto, sel);
+			if (sel == 0)
+				UI_SetShow(doubleHoleDepth,false);
+			else
+				UI_SetShow(doubleHoleDepth,true);
 		}
 		else if(block == doubleHoleDepth)
 		{
@@ -234,4 +290,295 @@ int TYHole::cancel_cb()
 int TYHole::filter_cb(NXOpen::BlockStyler::UIBlock*  block, NXOpen::TaggedObject* selectObject)
 {
 	return(UF_UI_SEL_ACCEPT);
+}
+
+
+void CreateHolePoint( tag_t targetBody, double point[3], const Vector3d& vec,double diameter, double depth )
+{
+    /*NXOpen::Session *theSession = NXOpen::Session::GetSession();
+    NXOpen::Part *workPart(theSession->Parts()->Work());
+
+    NXOpen::Features::HolePackage *nullNXOpen_Features_HolePackage(NULL);
+
+    NXOpen::Session::UndoMarkId markId1;
+    markId1 = theSession->SetUndoMark(NXOpen::Session::MarkVisibilityVisible, NXString("create hole"));
+    
+    NXOpen::Features::HolePackageBuilder *holePackageBuilder1;
+    holePackageBuilder1 = workPart->Features()->CreateHolePackageBuilder(nullNXOpen_Features_HolePackage);
+    
+    holePackageBuilder1->StartHoleData()->BooleanOperation()->SetType(NXOpen::GeometricUtilities::BooleanOperation::BooleanTypeSubtract);
+
+    holePackageBuilder1->SetTolerance(0.001);
+    
+    holePackageBuilder1->SetHoleDepthLimitOption(NXOpen::Features::HolePackageBuilder::HoleDepthLimitOptionsValue);
+       
+    holePackageBuilder1->HolePosition()->SetDistanceTolerance(0.001);
+    
+    holePackageBuilder1->HolePosition()->SetChainingTolerance(0.00095);
+    
+    holePackageBuilder1->HolePosition()->SetAllowedEntityTypes(NXOpen::Section::AllowTypesOnlyPoints);
+    
+    NXOpen::Point *point1;
+    Point3d org(point[0],point[1],point[2]);
+    point1 = workPart->Points()->CreatePoint(org);
+
+    std::vector<NXOpen::Point *> points1(1);
+    points1[0] = point1;
+    NXOpen::CurveDumbRule *curveDumbRule1;
+    curveDumbRule1 = workPart->ScRuleFactory()->CreateRuleCurveDumbFromPoints(points1);
+    
+    holePackageBuilder1->HolePosition()->AllowSelfIntersection(true);
+    
+    std::vector<NXOpen::SelectionIntentRule *> rules1(1);
+    rules1[0] = curveDumbRule1;
+    NXOpen::NXObject *nullNXOpen_NXObject(NULL);
+    NXOpen::Point3d helpPoint1(0.0, 0.0, 0.0);
+    holePackageBuilder1->HolePosition()->AddToSection(rules1, nullNXOpen_NXObject, nullNXOpen_NXObject, nullNXOpen_NXObject, helpPoint1, NXOpen::Section::ModeCreate, false);
+    
+    holePackageBuilder1->ProjectionDirection()->SetProjectDirectionMethod(NXOpen::GeometricUtilities::ProjectionOptions::DirectionTypeVector);
+    
+    NXOpen::Direction *direction1;
+    direction1 = holePackageBuilder1->ProjectionDirection()->ProjectVector();
+    direction1->SetVector(vec);
+    direction1->ReverseDirection();
+    holePackageBuilder1->ProjectionDirection()->SetProjectVector(direction1);
+
+    holePackageBuilder1->BooleanOperation()->SetType(NXOpen::GeometricUtilities::BooleanOperation::BooleanTypeSubtract);
+    
+    std::vector<NXOpen::Body *> targetBodies9(1);
+    targetBodies9[0] = body1;
+    holePackageBuilder1->BooleanOperation()->SetTargetBodies(targetBodies9);
+    
+    char diastr[32]="";
+    sprintf_s(diastr,"%f",diameter);
+    char depthstr[32]="";
+    sprintf_s(depthstr,"%f",depth);
+    
+    holePackageBuilder1->GeneralSimpleHoleDiameter()->SetRightHandSide(diastr);
+
+    holePackageBuilder1->GeneralSimpleHoleDepth()->SetRightHandSide(depthstr);
+
+    holePackageBuilder1->GeneralTipAngle()->SetRightHandSide("118");
+
+    holePackageBuilder1->SetParentFeatureInternal(false);*/
+
+    NXOpen::Session *theSession = NXOpen::Session::GetSession();
+    NXOpen::Part *workPart(theSession->Parts()->Work());
+
+    NXOpen::Features::HolePackage *nullNXOpen_Features_HolePackage(NULL);
+ 
+    NXOpen::Features::HolePackageBuilder *holePackageBuilder1;
+
+    NXOpen::Session::UndoMarkId markId1;
+    markId1 = theSession->SetUndoMark(NXOpen::Session::MarkVisibilityVisible, NXString("create hole"));
+
+    holePackageBuilder1 = workPart->Features()->CreateHolePackageBuilder(nullNXOpen_Features_HolePackage);
+    
+    holePackageBuilder1->SetTolerance(0.01);
+
+	NXOpen::Point *point1;
+    Point3d org(point[0],point[1],point[2]);
+    point1 = workPart->Points()->CreatePoint(org);
+	NXOpen::Body *body1(dynamic_cast<NXOpen::Body *>(NXObjectManager::Get(targetBody)));
+
+	/*double distance = 0,pt3[3],pt4[3];
+	CF_AskMinimumDist(point1->Tag(),targetBody,distance,pt3,pt4);*/
+    
+    char diastr[32]="";
+    sprintf_s(diastr,"%f",diameter);
+    char depthstr[32]="";
+	//hdf 0222
+	//distance = 0.0;
+    //sprintf_s(depthstr,"%f",depth+distance);
+    sprintf_s(depthstr,"%f",depth);
+
+    holePackageBuilder1->GeneralSimpleHoleDepth()->SetRightHandSide(depthstr);
+
+    holePackageBuilder1->GeneralSimpleHoleDiameter()->SetRightHandSide(diastr);
+
+    holePackageBuilder1->GeneralTipAngle()->SetRightHandSide("118");
+
+    std::vector<NXOpen::Point *> points1(1);
+    points1[0] = point1;
+    NXOpen::CurveDumbRule *curveDumbRule1;
+    curveDumbRule1 = workPart->ScRuleFactory()->CreateRuleCurveDumbFromPoints(points1);
+    
+    holePackageBuilder1->HolePosition()->AllowSelfIntersection(true);
+    
+    std::vector<NXOpen::SelectionIntentRule *> rules1(1);
+    rules1[0] = curveDumbRule1;
+    NXOpen::NXObject *nullNXOpen_NXObject(NULL);
+    NXOpen::Point3d helpPoint1(0.0, 0.0, 0.0);
+    holePackageBuilder1->HolePosition()->AddToSection(rules1, nullNXOpen_NXObject, nullNXOpen_NXObject, nullNXOpen_NXObject, helpPoint1, NXOpen::Section::ModeCreate, false);
+    
+    holePackageBuilder1->ProjectionDirection()->SetProjectDirectionMethod(NXOpen::GeometricUtilities::ProjectionOptions::DirectionTypeVector);
+    
+    /*NXOpen::Direction *direction1;
+    direction1 = holePackageBuilder1->ProjectionDirection()->ProjectVector();
+    direction1->SetVector(vec);
+    direction1->ReverseDirection();
+    holePackageBuilder1->ProjectionDirection()->SetProjectVector(direction1);*/
+	NXOpen::Point3d origin1(0.0, 0.0, 0.0);
+	NXOpen::Vector3d vector1(vec.X, vec.Y, vec.Z);
+    NXOpen::Direction *direction1;
+    direction1 = workPart->Directions()->CreateDirection(origin1, vector1, NXOpen::SmartObject::UpdateOptionWithinModeling);
+    //direction1->ReverseDirection();
+    holePackageBuilder1->ProjectionDirection()->SetProjectVector(direction1);
+
+    holePackageBuilder1->BooleanOperation()->SetType(NXOpen::GeometricUtilities::BooleanOperation::BooleanTypeSubtract);
+
+    std::vector<NXOpen::Body *> targetBodies9(1);
+    targetBodies9[0] = body1;
+    holePackageBuilder1->BooleanOperation()->SetTargetBodies(targetBodies9);
+     
+    holePackageBuilder1->SetParentFeatureInternal(false);
+    
+    try
+    {
+        NXOpen::NXObject *nXObject2;
+        nXObject2 = holePackageBuilder1->Commit();
+        theSession->DeleteUndoMark(markId1,"");
+        holePackageBuilder1->Destroy();
+    }
+    catch(exception& ex)
+    {
+        theSession->UndoToMark(markId1,"");
+    }
+}
+
+int CreateHoleBodyFace( Body *body1, const tag_t targetFace, bool bManualDepth, double depthManual )
+{
+    if(NULL_TAG == targetFace || NULL ==  body1 )
+        return 0;
+    tag_t face = targetFace;
+    tag_t part_tag = NULL_TAG;
+    tag_t targetBody = NULL_TAG;
+    
+    tag_t workPart = UF_ASSEM_ask_work_part();
+    logical isOcc = UF_ASSEM_is_occurrence(targetFace);
+    UF_MODL_ask_face_body(targetFace,&targetBody);
+    std::vector<Face*> faces = body1->GetFaces();
+    vtag_t cylinderFaces;
+    for( int idx = 0; idx < faces.size(); ++idx )
+    {
+        int type = 0;
+        tag_t face1 = faces[idx]->Tag();
+        int irc = UF_MODL_ask_face_type(face1,&type);
+        if( UF_MODL_CYLINDRICAL_FACE == type )
+        {
+            double dist = 0;
+            double pt1[3],pt2[3];
+            TYCOM_AskMinimumDist(face1,targetBody,dist,pt1,pt2);
+            if( dist < 0.0254 )
+                cylinderFaces.push_back(face1);
+        }
+    }
+    if( isOcc )
+    {
+        face = UF_ASSEM_ask_prototype_of_occ(targetFace);
+        UF_OBJ_ask_owning_part(face,&part_tag);
+        UF_MODL_ask_face_body(face,&targetBody);
+        UF_ASSEM_set_work_part(part_tag);
+    }
+    
+    
+    int type = 0, norm = 0;
+    double point[3],face_dir[3],box[6],rad,rad_data;
+    //UF_MODL_ask_face_data(face,&type,point,face_dir,box,&rad,&rad_data,&norm);
+    //CF_FaceAskMidPointNormal(face,face_dir);
+    Vector3d vec(0,0,-1);
+
+	double depth = 0.0;
+    for( int idx = 0; idx < cylinderFaces.size(); ++idx )
+    {
+        int type = 0, norm = 0;
+		double point[3],point2[3],face_dir[3],box[6],rad,rad_data;
+		UF_MODL_ask_face_data(cylinderFaces[idx],&type,point,face_dir,box,&rad,&rad_data,&norm);
+		
+        if( -1 == norm )
+        {
+			int count = 0;
+			uf_list_p_t edge_list; 
+			UF_MODL_ask_face_edges(cylinderFaces[idx], &edge_list);
+			UF_MODL_ask_list_count(edge_list, &count);
+			if( 2 == count )
+			{
+				tag_t edge1 = NULL_TAG;
+				tag_t edge2 = NULL_TAG;
+				double newdia = 0;
+				TYHOLEDATA->GetHole(rad*2,newdia,depth);
+				if (bManualDepth)//手动深度模式
+					depth = depthManual;
+
+				if (depthManual < TOL0254 || newdia < TOL0254)
+				{
+					if(!bManualDepth)
+					{
+						char msg[133] = "";
+						sprintf(msg,"没有找到直径为%g的孔，请检查TYHole.xls配置表",rad*2);
+						uc1601(msg,1);
+					}
+					else
+					{
+						uc1601("孔数据有误，请检查孔深输入值",1);
+					}
+					continue;
+				}
+
+				UF_MODL_ask_list_item(edge_list,0,&edge1);
+				UF_MODL_ask_list_item(edge_list,1,&edge2);
+				double dist1 = 0,dist2 = 0;
+				double pt1[3],pt2[3];
+				TYCOM_AskMinimumDist(edge1,targetFace,dist1,pt1,pt2);
+				TYCOM_AskMinimumDist(edge2,targetFace,dist2,pt1,pt2);
+				
+				UF_EVAL_p_t evaluator;
+				UF_EVAL_arc_t e_arc;
+				UF_EVAL_initialize(edge1, &evaluator);
+				UF_EVAL_ask_arc(evaluator, &e_arc);
+				point[0] = e_arc.center[0];
+				point[1] = e_arc.center[1];
+				point[2] = e_arc.center[2];
+			    UF_EVAL_free(evaluator);
+
+                UF_EVAL_p_t evaluator2;
+				UF_EVAL_arc_t e_arc2;
+				UF_EVAL_initialize(edge2, &evaluator2);
+				UF_EVAL_ask_arc(evaluator2, &e_arc2);
+				point2[0] = e_arc2.center[0];
+				point2[1] = e_arc2.center[1];
+				point2[2] = e_arc2.center[2];
+			    UF_EVAL_free(evaluator2);
+                if( dist1 > dist2 )
+				{
+                    double temp[3]={point[0],point[1],point[2]};
+                    point[0]=point2[0];
+                    point[1]=point2[1];
+                    point[2]=point2[2];
+
+                    point2[0]=temp[0];
+                    point2[1]=temp[1];
+                    point2[2]=temp[2];
+				}
+				if( newdia > 0.0254 )
+				{
+					if( isOcc )
+                    {
+						UF_CSYS_map_point(UF_CSYS_ROOT_COORDS,point,UF_CSYS_WORK_COORDS,point);
+                        UF_CSYS_map_point(UF_CSYS_ROOT_COORDS,point2,UF_CSYS_WORK_COORDS,point2);
+                    }
+                    vec.X = point[0] -point2[0];
+                    vec.Y = point[1] -point2[1];
+                    vec.Z = point[2] -point2[2];
+					CreateHolePoint(targetBody,point,vec,newdia,depth);
+				}
+			}
+			UF_MODL_delete_list(&edge_list);
+        }
+    }
+    if( isOcc )
+    {
+        UF_ASSEM_set_work_part(workPart);
+    }
+    return cylinderFaces.size();
 }

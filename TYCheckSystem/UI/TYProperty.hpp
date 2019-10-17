@@ -30,7 +30,7 @@
 #include <NXOpen/BlockStyler_UIBlock.hxx>
 #include <NXOpen/BlockStyler_BlockDialog.hxx>
 #include <NXOpen/BlockStyler_PropertyList.hxx>
-#include "../TYGlobalData.h"
+#include "../ConfigData/TYGlobalData.h"
 //------------------------------------------------------------------------------
 //Bit Option for Property: SnapPointTypesEnabled
 //------------------------------------------------------------------------------

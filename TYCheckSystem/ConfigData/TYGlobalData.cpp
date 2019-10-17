@@ -1,6 +1,6 @@
 #include "TYGlobalData.h"
-#include "Tool/Excel/BasicExcel.hpp"
-#include "Common/Com.h"
+#include "../Tool/Excel/BasicExcel.hpp"
+#include "../Common/Com.h"
 #include <uf_ui.h>
 
 using namespace YExcel;

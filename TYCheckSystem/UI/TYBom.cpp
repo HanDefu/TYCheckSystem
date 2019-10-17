@@ -41,7 +41,7 @@
 #include "../Common/Com_UG.h"
 #include "../Tool/Excel/BasicExcel.hpp"
 #include "../Common/Com.h"
-#include "../TYBomData.h"
+#include "../ConfigData/TYBomData.h"
 #include "../Common/Com_Attribute.h"
 #include "../Common/Com_WT.h"
 

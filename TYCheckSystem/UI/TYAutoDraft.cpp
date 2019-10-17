@@ -70,6 +70,7 @@ TYAutoDraft::TYAutoDraft()
 		theDialogName = "TYAutoDraft.dlx";
 		theDialog = TYAutoDraft::theUI->CreateDialog(theDialogName.c_str());
 		// Registration of callback functions
+		theDialog->AddApplyHandler(make_callback(this, &TYAutoDraft::apply_cb));
 		theDialog->AddCancelHandler(make_callback(this, &TYAutoDraft::cancel_cb));
 		theDialog->AddOkHandler(make_callback(this, &TYAutoDraft::ok_cb));
 		theDialog->AddUpdateHandler(make_callback(this, &TYAutoDraft::update_cb));
@@ -102,7 +103,8 @@ int TYAutoDraft::Show()
 {
 	try
 	{
-		theDialog->Show();
+		//这个是如何将对话框只不显示apply的好办法
+		theDialog->Show(BlockDialog::DialogModeEdit);
 	}
 	catch(exception& ex)
 	{
@@ -111,25 +113,6 @@ int TYAutoDraft::Show()
 	}
 	return 0;
 }
-
-//------------------------------------------------------------------------------
-//Method name: Show_TYAutoDraft
-//------------------------------------------------------------------------------
-/*void TYAutoDraft::Show_TYAutoDraft()
-{
-	try
-	{
-		theTYAutoDraft = new TYAutoDraft();
-		// The following method shows the dialog immediately
-		theTYAutoDraft->Show();
-	}
-	catch(exception& ex)
-	{
-		//---- Enter your exception handling code here -----
-		TYAutoDraft::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
-	}
-	delete theTYAutoDraft;
-}*/
 
 void  TY_UI_AutoDraft(vtag_t &allBodies, NXString &drawer)
 {
@@ -207,8 +190,8 @@ void TYAutoDraft::dialogShown_cb()
 //------------------------------------------------------------------------------
 int TYAutoDraft::apply_cb()
 {
-	//try
-	//{
+	try
+	{
 		bool exportAll = false;
 		UI_LogicalGetValue(toggleAll, exportAll);
 
@@ -251,15 +234,13 @@ int TYAutoDraft::apply_cb()
 			return 0;
 		}
 		
-	
-		
 		//theSession->DeleteAllUndoMarks();
-	/*}
+	}
 	catch(exception& ex)
 	{
 		//---- Enter your exception handling code here -----
 		TYAutoDraft::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
-	}*/
+	}
 	return 0;
 }
 
@@ -303,8 +284,7 @@ int TYAutoDraft::update_cb(NXOpen::BlockStyler::UIBlock* block)
 //------------------------------------------------------------------------------
 int TYAutoDraft::ok_cb()
 {
-	apply_cb();
-	/*try
+	try
 	{
 		apply_cb();
 	}
@@ -312,7 +292,7 @@ int TYAutoDraft::ok_cb()
 	{
 		//---- Enter your exception handling code here -----
 		TYAutoDraft::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
-	}*/
+	}
 	return 0;
 }
 

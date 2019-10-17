@@ -13,6 +13,8 @@
 
 using namespace NXOpen;
 
+//这个是如何将对话框只不显示apply的好办法就是把dialog mode 设置成BlockDialog::DialogModeEdit
+
 //UI Common
 //----------------------UI Common Functions--------------------------------------//
 

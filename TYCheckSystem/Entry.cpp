@@ -37,7 +37,7 @@
 #include "Tool\TYRegister.hpp"
 #include "Command.h"
 #include <uf_ui.h>
-#include "TYGlobalData.h"
+#include "ConfigData/TYGlobalData.h"
 #include "UI\TYBom.hpp"
 #include "UI\TYAutoDraft.hpp"
 #include "Common/Com_Draft2.h"

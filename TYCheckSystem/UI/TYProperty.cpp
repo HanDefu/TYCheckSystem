@@ -35,7 +35,7 @@
 //These includes are needed for the following template code
 //------------------------------------------------------------------------------
 #include "TYProperty.hpp"
-#include "../TYGlobalData.h"
+#include "../ConfigData/TYGlobalData.h"
 #include "../Common/Com_UI.h"
 #include <uf_assem.h>
 #include "../Common/Com_Attribute.h"
