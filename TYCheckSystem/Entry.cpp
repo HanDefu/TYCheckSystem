@@ -28,7 +28,7 @@
 #include "UI\TYColor.hpp"
 #include "UI\TYHeavy.hpp"
 #include "UI\TYHole.hpp"
-#include "UI\TYMirrorText.hpp"
+#include "UI\TYText.hpp"
 #include "UI\TYPrint.hpp"
 #include "UI\TYProperty.hpp"
 #include "UI\TYPropertyClear.hpp"

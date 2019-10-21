@@ -2170,6 +2170,47 @@ int Roy_ask_obj_string_attr( tag_t obj , const char *title , char *string )
 	return 0 ;
 } 
 
+/*
+int TYCOM_SetText(tag_t text, NXString str, double height)
+{
+	if (strlen(str.GetLocaleText()) == 0)
+	{
+		UF_OBJ_delete_object(text);
+		return -1;
+	}
+
+	NXOpen::Session *theSession = NXOpen::Session::GetSession();
+	NXOpen::Part *workPart(theSession->Parts()->Work());
+
+	TaggedObject *object = NXOpen::NXObjectManager::Get(text);
+
+	NXOpen::Features::Text *text1 = dynamic_cast<NXOpen::Features::Text *>(object);
+	if(text1 == 0)
+		return -1;
+	NXOpen::Features::TextBuilder *textBuilder1;
+	textBuilder1 = workPart->Features()->CreateTextBuilder(text1);
+	textBuilder1->SetTextString(str);
+
+	if(height > 0)
+	{
+		char chei[32] = "";
+		sprintf(chei, "%.1f", height);
+		textBuilder1->PlanarFrame()->Height()->SetRightHandSide(chei);
+	}
+
+	NXOpen::NXObject *nXObject1;
+	nXObject1 = textBuilder1->Commit();
+	textBuilder1->Destroy();
+
+	//workPart->Features()->SetEditWithRollbackFeature(text1);
+	//theSession->UpdateManager()->SetInterpartDelay(true);
+	//text1->MakeCurrentFeature();
+	//if ( !workPart->Preferences()->Modeling()->GetHistoryMode() )
+	//{
+	//throw NXException::Create("Create or edit of a Feature was recorded in History Mode but playback is in History-Free Mode.");
+	// }
+	return 0;
+}*/
 
 /*
 int TYCOM_ExtrudeReplaceCurve(tag_t extrudeFeature, tag_t newCurve)
@@ -3230,46 +3271,6 @@ int TYCOM_ImportPart(NXOpen::CartesianCoordinateSystem *ccs, NXString fileName, 
 	return 0;
 }
 
-int TYCOM_SetText(tag_t text, NXString str, double height)
-{
-    if (strlen(str.GetLocaleText()) == 0)
-	{
-		UF_OBJ_delete_object(text);
-		return -1;
-	}
-
-    NXOpen::Session *theSession = NXOpen::Session::GetSession();
-    NXOpen::Part *workPart(theSession->Parts()->Work());
-    
-	TaggedObject *object = NXOpen::NXObjectManager::Get(text);
-
-	NXOpen::Features::Text *text1 = dynamic_cast<NXOpen::Features::Text *>(object);
-	if(text1 == 0)
-		return -1;
-    NXOpen::Features::TextBuilder *textBuilder1;
-    textBuilder1 = workPart->Features()->CreateTextBuilder(text1);
-    textBuilder1->SetTextString(str);
-
-	if(height > 0)
-	{
-		char chei[32] = "";
-		sprintf(chei, "%.1f", height);
-		textBuilder1->PlanarFrame()->Height()->SetRightHandSide(chei);
-	}
-
-    NXOpen::NXObject *nXObject1;
-    nXObject1 = textBuilder1->Commit();
-    textBuilder1->Destroy();
-
-	//workPart->Features()->SetEditWithRollbackFeature(text1);
-    //theSession->UpdateManager()->SetInterpartDelay(true);
-    //text1->MakeCurrentFeature();
-    //if ( !workPart->Preferences()->Modeling()->GetHistoryMode() )
-    //{
-        //throw NXException::Create("Create or edit of a Feature was recorded in History Mode but playback is in History-Free Mode.");
-   // }
-	return 0;
-}
 int TYCOM_CreateBoxWithCSYS_ForBody(tag_t solidBody, tag_t csys, NXOpen::Point3d pnt0, tag_t &boxFeat)
 {
     NXOpen::Session *theSession = NXOpen::Session::GetSession();

@@ -433,14 +433,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\UI\TYMirrorText.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\UI\TYMirrorText.hpp"
-				>
-			</File>
-			<File
 				RelativePath=".\UI\TYPrint.cpp"
 				>
 			</File>

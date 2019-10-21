@@ -543,7 +543,9 @@ static int CreateBaseAndProjectViews( tag_t partTag, NXString& refset, double st
 	NXOpen::Point3d point1(0, 0, 0.0);
 
 	//注意NX7.0 是TOP NX12.0是 Top--这一句话看似多余，其实是为了让ug自动把model图纸挂到当前装配下
-	tag_t baseView = CreateBaseView(partTag,"TOP",refset, point1,stdscale,sheetlen,sheethei);
+	//这个给个0.01 必须足够小 否则一个大的上来 把图纸搞坏掉了
+	//这个仅仅是为了连上model的
+	tag_t baseView = CreateBaseView(partTag,"TOP",refset, point1,0.01,sheetlen,sheethei);
 
     tag_t proto = partTag;
     tag_t currentDrawing = NULL_TAG;
