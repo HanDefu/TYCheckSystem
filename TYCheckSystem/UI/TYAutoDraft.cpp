@@ -157,8 +157,8 @@ void TYAutoDraft::initialize_cb()
 		aply = comblocks->FindBlock("apply");
 		std::vector<NXOpen::BlockStyler::UIBlock *> allblks = comblocks->GetBlocks();
 
-		UI_LogicalSetValue(toggleAll, true);
-		UI_SetShow(selectionBodies,false);
+
+		UI_SetSeletSolidBody(selectionBodies);
 
 	}
 	catch(exception& ex)
@@ -178,6 +178,8 @@ void TYAutoDraft::dialogShown_cb()
 	try
 	{
 		//---- Enter your callback code here -----
+		UI_LogicalSetValue(toggleAll, true);
+		UI_SetShow(selectionBodies,false);
 	}
 	catch(exception& ex)
 	{

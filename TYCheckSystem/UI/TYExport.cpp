@@ -104,6 +104,8 @@ void TYExport::initialize_cb()
         groupSetting = theDialog->TopBlock()->FindBlock("groupSetting");
         enumFormat = theDialog->TopBlock()->FindBlock("enumFormat");
         exportFolder = theDialog->TopBlock()->FindBlock("exportFolder");
+		toggleExportAll = theDialog->TopBlock()->FindBlock("toggleExportAll");
+		selectionBodies = theDialog->TopBlock()->FindBlock("selectionBodies");
 
 		UI_SetShow(enumFormat,false);
 
@@ -115,6 +117,8 @@ void TYExport::initialize_cb()
 		uc4576(part_fspec1, 2, filePath,namestr);
 		
 		UI_FilePathSetValue(exportFolder, filePath);
+
+		UI_SetSeletSolidBody(selectionBodies);
 
     }
     catch(exception& ex)
@@ -129,7 +133,8 @@ void TYExport::dialogShown_cb()
 {
     try
     {
-        //---- Enter your callback code here -----
+		UI_LogicalSetValue(toggleExportAll, true);
+		UI_SetShow(selectionBodies,false);
     }
     catch(exception& ex)
     {
@@ -153,10 +158,17 @@ int TYExport::apply_cb()
 			return -1;
 		}
 
+		bool exportAll = false;
+		UI_LogicalGetValue(toggleExportAll, exportAll);
+
 		//第二步得到所有的实体并创建引用集
 		//注意威唐只要出小于150层的实体
 		vtag_t partBodies;
-		TYCOM_GetCurrentPartSolidBodies(partBodies);
+		if (exportAll)
+			TYCOM_GetCurrentPartSolidBodies(partBodies);
+		else
+			partBodies = UI_GetSelectObjects2(selectionBodies);
+
 		int layer = 0;
 		for (int i = 0; i < partBodies.size(); i++)
 		{
@@ -194,14 +206,27 @@ int TYExport::update_cb(NXOpen::BlockStyler::UIBlock* block)
 {
     try
     {
-        if(block == enumFormat)
-        {
-        //---------Enter your code here-----------
-        }
-        else if(block == exportFolder)
-        {
-        //---------Enter your code here-----------
-        }
+		if(block == toggleExportAll)
+		{
+			bool exportAll = false;
+			UI_LogicalGetValue(toggleExportAll, exportAll);
+			if (exportAll)
+				UI_SetShow(selectionBodies,false);
+			else
+				UI_SetShow(selectionBodies,true);
+		}
+		else if(block == selectionBodies)
+		{
+			//---------Enter your code here-----------
+		}
+		else if(block == enumFormat)
+		{
+			//---------Enter your code here-----------
+		}
+		else if(block == exportFolder)
+		{
+			//---------Enter your code here-----------
+		}
     }
     catch(exception& ex)
     {

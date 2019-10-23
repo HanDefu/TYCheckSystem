@@ -9,7 +9,7 @@
 //        Created by: Administrator
 //              Version: NX 7
 //              Date: 10-23-2019  (Format: mm-dd-yyyy)
-//              Time: 08:18
+//              Time: 09:44
 //
 //==============================================================================
 
@@ -31,6 +31,38 @@
 #include <NXOpen/BlockStyler_BlockDialog.hxx>
 #include <NXOpen/BlockStyler_PropertyList.hxx>
 //------------------------------------------------------------------------------
+//Bit Option for Property: SnapPointTypesEnabled
+//------------------------------------------------------------------------------
+#define              SnapPointTypesEnabled_UserDefined (1 << 0);
+#define                 SnapPointTypesEnabled_Inferred (1 << 1);
+#define           SnapPointTypesEnabled_ScreenPosition (1 << 2);
+#define                 SnapPointTypesEnabled_EndPoint (1 << 3);
+#define                 SnapPointTypesEnabled_MidPoint (1 << 4);
+#define             SnapPointTypesEnabled_ControlPoint (1 << 5);
+#define             SnapPointTypesEnabled_Intersection (1 << 6);
+#define                SnapPointTypesEnabled_ArcCenter (1 << 7);
+#define            SnapPointTypesEnabled_QuadrantPoint (1 << 8);
+#define            SnapPointTypesEnabled_ExistingPoint (1 << 9);
+#define             SnapPointTypesEnabled_PointonCurve (1 <<10);
+#define           SnapPointTypesEnabled_PointonSurface (1 <<11);
+#define         SnapPointTypesEnabled_PointConstructor (1 <<12);
+#define     SnapPointTypesEnabled_TwocurveIntersection (1 <<13);
+#define             SnapPointTypesEnabled_TangentPoint (1 <<14);
+#define                    SnapPointTypesEnabled_Poles (1 <<15);
+//------------------------------------------------------------------------------
+//Bit Option for Property: SnapPointTypesOnByDefault
+//------------------------------------------------------------------------------
+#define             SnapPointTypesOnByDefault_EndPoint (1 << 3);
+#define             SnapPointTypesOnByDefault_MidPoint (1 << 4);
+#define         SnapPointTypesOnByDefault_ControlPoint (1 << 5);
+#define         SnapPointTypesOnByDefault_Intersection (1 << 6);
+#define            SnapPointTypesOnByDefault_ArcCenter (1 << 7);
+#define        SnapPointTypesOnByDefault_QuadrantPoint (1 << 8);
+#define        SnapPointTypesOnByDefault_ExistingPoint (1 << 9);
+#define         SnapPointTypesOnByDefault_PointonCurve (1 <<10);
+#define       SnapPointTypesOnByDefault_PointonSurface (1 <<11);
+#define     SnapPointTypesOnByDefault_PointConstructor (1 <<12);
+//------------------------------------------------------------------------------
 // Namespaces needed for following template
 //------------------------------------------------------------------------------
 using namespace std;
@@ -49,34 +81,36 @@ extern TYExport *theTYExport;
 
 class TYExport
 {
-    // class members
+	// class members
 public:
-    static Session *theSession;
-    static UI *theUI;
-    TYExport();
-    ~TYExport();
-    int Show();
-    
-    //----------------------- BlockStyler Callback Prototypes ---------------------
-    // The following member function prototypes define the callbacks 
-    // specified in your BlockStyler dialog.  The empty implementaiton
-    // of these prototypes is provided in the TYExport.cpp file. 
-    // You are REQUIRED to write the implementation for these funtions.
-    //------------------------------------------------------------------------------
-    void initialize_cb();
-    void dialogShown_cb();
-    int apply_cb();
-    int ok_cb();
-    int update_cb(NXOpen::BlockStyler::UIBlock* block);
-    
-private:
-    std::string theDialogName;
-    NXOpen::BlockStyler::BlockDialog* theDialog;
-    NXOpen::BlockStyler::UIBlock* groupSetting;// Block type: Group
-    NXOpen::BlockStyler::UIBlock* enumFormat;// Block type: Enumeration
-    NXOpen::BlockStyler::UIBlock* exportFolder;// Block type: NativeFolderBrowser
-    
-};
+	static Session *theSession;
+	static UI *theUI;
+	TYExport();
+	~TYExport();
+	int Show();
 
+	//----------------------- BlockStyler Callback Prototypes ---------------------
+	// The following member function prototypes define the callbacks 
+	// specified in your BlockStyler dialog.  The empty implementaiton
+	// of these prototypes is provided in the TYExport.cpp file. 
+	// You are REQUIRED to write the implementation for these funtions.
+	//------------------------------------------------------------------------------
+	void initialize_cb();
+	void dialogShown_cb();
+	int apply_cb();
+	int ok_cb();
+	int update_cb(NXOpen::BlockStyler::UIBlock* block);
+
+private:
+	std::string theDialogName;
+	NXOpen::BlockStyler::BlockDialog* theDialog;
+	NXOpen::BlockStyler::UIBlock* groupSetting;// Block type: Group
+	NXOpen::BlockStyler::UIBlock* toggleExportAll;// Block type: Toggle
+	NXOpen::BlockStyler::UIBlock* selectionBodies;// Block type: Selection
+	NXOpen::BlockStyler::UIBlock* enumFormat;// Block type: Enumeration
+	NXOpen::BlockStyler::UIBlock* exportFolder;// Block type: NativeFolderBrowser
+
+};
 void  TYExport_Main();
 #endif //TYEXPORT_H_INCLUDED
+

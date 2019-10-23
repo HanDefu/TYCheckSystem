@@ -158,9 +158,7 @@ void TYBom::initialize_cb()
 		buttonSelect = theDialog->TopBlock()->FindBlock("buttonSelect");
 		stringNO = theDialog->TopBlock()->FindBlock("stringNO");
 
-		UI_LogicalSetValue(toggleAll, true);
-		UI_SetShow(selectionBodies,false);
-
+		
 		char filePath[MAX_FSPEC_SIZE] = "";
 		char namestr[MAX_FSPEC_SIZE] = "";
 		char part_fspec1[MAX_FSPEC_SIZE] = "";
@@ -169,6 +167,8 @@ void TYBom::initialize_cb()
 		uc4578(part_fspec1, 2, filePath);
 		strcat(filePath, "_BOM.xls");
 		UI_StringSetValue(stringPathName,filePath);
+
+		UI_SetSeletSolidBody(selectionBodies);
 	}
 	catch(exception& ex)
 	{
@@ -187,6 +187,8 @@ void TYBom::dialogShown_cb()
 	try
 	{
 		//---- Enter your callback code here -----
+		UI_LogicalSetValue(toggleAll, true);
+		UI_SetShow(selectionBodies,false);
 	}
 	catch(exception& ex)
 	{
