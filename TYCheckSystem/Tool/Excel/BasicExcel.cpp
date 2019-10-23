@@ -4175,6 +4175,7 @@ size_t Worksheet::CellTable::RowBlock::CellBlock::RecordSize()
 			return formula_.RecordSize();
 	}
 	abort();
+    return 0;
 }
 short Worksheet::CellTable::RowBlock::CellBlock::RowIndex()
 {
@@ -4205,6 +4206,7 @@ short Worksheet::CellTable::RowBlock::CellBlock::RowIndex()
 			return formula_.rowIndex_;
 	}
 	abort();
+	return 0;
 }
 short Worksheet::CellTable::RowBlock::CellBlock::ColIndex()
 {
@@ -4235,6 +4237,7 @@ short Worksheet::CellTable::RowBlock::CellBlock::ColIndex()
 			return formula_.colIndex_;
 	}
 	abort();
+	return 0;
 }
 
 /************************************************************************************************************/

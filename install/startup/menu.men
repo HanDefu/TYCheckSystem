@@ -40,6 +40,11 @@ MENU CUSTOM_TY
     LABEL 自动BOM
     BITMAP table_export
     ACTIONS TYCheckSystem.dll
+
+    BUTTON CUSTOM_TY_EXPORT3D
+    LABEL 批量导出模型
+    BITMAP export_assy
+    ACTIONS TYCheckSystem.dll
 	
     BUTTON CUSTOM_TY_TEXT_MARK
     LABEL 刻字和镜像刻字

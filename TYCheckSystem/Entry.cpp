@@ -41,6 +41,7 @@
 #include "UI\TYBom.hpp"
 #include "UI\TYAutoDraft.hpp"
 #include "Common/Com_Draft2.h"
+#include "UI\TYExport.hpp"
 
 using namespace NXOpen;
 
@@ -157,7 +158,13 @@ extern "C" DllExport void  ufusr(char *param, int *retcod, int param_len)
 		{
 			TYProperty::Show_TYProperty(1);
 		}
+
+		if(strcmp(param, "CUSTOM_TY_EXPORT3D") == 0)//标准件属性
+		{
+			TYExport_Main();
+		}
 		 
+		
 	}
 	catch(std::exception& ex)
 	{

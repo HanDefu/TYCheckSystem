@@ -417,6 +417,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\UI\TYExport.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\UI\TYExport.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\UI\TYHeavy.cpp"
 				>
 			</File>
@@ -514,6 +522,14 @@
 			</File>
 			<File
 				RelativePath=".\Common\Com_Draft2.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Common\Com_Export.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Common\Com_Export.h"
 				>
 			</File>
 			<File
