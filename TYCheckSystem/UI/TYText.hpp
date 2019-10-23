@@ -30,6 +30,8 @@
 #include <NXOpen/BlockStyler_UIBlock.hxx>
 #include <NXOpen/BlockStyler_BlockDialog.hxx>
 #include <NXOpen/BlockStyler_PropertyList.hxx>
+#include "../Common/TY_Def.h"
+#include <uf_cfi_types.h>
 //------------------------------------------------------------------------------
 //Bit Option for Property: SnapPointTypesEnabled
 //------------------------------------------------------------------------------
@@ -78,23 +80,30 @@ using namespace NXOpen::BlockStyler;
 //------------------------------------------------------------------------------
 // Forward declaration for Class
 //------------------------------------------------------------------------------
-class TYMirrorText;
+class TYText;
 //
 //------------------------------------------------------------------------------
 // Declaration of global variables
 //------------------------------------------------------------------------------
-extern TYMirrorText *theTYMirrorText;
+extern TYText *theTYMirrorText;
 
-class TYMirrorText
+class TYText
 {
     // class members
 public:
     static Session *theSession;
     static UI *theUI;
-    TYMirrorText();
+    TYText();
     static void Show_TYMirrorText();
-    ~TYMirrorText();
+    ~TYText();
     int Show();
+
+	int UpdateShowStatus();
+	int AddTextToModelReference(vtag_t &oriSplines, tag_t body);
+	int ReplaceTexts();
+	int GetKeyText(tag_t group, vtag_t &texts);
+	int ImportText(tag_t &group, NXOpen::Point3d pntOri,NXOpen::Point3d pntX, NXOpen::Point3d pntY);
+	int GetPrtFileName(char prtFileName[UF_CFI_MAX_PATH_NAME_SIZE]);
     
     //----------------------- BlockStyler Callback Prototypes ---------------------
     // The following member function prototypes define the callbacks 
@@ -130,9 +139,20 @@ private:
     NXOpen::BlockStyler::UIBlock* pointOrigin;// Block type: Specify Point
     NXOpen::BlockStyler::UIBlock* pointX;// Block type: Specify Point
     NXOpen::BlockStyler::UIBlock* pointY;// Block type: Specify Point
+	NXOpen::BlockStyler::UIBlock* toggleMirror;// Block type: Toggle
+	NXOpen::BlockStyler::UIBlock* mirrorPlane;// Block type: Specify Plane
     NXOpen::BlockStyler::UIBlock* groupSetting;// Block type: Group
     NXOpen::BlockStyler::UIBlock* doubleTextHeight;// Block type: Double
     NXOpen::BlockStyler::UIBlock* doubleEdgeDist;// Block type: Double
+
+	tag_t m_text1;//ATTR_ROYAL_KEZI_1
+	tag_t m_text2;//ATTR_ROYAL_KEZI_2
+	tag_t m_text3;//ATTR_ROYAL_KEZI_3
+	tag_t m_text4;//ATTR_ROYAL_KEZI_4
+	tag_t m_text5;//ATTR_ROYAL_KEZI_5
+	tag_t m_text6;//ATTR_ROYAL_KEZI_6
+	tag_t m_text7;//ATTR_ROYAL_KEZI_7
+	tag_t m_text8;//ATTR_ROYAL_KEZI_8
     
 };
 #endif //TYMIRRORTEXT_H_INCLUDED
