@@ -35,8 +35,39 @@
 //These includes are needed for the following template code
 //------------------------------------------------------------------------------
 #include "TYBaiWeiXian.hpp"
+#include <uf_curve.h>
+#include <uf_obj.h>
+#include "../Common/Com_UG.h"
+#include <uf_vec.h>
+#include <uf_drf.h>
+#include <NXOpen/Session.hxx>
+#include <NXOpen/Part.hxx>
+#include <NXOpen/PartCollection.hxx>
+#include <NXOpen/Annotations_DraftingNoteBuilder.hxx>
+#include <NXOpen/ViewCollection.hxx>
+#include <NXOpen/View.hxx>
+#include <uf_part.h>
+#include <uf_assem.h>
+#include <uf_csys.h>
+#include "../Common/Com_UI.h"
+#include <NXOpen/WCS.hxx>
+#include <NXOpen/Annotations_SimpleDraftingAid.hxx>
+#include <NXOpen/Annotations_AnnotationManager.hxx>
+#include <NXOpen/FontCollection.hxx>
+#include <NXOpen/PointCollection.hxx>
+#include <NXOpen/ModelingViewCollection.hxx>
+#include <NXOpen/ModelingView.hxx>
+#include <NXOpen/SelectDisplayableObject.hxx>
+
 using namespace NXOpen;
 using namespace NXOpen::BlockStyler;
+
+
+static void MappingPointToComponentPart(std::vector<Point3d> &org, std::vector<Point3d> &des);
+static void GetNewMatrix(tag_t edge1, tag_t edge2, tag_t face, double Matrix[9], double origin[3]);
+static logical ROY_is_face_parallel_XYZ(tag_t face, int& xyz);
+static tag_t CreateLine( Point3d startpoint,Point3d endpoint );
+static tag_t CreateNoteText2(char* textStr,double textHei, Point3d coordinate1,Point3d coordinate2,double origin[3] /*角点*/, double csys_mtx[9]);
 
 //------------------------------------------------------------------------------
 // Initialize static variables
@@ -143,6 +174,7 @@ void TYBaiWeiXian::initialize_cb()
 		enumStartYMaxDist = theDialog->TopBlock()->FindBlock("enumStartYMaxDist");
 		enumTextHeight = theDialog->TopBlock()->FindBlock("enumTextHeight");
 		toggleYX = theDialog->TopBlock()->FindBlock("toggleYX");
+
 	}
 	catch(exception& ex)
 	{
@@ -177,6 +209,296 @@ int TYBaiWeiXian::apply_cb()
 	try
 	{
 		//---- Enter your callback code here -----
+		int xyz = 0;
+		vtag_t lineandText;
+		tag_t face = NULL_TAG;
+		NXOpen::Session *theSession = NXOpen::Session::GetSession();
+		NXOpen::Part *workPart(theSession->Parts()->Work());
+		
+		int sel = 0;
+		int firstDisX = 0;
+		int firstDisY = 0;
+		UI_EnumGetCurrentSel(enumStartXMaxDist,sel);
+		if (sel == 0)
+			firstDisX = 50;
+		else
+			firstDisX = 100;
+
+		UI_EnumGetCurrentSel(enumStartYMaxDist,sel);
+		if (sel == 0)
+			firstDisY = 50;
+		else
+			firstDisY = 100;
+
+
+		int kexianjianju = 0;
+		UI_EnumGetCurrentSel(enumDist,sel);
+		if (sel == 0)
+			kexianjianju = 50;
+		else if (sel == 1)
+			kexianjianju = 100;
+		else
+			kexianjianju = 200;
+
+		double txtHei = 5;
+		UI_EnumGetCurrentSel(enumTextHeight,sel);
+		if (sel == 0)
+			kexianjianju = 5;
+		else
+			kexianjianju = 8;
+
+		double csys_mtx[9]={1,0,0,0,1,0,0,0,1};
+		std::vector<NXOpen::TaggedObject* > objects = UI_GetSelectObjects(edgeX);
+		std::vector<NXOpen::TaggedObject* > objects1 =  UI_GetSelectObjects(edgeY);
+
+		if(objects.size() > 0 && objects1.size() > 0)
+		{
+			tag_t edge1 = objects[0]->Tag();
+			tag_t edge2 = objects1[0]->Tag();
+			TYCOM_AskEdgeEdgeFace(edge1,edge2,face);
+			if(NULL_TAG == face )
+			{
+				uc1601("选择的边不在同一平面,请重新选择",1);
+				return 0;
+			}
+			//CF_CurveGetObjectIntersectPoint(edge1,edge2,origin,ref);
+			GetNewMatrix(edge1,edge2,face,csys_mtx,origin);
+		}
+		if( firstDisX > kexianjianju )
+			firstDisX = kexianjianju;
+		initpoints();
+		logical ispraXYZ = ROY_is_face_parallel_XYZ(face,xyz);
+		if(ispraXYZ)
+		{
+			const double kedutol = 0.5;
+			tag_t part_tag = UF_PART_ask_display_part();
+			tag_t prework = UF_PART_ask_display_part();
+			logical isAssemEnv = UF_ASSEM_is_occurrence(face);
+			Vector3d vecDirX(1,0,0);
+			Vector3d vecDirY(0,1,0);
+			double min_corner[3]={0.0},directions[3][3]={0.0},distances[3] = {0.0},startPoint[3]={0.0},endPoint[3]={0.0};
+			UF_MODL_ask_bounding_box_exact( face, NULL_TAG, min_corner, directions, distances );
+			if( 1 == xyz || 0 == xyz) //+Z -Z
+			{
+				double point1x[3],point2x[3],point1xx[3],point2xx[3];
+				int nn = 0;
+				if( min_corner[0]+50 >= 0 )
+					nn = (min_corner[0]+50)/50;
+				else
+					nn = (min_corner[0])/50;
+				int mm = 0;
+				if( min_corner[1]+50 >= 0 )
+					mm = (min_corner[1]+50)/50;
+				else
+					mm = (min_corner[1])/50;
+				double xkedu = nn*50;
+				double ykedu = mm*50;
+				while( (xkedu - min_corner[0]) <= (firstDisX-50))
+				{
+					xkedu+=50;
+				}
+				while( (ykedu - min_corner[1]) <= (firstDisY-50))
+				{
+					ykedu+=50;
+				}
+				while(xkedu < (min_corner[0]+distances[0]-kedutol))
+				{
+					startPoint[0] = xkedu;
+					startPoint[1] = min_corner[1];
+					startPoint[2] = min_corner[2];
+					endPoint[0] = xkedu;
+					endPoint[1] = min_corner[1]+distances[1];
+					endPoint[2] = min_corner[2];
+					Point3d lineStartPt(startPoint[0],startPoint[1],startPoint[2]);
+					Point3d lineEndPt(endPoint[0],endPoint[1],endPoint[2]);
+					lineXStart.push_back(lineStartPt);
+					lineXEnd.push_back(lineEndPt);
+					xkedu = xkedu+kexianjianju;
+				}
+				while(ykedu < (min_corner[1]+distances[1]-kedutol))
+				{
+					startPoint[0] = min_corner[0];
+					startPoint[1] = ykedu;
+					startPoint[2] = min_corner[2];
+					endPoint[0] = min_corner[0]+distances[0];
+					endPoint[1] = ykedu;
+					endPoint[2] = min_corner[2];
+					Point3d lineStartPt(startPoint[0],startPoint[1],startPoint[2]);
+					Point3d lineEndPt(endPoint[0],endPoint[1],endPoint[2]);
+					lineYStart.push_back(lineStartPt);
+					lineYEnd.push_back(lineEndPt);
+					ykedu = ykedu+kexianjianju;
+				}
+			}
+			else if( 2 == xyz || 4 == xyz )//xz plane -y,+y
+			{
+				int idx = 1,jdx = 1;
+				double point1x[3],point2x[3],point1xx[3],point2xx[3];
+				int nn = 0;
+				if( min_corner[0]+50 >= 0 )
+					nn = (min_corner[0]+50)/50;
+				else
+					nn = (min_corner[0])/50;
+				int mm = 0;
+				if( min_corner[2]+50 >= 0 )
+					mm = (min_corner[2]+50)/50;
+				else
+					mm = (min_corner[2])/50;
+				double xkedu = nn*50;
+				double ykedu = mm*50;
+				while( (xkedu - min_corner[0]) <= (firstDisX-50))
+				{
+					xkedu+=50;
+				}
+				while( (ykedu - min_corner[2]) <= (firstDisY-50))
+				{
+					ykedu+=50;
+				}
+
+				while(xkedu < (min_corner[0]+distances[0]-kedutol))
+				{
+					startPoint[0] = xkedu;
+					startPoint[1] = min_corner[1];
+					startPoint[2] = min_corner[2];
+					endPoint[0] = xkedu;
+					endPoint[1] = min_corner[1];
+					endPoint[2] = min_corner[2]+distances[2];
+					Point3d lineStartPt(startPoint[0],startPoint[1],startPoint[2]);
+					Point3d lineEndPt(endPoint[0],endPoint[1],endPoint[2]);
+					lineXStart.push_back(lineStartPt);
+					lineXEnd.push_back(lineEndPt);
+					xkedu += kexianjianju;
+				}
+				while(ykedu < (min_corner[2]+distances[2]-kedutol))
+				{
+					startPoint[0] = min_corner[0];
+					startPoint[1] = min_corner[1];
+					startPoint[2] = ykedu;
+					endPoint[0] = min_corner[0]+distances[0];
+					endPoint[1] = min_corner[1];
+					endPoint[2] = ykedu;
+					Point3d lineStartPt(startPoint[0],startPoint[1],startPoint[2]);
+					Point3d lineEndPt(endPoint[0],endPoint[1],endPoint[2]);
+					lineZStart.push_back(lineStartPt);
+					lineZEnd.push_back(lineEndPt);
+					ykedu += kexianjianju;
+				}
+			}
+			else if( 3 == xyz || 5 == xyz )//YZ PLANE +x,-x
+			{
+				int idx = 1,jdx = 1;
+				double point1x[3],point2x[3],point1xx[3],point2xx[3];
+				int nn = 0;
+				if( min_corner[1]+50 >= 0 )
+					nn = (min_corner[1]+50)/50;
+				else
+					nn = (min_corner[1])/50;
+				int mm = 0;
+				if( min_corner[2]+50 >= 0 )
+					mm = (min_corner[2]+50)/50;
+				else
+					mm = (min_corner[2])/50;
+				double xkedu = nn*50;
+				double ykedu = mm*50;
+				while( (xkedu - min_corner[1]) <= (firstDisX-50))
+				{
+					xkedu+=50;
+				}
+				while( (ykedu - min_corner[2]) <= (firstDisY-50))
+				{
+					ykedu+=50;
+				}
+				while(xkedu < (min_corner[1]+distances[1]-kedutol))
+				{
+					startPoint[0] = min_corner[0];
+					startPoint[1] = xkedu;
+					startPoint[2] = min_corner[2];
+					endPoint[0] = min_corner[0];
+					endPoint[1] = xkedu;
+					endPoint[2] = min_corner[2]+distances[2];
+					Point3d lineStartPt(startPoint[0],startPoint[1],startPoint[2]);
+					Point3d lineEndPt(endPoint[0],endPoint[1],endPoint[2]);
+					lineYStart.push_back(lineStartPt);
+					lineYEnd.push_back(lineEndPt);
+					xkedu += kexianjianju;
+				}
+				while(ykedu < (min_corner[2]+distances[2]-kedutol))
+				{
+					startPoint[0] = min_corner[0];
+					startPoint[1] = min_corner[1];
+					startPoint[2] = ykedu;
+					endPoint[0] = min_corner[0];
+					endPoint[1] = min_corner[1]+distances[1];
+					endPoint[2] = ykedu;
+					Point3d lineStartPt(startPoint[0],startPoint[1],startPoint[2]);
+					Point3d lineEndPt(endPoint[0],endPoint[1],endPoint[2]);
+					lineZStart.push_back(lineStartPt);
+					lineZEnd.push_back(lineEndPt);
+					ykedu += kexianjianju;
+				}
+			}
+
+			if(isAssemEnv)
+			{
+				//UF_ASSEM_set_work_part(prework);
+				tag_t partocc = part_tag = UF_ASSEM_ask_part_occurrence(face);
+				if(UF_ASSEM_is_occurrence(partocc))
+					part_tag = UF_ASSEM_ask_prototype_of_occ(partocc);
+				UF_ASSEM_set_work_part(part_tag);
+				MappingPointsToComponentPart();
+				UF_PART_set_display_part(part_tag);
+				workPart = theSession->Parts()->Work();
+
+			}
+			else
+			{
+				MappingPointsToComponentPart();
+			} 
+			tag_t oldcsys = NULL_TAG;
+			UF_CSYS_ask_wcs(&oldcsys);
+			tag_t new_csys = NULL_TAG;
+			tag_t matrix = NULL_TAG;
+			//double org[3]={0};
+			UF_CSYS_create_matrix(csys_mtx,&matrix);
+			UF_CSYS_create_csys( origin, matrix, &new_csys );
+			UF_CSYS_set_wcs( new_csys );//UF_CSYS_set_origin
+			char str[133]="";
+			for( int idx = 0; idx < lineXStartMapped.size(); ++idx )
+			{
+				tag_t line = CreateLine(lineXStartMapped[idx],lineXEndMapped[idx]);
+				AddTagToVector(line,lineandText);
+				sprintf(str,"%0.0fX",lineXStart[idx].X);
+				tag_t text = CreateNoteText2(str,txtHei,lineXStartMapped[idx],lineXEndMapped[idx],originRectMapped,csys_mtx);
+				AddTagToVector(text,lineandText);
+			}
+			for( int idx = 0; idx < lineYStartMapped.size(); ++idx )
+			{
+				tag_t line = CreateLine(lineYStartMapped[idx],lineYEndMapped[idx]);
+				AddTagToVector(line,lineandText);
+				sprintf(str,"%0.0fY",lineYStart[idx].Y);
+				tag_t text = CreateNoteText2(str,txtHei,lineYStartMapped[idx],lineYEndMapped[idx],originRectMapped,csys_mtx);
+				AddTagToVector(text,lineandText);
+			}
+			for( int idx = 0; idx < lineZStartMapped.size(); ++idx )
+			{
+				tag_t line = CreateLine(lineZStartMapped[idx],lineZEndMapped[idx]);
+				AddTagToVector(line,lineandText);
+				sprintf(str,"%0.0fZ",lineZStart[idx].Z);
+				tag_t text = CreateNoteText2(str,txtHei,lineZStartMapped[idx],lineZEndMapped[idx],originRectMapped,csys_mtx);
+				AddTagToVector(text,lineandText);
+			}	
+			CreateReferenceSet(lineandText,NXString("MODEL"));
+			UF_CSYS_set_wcs( oldcsys );
+			if(isAssemEnv)
+			{
+				UF_PART_set_display_part(prework);
+			}
+		}
+		else
+		{
+			uc1601("所选平面不与XYZ平面平行",1);
+			return 1;
+		}
 	}
 	catch(exception& ex)
 	{
@@ -207,15 +529,59 @@ int TYBaiWeiXian::update_cb(NXOpen::BlockStyler::UIBlock* block)
 		}
 		else if(block == enumDist)
 		{
-			//---------Enter your code here-----------
+			int sel = 0;
+			int firstDisX = 0;
+			UI_EnumGetCurrentSel(enumStartXMaxDist,sel);
+			if (sel == 0)
+				firstDisX = 50;
+			else
+				firstDisX = 100;
+
+
+			int kexianjianju = 0;
+			UI_EnumGetCurrentSel(enumDist,sel);
+			if (sel == 0)
+				kexianjianju = 50;
+			else if (sel == 1)
+				kexianjianju = 100;
+			else
+				kexianjianju = 200;
+
+
+			if(firstDisX>kexianjianju)
+			{
+				UI_EnumSetCurrentSel(enumStartXMaxDist,0);
+			}
 		}
 		else if(block == enumStartXMaxDist)
 		{
-			//---------Enter your code here-----------
+			int sel = 0;
+			int firstDisX = 0;
+			UI_EnumGetCurrentSel(enumStartXMaxDist,sel);
+			if (sel == 0)
+				firstDisX = 50;
+			else
+				firstDisX = 100;
+
+
+			int kexianjianju = 0;
+			UI_EnumGetCurrentSel(enumDist,sel);
+			if (sel == 0)
+				kexianjianju = 50;
+			else if (sel == 1)
+				kexianjianju = 100;
+			else
+				kexianjianju = 200;
+			
+			
+			if(firstDisX>kexianjianju)
+			{
+				UI_EnumSetCurrentSel(enumDist,1);
+			}
 		}
 		else if(block == enumStartYMaxDist)
 		{
-			//---------Enter your code here-----------
+			
 		}
 		else if(block == enumTextHeight)
 		{
@@ -274,4 +640,697 @@ int TYBaiWeiXian::cancel_cb()
 int TYBaiWeiXian::filter_cb(NXOpen::BlockStyler::UIBlock*  block, NXOpen::TaggedObject* selectObject)
 {
 	return(UF_UI_SEL_ACCEPT);
+}
+
+
+void TYBaiWeiXian::MappingPointsToComponentPart()
+{
+	MappingPointToComponentPart(lineXStart,lineXStartMapped);
+	MappingPointToComponentPart(lineXEnd,lineXEndMapped);
+	MappingPointToComponentPart(lineYStart,lineYStartMapped);
+	MappingPointToComponentPart(lineYEnd,lineYEndMapped);
+	MappingPointToComponentPart(lineZStart,lineZStartMapped);
+	MappingPointToComponentPart(lineZEnd,lineZEndMapped);
+	Point3d orgrect;
+	UI_PointGetPoint(pointOrigin,orgrect);
+	double originRect[3]={orgrect.X, orgrect.Y,orgrect.Z};
+	UF_CSYS_map_point(UF_CSYS_ROOT_COORDS,originRect,UF_CSYS_WORK_COORDS,originRectMapped);
+}
+
+void TYBaiWeiXian::initpoints()
+{
+	lineXStart.clear();
+	lineXStartMapped.clear();
+	lineXEnd.clear();
+	lineXEndMapped.clear();
+
+	lineYStart.clear();
+	lineYStartMapped.clear();
+	lineYEnd.clear();
+	lineYEndMapped.clear();
+
+	lineZStart.clear();
+	lineZStartMapped.clear();
+	lineZEnd.clear();
+	lineZEndMapped.clear();
+}
+
+
+
+static tag_t CreateLine( Point3d startpoint,Point3d endpoint )
+{
+    tag_t lineTag = NULL_TAG;
+    UF_CURVE_line_t line_coords;
+    line_coords.start_point[0] = startpoint.X;
+    line_coords.start_point[1] = startpoint.Y;
+    line_coords.start_point[2] = startpoint.Z;
+    line_coords.end_point[0] = endpoint.X;
+    line_coords.end_point[1] = endpoint.Y;
+    line_coords.end_point[2] = endpoint.Z;
+    UF_CURVE_create_line(&line_coords, &lineTag);
+    UF_OBJ_set_color(lineTag,186);
+    return lineTag;
+}
+
+static logical ROY_is_face_parallel_XYZ(tag_t face, int& xyz)
+{
+    int is_parallel = false;
+    double faceNormal[3]={0,0,1};
+    double xyzNormal[6][3]={0,0,-1,0,0,1,0,-1,0,1,0,0,0,1,0,-1,0,0}; //-z,+z,-y,+x,+y,-x
+    TYCOM_FaceAskMidPointNormal(face,faceNormal);
+    for( int idx = 0; idx < 6; idx++ )
+    {
+        UF_VEC3_is_equal(faceNormal, xyzNormal[idx], 0.0254, &is_parallel);
+        if( is_parallel )
+        {
+            xyz = idx;
+            break;
+        }
+    }
+    return is_parallel;
+}
+
+static int CreateKeDuMark( char* textHeight,double kedu,Point3d coordinates22 )
+{
+	char *textstring[1];
+    char textStr[133]="";
+    sprintf_s(textStr,132,"%g",kedu);
+	textstring[0] = textStr;
+	double Id_locate[3]={coordinates22.X,coordinates22.Y,coordinates22.Z};
+	tag_t note_tag = NULL_TAG;
+	tag_t point_tag = NULL_TAG;
+
+	int irc = UF_DRF_create_note(1,textstring ,Id_locate,0,&note_tag);
+    UF_DRF_associative_origin_t origin_data;
+    origin_data.origin_type = UF_DRF_ORIGIN_AT_A_POINT;
+    origin_data.associated_view = NULL_TAG;
+    UF_CURVE_create_point(Id_locate,&origin_data.associated_point);
+    /*origin_data.offset_annotation = origin_data.associated_point;UF_DRF_init_associativity_data
+    origin_data.offset_alignment_position = UF_DRF_ALIGN_BOTTOM_LEFT;*/
+    UF_DRF_set_associative_origin(note_tag,&origin_data,Id_locate);
+	return note_tag;
+
+    //UF_DRF_ask_associative_origin(assoTag,&origin_data,origin);
+    /*origin_data->origin_type = UF_DRF_ORIGIN_RELATIVE_TO_VIEW;
+    origin_data->view_eid = view;
+    UF_DRF_set_associative_origin(note_tag,origin_data,Id_locate);
+    UF_free(origin_data);*/
+    return 0;
+}
+
+static void setWcsToCurrentView()
+{
+	NXOpen::Session *theSession = NXOpen::Session::GetSession();
+    NXOpen::Part *workPart(theSession->Parts()->Work());
+	Point3d origin1 = workPart->Views()->WorkView()->Origin();
+	Matrix3x3 matrix1 = workPart->Views()->WorkView()->Matrix();
+	workPart->WCS()->SetOriginAndMatrix(origin1, matrix1);
+}
+
+static tag_t CreateNoteText2(char* textStr,double textHei, Point3d coordinate1,Point3d coordinate2,double origin[3] /*角点*/, double csys_mtx[9])
+{
+    NXOpen::Session *theSession = NXOpen::Session::GetSession();
+    NXOpen::Part *workPart(theSession->Parts()->Work());
+
+	CartesianCoordinateSystem *oldWcs = workPart->WCS()->CoordinateSystem();
+	
+    NXOpen::Annotations::SimpleDraftingAid *nullNXOpen_Annotations_SimpleDraftingAid(NULL);
+    NXOpen::Annotations::DraftingNoteBuilder *draftingNoteBuilder1;
+    draftingNoteBuilder1 = workPart->Annotations()->CreateDraftingNoteBuilder(nullNXOpen_Annotations_SimpleDraftingAid);
+    draftingNoteBuilder1->Origin()->SetAnchor(NXOpen::Annotations::OriginBuilder::AlignmentPositionBottomLeft);
+    std::vector<NXString> text1;
+    text1.push_back(textStr);
+	double angle = 0;
+    draftingNoteBuilder1->Text()->TextBlock()->SetText(text1);
+    draftingNoteBuilder1->Style()->LetteringStyle()->SetGeneralTextSize(textHei);
+	draftingNoteBuilder1->Style()->LetteringStyle()->SetGeneralTextCharSpaceFactor(0.5); 
+    draftingNoteBuilder1->Style()->LetteringStyle()->SetGeneralTextAspectRatio(1.0);
+    draftingNoteBuilder1->Style()->LetteringStyle()->SetGeneralTextLineSpaceFactor(1.0);
+    int fontIndex1;
+    //fontIndex1 = workPart->Fonts()->AddFont("iso-1", NXOpen::FontCollection::TypeNx);
+	fontIndex1 = workPart->Fonts()->AddFont("iso-1");
+    draftingNoteBuilder1->Style()->LetteringStyle()->SetGeneralTextFont(fontIndex1);
+
+	double pt1[3]={coordinate1.X, coordinate1.Y, coordinate1.Z};
+	double pt2[3]={coordinate2.X, coordinate2.Y, coordinate2.Z};
+	double dist1 = 0,dist2 = 0;
+	UF_VEC3_distance(pt1,origin,&dist1);
+	UF_VEC3_distance(pt2,origin,&dist2);
+	double offset[3]={5,5,0},offsetMapped[3]={0};
+
+	int isPara = 0;
+	double vecX[3] = {1,0,0},mag=0;
+	double vecMapped[3] = {0};
+	double vec[3]={coordinate2.X-coordinate1.X,coordinate2.Y-coordinate1.Y,coordinate2.Z-coordinate1.Z};
+	//UF_CSYS_map_point(UF_CSYS_WORK_COORDS,offset,UF_CSYS_ROOT_COORDS,offsetMapped);
+	//NXOpen::Point3d point2(coordinate1.X+offsetMapped[0], coordinate1.Y+offsetMapped[1], coordinate1.Z+offsetMapped[2]); 
+	NXOpen::Point3d point2(coordinate1.X, coordinate1.Y, coordinate1.Z); 
+	if( dist1 > dist2 )
+	{
+		/*point2.X = coordinate2.X+offsetMapped[0];
+		point2.Y = coordinate2.Y+offsetMapped[1];
+		point2.Z = coordinate2.Z+offsetMapped[2];*/
+		point2.X = coordinate2.X;
+		point2.Y = coordinate2.Y;
+		point2.Z = coordinate2.Z;
+		vec[0]=coordinate1.X-coordinate2.X;
+		vec[1]=coordinate1.Y-coordinate2.Y;
+		vec[2]=coordinate1.Z-coordinate2.Z;
+	}
+	UF_CSYS_map_point(UF_CSYS_ROOT_COORDS ,vecX,UF_CSYS_WORK_COORDS,vecMapped);
+	UF_VEC3_unitize(vec,0.0254,&mag,vec);
+	UF_VEC3_is_parallel(csys_mtx,vec,0.0254,&isPara);
+	if( 0 == isPara )
+	{
+		int isY = 0;
+		angle = 90; // Y dir mark, x-5, y+5
+		UF_VEC3_is_equal(csys_mtx+3,vec,0.0254,&isY);
+		point2.X=point2.X-csys_mtx[0]*5;
+		point2.Y=point2.Y-csys_mtx[1]*5;
+		point2.Z=point2.Z-csys_mtx[2]*5;
+		if( 1 == isY ) // +Y dir
+		{
+			point2.X=point2.X+csys_mtx[3]*5;
+			point2.Y=point2.Y+csys_mtx[4]*5;
+			point2.Z=point2.Z+csys_mtx[5]*5;
+		}
+		else
+		{
+			point2.X=point2.X-csys_mtx[3]*5;
+			point2.Y=point2.Y-csys_mtx[4]*5;
+			point2.Z=point2.Z-csys_mtx[5]*5;
+			draftingNoteBuilder1->Origin()->SetAnchor(NXOpen::Annotations::OriginBuilder::AlignmentPositionBottomRight);
+		}
+	}
+	else  // parallel with X dir
+	{
+		int isX;
+		UF_VEC3_is_equal(csys_mtx,vec,0.0254,&isX);
+		if( 1 == isX ) // +X dir
+		{
+			// x+5 y+5
+			point2.X=point2.X+csys_mtx[0]*5;
+			point2.Y=point2.Y+csys_mtx[1]*5;
+			point2.Z=point2.Z+csys_mtx[2]*5;
+		}
+		else
+		{
+			// x-5 y+5
+			point2.X=point2.X-csys_mtx[0]*5;
+			point2.Y=point2.Y-csys_mtx[1]*5;
+			point2.Z=point2.Z-csys_mtx[2]*5;
+			draftingNoteBuilder1->Origin()->SetAnchor(NXOpen::Annotations::OriginBuilder::AlignmentPositionBottomRight);
+		}
+		point2.X=point2.X+csys_mtx[3]*5;
+		point2.Y=point2.Y+csys_mtx[4]*5;
+		point2.Z=point2.Z+csys_mtx[5]*5;
+	}
+	
+    draftingNoteBuilder1->SetTextAlignment(NXOpen::Annotations::DraftingNoteBuilder::TextAlignBelowTopExtToMaxUnderline);
+
+	draftingNoteBuilder1->Origin()->Plane()->SetPlaneMethod(NXOpen::Annotations::PlaneBuilder::PlaneMethodTypeXyPlane);
+	draftingNoteBuilder1->Origin()->SetInferRelativeToGeometry(true);
+
+	
+    
+    NXOpen::Point *point1;
+
+	draftingNoteBuilder1->Style()->LetteringStyle()->SetAngle(angle);
+    
+    point1 = workPart->Points()->CreatePoint(point2);
+    
+    NXOpen::Annotations::Annotation::AssociativeOriginData assocOrigin1;
+    //assocOrigin1.OriginType = NXOpen::Annotations::AssociativeOriginTypeAtAPoint;
+    assocOrigin1.OriginType = NXOpen::Annotations::AssociativeOriginTypeDrag;
+    NXOpen::View *nullNXOpen_View(NULL);
+    assocOrigin1.View = nullNXOpen_View;
+    assocOrigin1.ViewOfGeometry = nullNXOpen_View;
+    NXOpen::Point *nullNXOpen_Point(NULL);
+    assocOrigin1.PointOnGeometry = nullNXOpen_Point;
+    NXOpen::Annotations::Annotation *nullNXOpen_Annotations_Annotation(NULL);
+    assocOrigin1.VertAnnotation = nullNXOpen_Annotations_Annotation;
+    assocOrigin1.VertAlignmentPosition = NXOpen::Annotations::AlignmentPositionTopLeft;
+    assocOrigin1.HorizAnnotation = nullNXOpen_Annotations_Annotation;
+    assocOrigin1.HorizAlignmentPosition = NXOpen::Annotations::AlignmentPositionTopLeft;
+    assocOrigin1.AlignedAnnotation = nullNXOpen_Annotations_Annotation;
+    assocOrigin1.DimensionLine = 0;
+    assocOrigin1.AssociatedView = workPart->ModelingViews()->WorkView();
+    assocOrigin1.AssociatedPoint = point1;
+    assocOrigin1.OffsetAnnotation = nullNXOpen_Annotations_Annotation;
+    assocOrigin1.OffsetAlignmentPosition = NXOpen::Annotations::AlignmentPositionTopLeft;
+    assocOrigin1.XOffsetFactor = 0.0;
+    assocOrigin1.YOffsetFactor = 0.0;
+    assocOrigin1.StackAlignmentPosition = NXOpen::Annotations::StackAlignmentPositionAbove;
+    draftingNoteBuilder1->Origin()->SetAssociativeOrigin(assocOrigin1);
+    
+    draftingNoteBuilder1->Origin()->Origin()->SetValue(NULL, nullNXOpen_View, point2);
+    
+    NXOpen::NXObject *nXObject1;
+    nXObject1 = draftingNoteBuilder1->Commit();
+    tag_t text = nXObject1->Tag();
+    UF_OBJ_set_color(text,186);
+   
+    draftingNoteBuilder1->Destroy();
+
+    return text;
+
+}
+
+static tag_t CreateNoteText(char* textStr,double textHei, Point3d coordinates22, int type, logical isX, int xyz )
+{
+    NXOpen::Session *theSession = NXOpen::Session::GetSession();
+    NXOpen::Part *workPart(theSession->Parts()->Work());
+
+	CartesianCoordinateSystem *oldWcs = workPart->WCS()->CoordinateSystem();
+	
+
+    NXOpen::Annotations::SimpleDraftingAid *nullNXOpen_Annotations_SimpleDraftingAid(NULL);
+    NXOpen::Annotations::DraftingNoteBuilder *draftingNoteBuilder1;
+    draftingNoteBuilder1 = workPart->Annotations()->CreateDraftingNoteBuilder(nullNXOpen_Annotations_SimpleDraftingAid);
+    
+    std::vector<NXString> text1;
+    text1.push_back(textStr);
+    draftingNoteBuilder1->Text()->TextBlock()->SetText(text1);
+    draftingNoteBuilder1->Style()->LetteringStyle()->SetGeneralTextSize(textHei);
+	double angle = 0;
+	NXOpen::Point3d point2(coordinates22.X+5, coordinates22.Y+5, coordinates22.Z); 
+	//NXOpen::Point3d point2(coordinates22.X, coordinates22.Y, coordinates22.Z);
+	
+    draftingNoteBuilder1->SetTextAlignment(NXOpen::Annotations::DraftingNoteBuilder::TextAlignBelowTopExtToMaxUnderline);
+	/*if( 1 == xyz )
+		draftingNoteBuilder1->Origin()->Plane()->SetPlaneMethod(NXOpen::Annotations::PlaneBuilder::PlaneMethodTypeXyPlane);
+	if( 2 == xyz )
+	{
+		draftingNoteBuilder1->Origin()->Plane()->SetPlaneMethod(NXOpen::Annotations::PlaneBuilder::PlaneMethodTypeXzPlane);
+		workPart->WCS()->Rotate(NXOpen::WCS::AxisYAxis, 90.0);
+	}
+	else if(3 == xyz)
+	{
+		draftingNoteBuilder1->Origin()->Plane()->SetPlaneMethod(NXOpen::Annotations::PlaneBuilder::PlaneMethodTypeYzPlane);
+		workPart->WCS()->Rotate(NXOpen::WCS::AxisYAxis, 90.0);
+	}*/
+	draftingNoteBuilder1->Origin()->Plane()->SetPlaneMethod(NXOpen::Annotations::PlaneBuilder::PlaneMethodTypeXyPlane);
+	draftingNoteBuilder1->Origin()->SetInferRelativeToGeometry(true);
+
+	draftingNoteBuilder1->Origin()->SetAnchor(NXOpen::Annotations::OriginBuilder::AlignmentPositionBottomLeft);
+    
+    NXOpen::Point *point1;
+
+	if(isX)
+	{
+		if( type == 1 || type == 2 )
+		{
+			point2.Y = coordinates22.Y-5;
+			angle = 270;
+		}
+		else
+		{
+			point2.X = coordinates22.X-5;
+			angle = 90;
+		}
+	}
+	else
+	{
+		if( type == 3 || type == 2 )
+		{
+			point2.X = coordinates22.X-5;
+			draftingNoteBuilder1->Origin()->SetAnchor(NXOpen::Annotations::OriginBuilder::AlignmentPositionBottomRight);
+		}
+	}
+    if( xyz == 0 )
+    {
+        point2.X = coordinates22.X+5;
+        point2.Y = coordinates22.Y+5;
+        point2.Z = coordinates22.Z;
+        if(isX)
+        {
+            if(1==type||2==type)
+            {
+                point2.X = coordinates22.X-5;
+                point2.Y = coordinates22.Y-5;
+            }
+        }
+        else
+        {
+            if( 1==type||0==type )
+                draftingNoteBuilder1->Origin()->SetAnchor(NXOpen::Annotations::OriginBuilder::AlignmentPositionBottomRight);
+            else
+            {
+                point2.X = coordinates22.X-5;
+                draftingNoteBuilder1->Origin()->SetAnchor(NXOpen::Annotations::OriginBuilder::AlignmentPositionBottomLeft);
+            }
+        }
+    }
+	else if( xyz == 2 )
+    {
+        point2.X = coordinates22.X+5;
+        point2.Y = coordinates22.Y;
+        point2.Z = coordinates22.Z+5;
+        if(isX) 
+        {
+            point2.X = coordinates22.X-5;
+            point2.Z = coordinates22.Z+5;
+            if( type == 1 || type == 2 )
+            {
+                point2.X = coordinates22.X+5;
+                point2.Z = coordinates22.Z-5;
+            }
+        }
+        else
+        {
+            if( type == 3 || type == 2 )
+            {
+                point2.X = coordinates22.X-5;
+                //point2.Z = coordinates22.Z-5;
+            }
+        }
+    }
+    else if( xyz == 4 )
+    {
+        point2.X = coordinates22.X+5;
+        point2.Y = coordinates22.Y;
+        point2.Z = coordinates22.Z+5;
+        if(isX)
+        {
+            if( 1 == type || 2 == type )
+            {
+                point2.X = coordinates22.X-5;
+                point2.Z = coordinates22.Z-5;
+            }
+        }
+        else
+        {
+            draftingNoteBuilder1->Origin()->SetAnchor(NXOpen::Annotations::OriginBuilder::AlignmentPositionBottomRight);
+            if( type == 2 || type == 3 )
+            {
+                point2.X = coordinates22.X-5;
+                draftingNoteBuilder1->Origin()->SetAnchor(NXOpen::Annotations::OriginBuilder::AlignmentPositionBottomLeft);
+            }
+        }
+    }
+    else if( xyz == 3  )
+    {
+        point2.X = coordinates22.X;
+        point2.Y = coordinates22.Y+5;
+        point2.Z = coordinates22.Z+5;
+        if(isX) 
+        {
+            point2.Y = coordinates22.Y-5;
+            point2.Z = coordinates22.Z+5;
+            if( type == 1 || type == 2 )
+            {
+                point2.Y = coordinates22.Y+5;
+                point2.Z = coordinates22.Z-5;
+            }
+        }
+        else
+        {
+            if( type == 2 || type == 3  )
+            {
+                point2.Y = coordinates22.Y-5;
+            }
+        }
+    }
+    else if( 5 == xyz )
+    {
+        point2.X = coordinates22.X;
+        point2.Y = coordinates22.Y+5;
+        point2.Z = coordinates22.Z+5;
+        if( isX )
+        {
+            if( 1 == type || 2 == type)
+            {
+                point2.Y = coordinates22.Y-5;
+                point2.Z = coordinates22.Z-5;
+            }
+        }
+        else
+        {
+            if( 0 == type || 1 == type )
+                draftingNoteBuilder1->Origin()->SetAnchor(NXOpen::Annotations::OriginBuilder::AlignmentPositionBottomRight);
+            else
+            {
+                point2.Y = coordinates22.Y-5;
+                draftingNoteBuilder1->Origin()->SetAnchor(NXOpen::Annotations::OriginBuilder::AlignmentPositionBottomLeft);
+            }
+        }
+    }
+    
+    /*if( type == 1)
+    {
+        point2.Y = coordinates22.Y-5;
+        draftingNoteBuilder1->Origin()->SetAnchor(NXOpen::Annotations::OriginBuilder::AlignmentPositionTopLeft);
+    }
+    else if( type == 2 )
+    {
+        point2.Y = coordinates22.Y-5;
+        point2.X = coordinates22.X-5;
+        draftingNoteBuilder1->Origin()->SetAnchor(NXOpen::Annotations::OriginBuilder::AlignmentPositionTopRight);
+    }
+    else if( type == 3 )
+    {
+        point2.X = coordinates22.X-5;
+        draftingNoteBuilder1->Origin()->SetAnchor(NXOpen::Annotations::OriginBuilder::AlignmentPositionBottomRight);
+    }*/
+	draftingNoteBuilder1->Style()->LetteringStyle()->SetAngle(angle);
+    
+    point1 = workPart->Points()->CreatePoint(point2);
+    
+    NXOpen::Annotations::Annotation::AssociativeOriginData assocOrigin1;
+    assocOrigin1.OriginType = NXOpen::Annotations::AssociativeOriginTypeAtAPoint;
+    NXOpen::View *nullNXOpen_View(NULL);
+    assocOrigin1.View = nullNXOpen_View;
+    assocOrigin1.ViewOfGeometry = nullNXOpen_View;
+    NXOpen::Point *nullNXOpen_Point(NULL);
+    assocOrigin1.PointOnGeometry = nullNXOpen_Point;
+    NXOpen::Annotations::Annotation *nullNXOpen_Annotations_Annotation(NULL);
+    assocOrigin1.VertAnnotation = nullNXOpen_Annotations_Annotation;
+    assocOrigin1.VertAlignmentPosition = NXOpen::Annotations::AlignmentPositionTopLeft;
+    assocOrigin1.HorizAnnotation = nullNXOpen_Annotations_Annotation;
+    assocOrigin1.HorizAlignmentPosition = NXOpen::Annotations::AlignmentPositionTopLeft;
+    assocOrigin1.AlignedAnnotation = nullNXOpen_Annotations_Annotation;
+    assocOrigin1.DimensionLine = 0;
+    assocOrigin1.AssociatedView = workPart->ModelingViews()->WorkView();
+    assocOrigin1.AssociatedPoint = point1;
+    assocOrigin1.OffsetAnnotation = nullNXOpen_Annotations_Annotation;
+    assocOrigin1.OffsetAlignmentPosition = NXOpen::Annotations::AlignmentPositionTopLeft;
+    assocOrigin1.XOffsetFactor = 0.0;
+    assocOrigin1.YOffsetFactor = 0.0;
+    assocOrigin1.StackAlignmentPosition = NXOpen::Annotations::StackAlignmentPositionAbove;
+    draftingNoteBuilder1->Origin()->SetAssociativeOrigin(assocOrigin1);
+    
+    
+    /*draftingNoteBuilder1->Origin()->Origin()->SetValue(NULL, nullNXOpen_View, point2);*/
+    draftingNoteBuilder1->Origin()->Origin()->SetValue(NULL, nullNXOpen_View, point2);
+    
+    draftingNoteBuilder1->Origin()->SetInferRelativeToGeometry(true);
+    
+    NXOpen::NXObject *nXObject1;
+    nXObject1 = draftingNoteBuilder1->Commit();
+    tag_t text = nXObject1->Tag();
+    UF_OBJ_set_color(text,186);
+   
+    draftingNoteBuilder1->Destroy();
+
+	//workPart->WCS()->SetCoordinateSystem(oldWcs);
+
+    return text;
+
+}
+
+/*
+static tag_t CreateText( char* textHeight,double kedu,Point3d coordinates22,Vector3d xDirection1, Vector3d yDirection1, int assotype )
+{
+	NXOpen::Session *theSession = NXOpen::Session::GetSession();
+    NXOpen::Part *workPart(theSession->Parts()->Work());
+
+    NXOpen::Features::Text *nullNXOpen_Features_Text(NULL);
+    
+	int worklayer = -1;
+	int layerStatus = -1;
+    char textStr[133]="";
+    sprintf_s(textStr,132,"%g",kedu);
+	//UF_LAYER_ask_work_layer(&worklayer);
+	//UF_LAYER_ask_status(255,&layerStatus);
+	//UF_LAYER_set_status(255, UF_LAYER_WORK_LAYER);
+    
+    NXOpen::Features::TextBuilder *textBuilder1;
+    textBuilder1 = workPart->Features()->CreateTextBuilder(nullNXOpen_Features_Text);
+    
+    double mtx[9], vx[3]={xDirection1.X,xDirection1.Y,xDirection1.Z},vy[3]={yDirection1.X,yDirection1.Y,yDirection1.Z};
+	UF_MTX3_initialize(vx,vy,mtx);
+	Matrix3x3 element(mtx[0],mtx[1],mtx[2],mtx[3],mtx[4],mtx[5],mtx[6],mtx[7],mtx[8]);
+
+    NXOpen::Point3d origin1(0.0, 0.0, 0.0);
+    NXOpen::Vector3d normal1(mtx[6],mtx[7],mtx[8]);
+    NXOpen::Plane *plane1;
+    plane1 = workPart->Planes()->CreatePlane(origin1, normal1, NXOpen::SmartObject::UpdateOptionWithinModeling);
+    
+    textBuilder1->SetSectionPlane(plane1);
+    
+    textBuilder1->SetScript(NXOpen::Features::TextBuilder::ScriptOptionsWestern);
+    
+    textBuilder1->SetCanUseKerningSpaces(false);
+    if( 0 == assotype )
+        textBuilder1->PlanarFrame()->SetAnchorLocation(NXOpen::GeometricUtilities::RectangularFrameBuilder::AnchorLocationTypeBottomLeft);
+    else if( 1 == assotype )
+        textBuilder1->PlanarFrame()->SetAnchorLocation(NXOpen::GeometricUtilities::RectangularFrameBuilder::AnchorLocationTypeTopLeft);
+    else if( 2 == assotype )
+        textBuilder1->PlanarFrame()->SetAnchorLocation(NXOpen::GeometricUtilities::RectangularFrameBuilder::AnchorLocationTypeTopRight);
+    else if( 3 == assotype )
+        textBuilder1->PlanarFrame()->SetAnchorLocation(NXOpen::GeometricUtilities::RectangularFrameBuilder::AnchorLocationTypeBottomRight);
+
+    textBuilder1->PlanarFrame()->Height()->SetRightHandSide(textHeight);
+    
+    textBuilder1->PlanarFrame()->SetWScale(100);
+    textBuilder1->PlanarFrame()->Shear()->SetRightHandSide("0");
+    
+    textBuilder1->SetCanProjectCurves(true);
+    
+    textBuilder1->SelectFont("Modern", NXOpen::Features::TextBuilder::ScriptOptionsOem);//Arial
+    
+    textBuilder1->SetTextString(textStr);
+
+	NXOpen::CoordinateSystem *coordinateSystem1;
+
+	CoordinateSystemCollection *csysCollectionPtr = workPart->CoordinateSystems();
+	NXMatrixCollection *matrixCollection = workPart->NXMatrices();
+	
+	NXOpen::NXMatrix * orientation = matrixCollection->Create(element);
+	
+	coordinateSystem1 = csysCollectionPtr->CreateCoordinateSystem(coordinates22,orientation,true);
+
+	textBuilder1->PlanarFrame()->SetCoordinateSystem(coordinateSystem1);
+    
+    textBuilder1->PlanarFrame()->UpdateOnCoordinateSystem();
+
+    NXOpen::Point *point2;
+    point2 = workPart->Points()->CreatePoint(coordinates22);
+    
+    NXOpen::Point3d point3(coordinates22.X, coordinates22.Y, coordinates22.Z);
+    textBuilder1->PlanarFrame()->AnchorLocator()->SetValue(point2, workPart->ModelingViews()->WorkView(), point3);
+
+    NXOpen::NXObject *nXObject1;
+    nXObject1 = textBuilder1->Commit();
+
+	tag_t texttag = nXObject1->Tag();
+
+    textBuilder1->Destroy();
+    
+    plane1->DestroyPlane();
+
+	return texttag;
+}*/
+
+void SetWCSToABS()
+{
+	NXOpen::Session *theSession = NXOpen::Session::GetSession();
+	NXOpen::Part *workPart(theSession->Parts()->Work());
+	NXOpen::Point3d origin1(0.0, 0.0, 0.0);
+	NXOpen::Matrix3x3 matrix1;
+	matrix1.Xx = 1.0;
+	matrix1.Xy = 0.0;
+	matrix1.Xz = 0.0;
+	matrix1.Yx = 0.0;
+	matrix1.Yy = 1.0;
+	matrix1.Yz = 0.0;
+	matrix1.Zx = 0.0;
+	matrix1.Zy = 0.0;
+	matrix1.Zz = 1.0;
+	workPart->WCS()->SetOriginAndMatrix(origin1, matrix1);
+
+}
+
+
+void MappingPointToComponentPart(std::vector<Point3d> &org, std::vector<Point3d> &des)
+{
+	des.clear();
+	for( int idx = 0; idx < org.size(); ++idx )
+	{
+		double pt[3]={org[idx].X,org[idx].Y,org[idx].Z};
+		double pt2[3];
+		UF_CSYS_map_point(UF_CSYS_ROOT_COORDS,pt,UF_CSYS_WORK_COORDS,pt2);
+		Point3d pt3d(pt2[0],pt2[1],pt2[2]);
+		des.push_back(pt3d);
+	}
+}
+
+static void GetNewMatrix(tag_t edge1, tag_t edge2, tag_t face, double Matrix[9], double origin[3])
+{
+	double ref[3]={0};
+	tag_t facePro = NULL_TAG;
+	if(UF_ASSEM_is_occurrence(edge1))
+		edge1 = UF_ASSEM_ask_prototype_of_occ(edge1);
+	if(UF_ASSEM_is_occurrence(edge2))
+		edge2 = UF_ASSEM_ask_prototype_of_occ(edge2);
+	if(UF_ASSEM_is_occurrence(face))
+		facePro = UF_ASSEM_ask_prototype_of_occ(face);
+	else
+		facePro = face;
+	double faceNormal[3]={0,0,1};
+	TYCOM_CurveGetObjectIntersectPoint(edge1,edge2,origin,ref);
+	TYCOM_FaceAskMidPointNormal(facePro,faceNormal);
+	double pnt1[3]={0},pnt2[3]={0},vecX[3]={0},vecY[3]={0},vecZ[3]={0},dist = 0;
+	TYCOM_AskMinimumDist(edge1,edge2,dist,pnt1,pnt2);
+	UF_CURVE_line_t data;
+	UF_CURVE_line_t data2;
+	TYCOM_CurveGetStartEndPoints(edge1, data.start_point, data.end_point);
+	TYCOM_CurveGetStartEndPoints(edge2, data2.start_point, data2.end_point);
+	double dis1 = 0,dis2 = 0;
+	UF_VEC3_distance(pnt1, data.end_point, &dis2);
+	UF_VEC3_distance(pnt1, data.start_point, &dis1);
+	if( dis1 > dis2 )
+	{
+		vecX[0] = data.start_point[0] - pnt1[0];
+		vecX[1] = data.start_point[1] - pnt1[1];
+		vecX[2] = data.start_point[2] - pnt1[2];
+	}
+	else
+	{
+		vecX[0] = data.end_point[0] - pnt1[0];
+		vecX[1] = data.end_point[1] - pnt1[1];
+		vecX[2] = data.end_point[2] - pnt1[2];
+	}
+	double mag = 0;
+	UF_VEC3_unitize(vecX,0.0254,&mag,vecX);
+	UF_VEC3_distance(pnt2, data2.end_point, &dis2);
+	UF_VEC3_distance(pnt2, data2.start_point, &dis1);
+	if( dis1 > dis2 )
+	{
+		vecY[0] = data2.start_point[0] - pnt2[0];
+		vecY[1] = data2.start_point[1] - pnt2[1];
+		vecY[2] = data2.start_point[2] - pnt2[2];
+	}
+	else
+	{
+		vecY[0] = data2.end_point[0] - pnt2[0];
+		vecY[1] = data2.end_point[1] - pnt2[1];
+		vecY[2] = data2.end_point[2] - pnt2[2];
+	}
+	UF_VEC3_unitize(vecY,0.0254,&mag,vecY);
+	int iseq = 0;
+	UF_VEC3_cross(vecX,vecY,vecZ);
+	UF_VEC3_unitize(vecZ,0.0254,&mag,vecZ);
+	UF_VEC3_is_equal(faceNormal, vecZ, 0.0254, &iseq);
+	if( 1 == iseq ) // equal
+	{
+		Matrix[0] = vecX[0];
+		Matrix[1] = vecX[1];
+		Matrix[2] = vecX[2];
+		Matrix[3] = vecY[0];
+		Matrix[4] = vecY[1];
+		Matrix[5] = vecY[2];
+	}
+	else
+	{
+		Matrix[0] = vecY[0];
+		Matrix[1] = vecY[1];
+		Matrix[2] = vecY[2];
+		Matrix[3] = vecX[0];
+		Matrix[4] = vecX[1];
+		Matrix[5] = vecX[2];
+	}
+	Matrix[6] = faceNormal[0];
+	Matrix[7] = faceNormal[1];
+	Matrix[8] = faceNormal[2];
 }

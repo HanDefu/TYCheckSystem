@@ -283,6 +283,7 @@ tag_t TY_GetBodyCSYS(tag_t body, const double csys_origin [ 3 ]);
 
 int TY_GetBodyXYZLen_aligned(tag_t body, double &xLen,double &yLen,double &zLen);
 int TYCOM_GetObjectLayer(tag_t body);
+int TYCOM_SetText(tag_t text, NXString str, double height = -1);
 
 /*
 int TYCOM_WaveLinkBodyToWorkPart(tag_t body);

@@ -141,7 +141,7 @@ extern "C" DllExport void  ufusr(char *param, int *retcod, int param_len)
 
 		if(strcmp(param, "CUSTOM_TY_TEXT_MARK") == 0)//刻字和镜像刻字
 		{
-			TYTextMark::Show_TYTextMark();
+			TYText_Main();
 		}
 		if(strcmp(param, "CUSTOM_TY_PRINT") == 0)//批量打印
 		{

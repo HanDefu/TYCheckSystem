@@ -130,7 +130,9 @@ public:
     int cancel_cb();
     int update_cb(NXOpen::BlockStyler::UIBlock* block);
     int filter_cb(NXOpen::BlockStyler::UIBlock*  block, NXOpen::TaggedObject* selectObject);
-    
+
+	void MappingPointsToComponentPart();
+    void initpoints();
 private:
     std::string theDialogName;
     NXOpen::BlockStyler::BlockDialog* theDialog;
@@ -144,6 +146,25 @@ private:
     NXOpen::BlockStyler::UIBlock* enumStartYMaxDist;// Block type: Enumeration
     NXOpen::BlockStyler::UIBlock* enumTextHeight;// Block type: Enumeration
     NXOpen::BlockStyler::UIBlock* toggleYX;// Block type: Toggle
+
+
+	std::vector<Point3d> lineXStart;
+	std::vector<Point3d> lineXStartMapped;
+	std::vector<Point3d> lineXEnd;
+	std::vector<Point3d> lineXEndMapped;
+
+	std::vector<Point3d> lineYStart;
+	std::vector<Point3d> lineYStartMapped;
+	std::vector<Point3d> lineYEnd;
+	std::vector<Point3d> lineYEndMapped;
+
+	std::vector<Point3d> lineZStart;
+	std::vector<Point3d> lineZStartMapped;
+	std::vector<Point3d> lineZEnd;
+	std::vector<Point3d> lineZEndMapped;
+	double origin[3];
+	//double originRect[3];
+	double originRectMapped[3];
     
 };
 #endif //TYBAIWEIXIAN_H_INCLUDED

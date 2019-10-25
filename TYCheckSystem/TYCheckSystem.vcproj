@@ -473,6 +473,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\UI\TYText.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\UI\TYText.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\UI\TYTextMark.cpp"
 				>
 			</File>

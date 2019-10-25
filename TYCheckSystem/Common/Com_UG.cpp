@@ -2170,10 +2170,9 @@ int Roy_ask_obj_string_attr( tag_t obj , const char *title , char *string )
 	return 0 ;
 } 
 
-/*
 int TYCOM_SetText(tag_t text, NXString str, double height)
 {
-	if (strlen(str.GetLocaleText()) == 0)
+	/*if (strlen(str.GetLocaleText()) == 0)
 	{
 		UF_OBJ_delete_object(text);
 		return -1;
@@ -2208,9 +2207,9 @@ int TYCOM_SetText(tag_t text, NXString str, double height)
 	//if ( !workPart->Preferences()->Modeling()->GetHistoryMode() )
 	//{
 	//throw NXException::Create("Create or edit of a Feature was recorded in History Mode but playback is in History-Free Mode.");
-	// }
+	// }*/
 	return 0;
-}*/
+}
 
 /*
 int TYCOM_ExtrudeReplaceCurve(tag_t extrudeFeature, tag_t newCurve)

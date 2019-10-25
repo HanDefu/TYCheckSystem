@@ -24,6 +24,8 @@
 #include "../Common/Com_UG.h"
 #include <uf_assem.h>
 #include <uf_csys.h>
+#include "../Common/Com_Attribute.h"
+#include <uf.h>
 
 using namespace NXOpen;
 using namespace NXOpen::BlockStyler;
@@ -96,7 +98,7 @@ int TYText::Show()
 
 //Method name: Show_TYMirrorText
 //------------------------------------------------------------------------------
-void TYText::Show_TYMirrorText()
+void TYText_Main()
 {
 	try
 	{
@@ -240,7 +242,7 @@ int TYText::apply_cb()
 		int ret = ImportText(group,pntOri,pntX,pntY);
 		if(ret != 0)
 		{
-			RYText::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, "导入文字失败");
+			TYText::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, "导入文字失败");
 			return 0;
 		}
 
@@ -254,10 +256,12 @@ int TYText::apply_cb()
 		AddTextToModelReference(/*group, */oriSplines, objs[0]->Tag());
 
 		//如果需要处理镜像
-		if(toggle0->Value())
+		bool bMirror = false;
+		UI_LogicalGetValue(toggleMirror,bMirror);
+		if(bMirror)
 		{
-			RY_GetAllSplinesInPart( UF_ASSEM_ask_work_part(), oriSplines );
-			tag_t plane = UI_GetPlaneTag(plane0);
+			TYCOM_GetAllSplinesInPart( UF_ASSEM_ask_work_part(), oriSplines );
+			tag_t plane = UI_GetPlaneTag(mirrorPlane);
 			if(plane == 0)
 				return 0;
 			double plane_point[3]= {0.0, 0.0, 0.0}, plane_normal[3]= {0.0, 0.0, 0.0};
@@ -267,11 +271,11 @@ int TYText::apply_cb()
 			double pnt1[3] = {pntX.X, pntX.Y, pntX.Z};
 			double pnt2[3] = {pntY.X, pntY.Y, pntY.Z};
 			double mirrorPntOri[3] = {0},mirrorPntX[3] = {0},mirrorPntY[3] = {0};
-			RY_MirrorPoint_Plane(pnt0, plane_point, plane_normal, mirrorPntOri);
-			RY_MirrorPoint_Plane(pnt1, plane_point, plane_normal, mirrorPntX);
-			RY_MirrorPoint_Plane(pnt2, plane_point, plane_normal, mirrorPntY);
+			TYCOM_MirrorPoint_Plane(pnt0, plane_point, plane_normal, mirrorPntOri);
+			TYCOM_MirrorPoint_Plane(pnt1, plane_point, plane_normal, mirrorPntX);
+			TYCOM_MirrorPoint_Plane(pnt2, plane_point, plane_normal, mirrorPntY);
 
-			RY_MirrorPoint_Point(mirrorPntX, mirrorPntOri, mirrorPntX);
+			TYCOM_MirrorPoint_Point(mirrorPntX, mirrorPntOri, mirrorPntX);
 
 			NXOpen::Point3d pntOriM(mirrorPntOri[0],mirrorPntOri[1],mirrorPntOri[2]);
 			NXOpen::Point3d pntXM(mirrorPntX[0],mirrorPntX[1],mirrorPntX[2]);
@@ -281,7 +285,7 @@ int TYText::apply_cb()
 			int ret = ImportText(groupM,pntOriM,pntXM,pntYM);
 			if(ret != 0)
 			{
-				RYText::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, "导入文字失败");
+				TYText::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, "导入文字失败");
 				return 0;
 			}
 
@@ -432,10 +436,10 @@ int TYText::filter_cb(NXOpen::BlockStyler::UIBlock*  block, NXOpen::TaggedObject
 int TYText::GetPrtFileName(char prtFileName[UF_CFI_MAX_PATH_NAME_SIZE])
 {
 	int sel = 0;
-	UI_EnumGetCurrentSel(enum0,sel);
+	UI_EnumGetCurrentSel(enumTextType,sel);
 
 	int sel1 = 0;//0 top 1 bottom
-	UI_EnumGetCurrentSel(enum01,sel1);
+	UI_EnumGetCurrentSel(enumTextType,sel1);
 
 	char *pathNameTemp = 0;
 	UF_translate_variable("UGII_USER_DIR", &pathNameTemp);
@@ -502,7 +506,7 @@ int TYText::ImportText(tag_t &group, NXOpen::Point3d pntOri,NXOpen::Point3d pntX
 	double dest_point[3] = {0,0,0};
 
 	double distance = 0;
-    UI_DoubleGetValue(double0, distance);
+    UI_DoubleGetValue(doubleEdgeDist, distance);
 	UF_VEC3_affine_comb(dest_point1, distance, unit_vec_Y, dest_point);
 
 	
@@ -549,21 +553,21 @@ int TYText::GetKeyText(tag_t group, vtag_t &texts)
 			if(tempTag == 0)
 				continue;
 	
-			if(USER_ask_obj_string_attr( tempTag , ATTR_ROYAL_KEZI_1 , val)>0)
+			if(TYCOM_GetObjectStringAttribute( tempTag , ATTR_TYCOM_KEZI_1 , val)>0)
 				m_text1 = tempTag;
-			else if(USER_ask_obj_string_attr( tempTag , ATTR_ROYAL_KEZI_2 , val)>0)
+			else if(TYCOM_GetObjectStringAttribute( tempTag , ATTR_TYCOM_KEZI_2 , val)>0)
 				m_text2 = tempTag;
-			else if(USER_ask_obj_string_attr( tempTag , ATTR_ROYAL_KEZI_3 , val)>0)
+			else if(TYCOM_GetObjectStringAttribute( tempTag , ATTR_TYCOM_KEZI_3 , val)>0)
 				m_text3 = tempTag;
-			else if(USER_ask_obj_string_attr( tempTag , ATTR_ROYAL_KEZI_4 , val)>0)
+			else if(TYCOM_GetObjectStringAttribute( tempTag , ATTR_TYCOM_KEZI_4 , val)>0)
 				m_text4 = tempTag;
-			else if(USER_ask_obj_string_attr( tempTag , ATTR_ROYAL_KEZI_5 , val)>0)
+			else if(TYCOM_GetObjectStringAttribute( tempTag , ATTR_TYCOM_KEZI_5 , val)>0)
 				m_text5 = tempTag;
-			else if(USER_ask_obj_string_attr( tempTag , ATTR_ROYAL_KEZI_6 , val)>0)
+			else if(TYCOM_GetObjectStringAttribute( tempTag , ATTR_TYCOM_KEZI_6 , val)>0)
 				m_text6 = tempTag;
-			else if(USER_ask_obj_string_attr( tempTag , ATTR_ROYAL_KEZI_7 , val)>0)
+			else if(TYCOM_GetObjectStringAttribute( tempTag , ATTR_TYCOM_KEZI_7 , val)>0)
 				m_text7 = tempTag;
-			else if(USER_ask_obj_string_attr( tempTag , ATTR_ROYAL_KEZI_8 , val)>0)
+			else if(TYCOM_GetObjectStringAttribute( tempTag , ATTR_TYCOM_KEZI_8 , val)>0)
 				m_text8 = tempTag;
 		}
 	}
@@ -575,16 +579,15 @@ int TYText::ReplaceTexts()
 	NXString str1;
 	NXString str2;
 	UI_StringGetValue(stringText8,str1);
-	UI_StringGetValue(string09,str2);
 
 	NXString str3,str4,str5,str6,str7,str8;
-	UI_StringGetValue(string0,str3);
+	UI_StringGetValue(stringText1,str3);
 	UI_StringGetValue(stringText1,str4);
 	UI_StringGetValue(stringText2,str5);
 	UI_StringGetValue(stringText3,str6);
 
 	int sel;
-	UI_EnumGetCurrentSel(enum0, sel);
+	UI_EnumGetCurrentSel(enumTextType, sel);
 	if(sel == 7)
 	{
 		UI_StringGetValue(stringText4,str1);
@@ -603,12 +606,13 @@ int TYText::ReplaceTexts()
 		if(sel == 8)
 		{
 			double height = -1;
-			UI_DoubleGetValue(double01,height);
+			UI_DoubleGetValue(doubleTextHeight,height);
 			TYCOM_SetText(m_text3, str3,height);
 		}
 		else
 		    TYCOM_SetText(m_text3, str3);
 	}
+
 	if(m_text4 != NULL_TAG)
 		TYCOM_SetText(m_text4, str4);
 	if(m_text5 != NULL_TAG)
@@ -629,7 +633,7 @@ int TYText::AddTextToModelReference(vtag_t &oriSplines, tag_t body)
 
 	tag_t part = UF_ASSEM_ask_work_part();
 	vtag_t curSplines;
-	RY_GetAllSplinesInPart( part, curSplines );
+	TYCOM_GetAllSplinesInPart( part, curSplines );
 	vtag_t newSplnes;
 	for(int i = 0; i < curSplines.size(); i++)
 	{
@@ -637,13 +641,12 @@ int TYText::AddTextToModelReference(vtag_t &oriSplines, tag_t body)
 			newSplnes.push_back(curSplines[i]);
 	}
 
-	RY_AddObjectToReferenceSet(part, newSplnes, "Model");
+	//TYCOM_AddObjectToReferenceSet(part, newSplnes, "Model");
 
 
-	char *handle = 0;
-	UF_TAG_ask_handle_from_tag(RY_Prototype(body), &handle);
-	for(int i = 0; i < newSplnes.size(); i++)
-		BYD_set_OBJ_string_attr( RY_Prototype(newSplnes[i]), ATTR_RY_TEXT_SPLINE_BODY_HANDLE, handle );
+	char *handle = UF_TAG_ask_handle_of_tag(TYCOM_Prototype(body));
+	//for(int i = 0; i < newSplnes.size(); i++)
+		//BYD_set_OBJ_string_attr( RY_Prototype(newSplnes[i]), ATTR_RY_TEXT_SPLINE_BODY_HANDLE, handle );
 
 	UF_free(handle);
 
