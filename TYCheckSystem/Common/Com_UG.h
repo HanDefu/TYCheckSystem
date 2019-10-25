@@ -163,7 +163,7 @@ int TYCOM_CreateLineWithExtendTwoSide(NXOpen::Point3d start, NXOpen::Point3d end
 int TYCOM_GetLineLineClosestPoint(tag_t line1, tag_t line2, double pnt[3]);
 tag_t TYCOM_CreateLine( double startpoint[3],double endpoint[3] );
 bool isPointEqual(NXOpen::Point3d a, NXOpen::Point3d b, double tol);
-
+int NXFUN_PRINT_WIN_get_printers(char***printers);
 int TYCOM_SortArcsByName(vtag_t m_arcs);
 
 bool TYCOM_IsTwoEdgeParall(tag_t edge1, tag_t edge2);
@@ -285,6 +285,18 @@ int TY_GetBodyXYZLen_aligned(tag_t body, double &xLen,double &yLen,double &zLen)
 int TYCOM_GetObjectLayer(tag_t body);
 int TYCOM_SetText(tag_t text, NXString str, double height = -1);
 
+int CreateKeDuMark( char* textHeight,double kedu,Point3d coordinates22 );
+void setWcsToCurrentView();
+tag_t CreateNoteText(char* textStr,double textHei, Point3d coordinates22, int type, logical isX, int xyz );
+void SetWCSToABS();
+int TYCOM_Plot_Single
+(
+ tag_t sheet,
+ NXOpen::PrintBuilder::PaperSize ps,//NXOpen::PrintBuilder::PaperSizeA4
+ NXOpen::PrintBuilder::OrientationOption orientation,//NXOpen::PrintBuilder::OrientationOptionLandscape
+ char * printer//"Canon MG7700 series Printer WS"
+ );
+
 /*
 int TYCOM_WaveLinkBodyToWorkPart(tag_t body);
 int TYCOM_SubtractInAssembly(tag_t targetBody, tag_t toolBody);
@@ -306,13 +318,7 @@ int TYCOM_SolidIntersect(tag_t first, tag_t second, tag_t &resolid);
 int TYCOM_SplitBody(tag_t &solid, NXOpen::Plane * plane1, vtag_t &splitBodies);
 int TYCOM_CreateDatumPlane(NXOpen::Point3d origin, NXOpen::Vector3d & normal, tag_t &plane);
 int TYCOM_AddObjectToReferenceSet(tag_t part, vtag_t objs, NXString refsetname);
-int TYCOM_Plot_Single
-(
- tag_t sheet,
- NXOpen::PrintBuilder::PaperSize ps,//NXOpen::PrintBuilder::PaperSizeA4
- NXOpen::PrintBuilder::OrientationOption orientation,//NXOpen::PrintBuilder::OrientationOptionLandscape
- char * printer//"Canon MG7700 series Printer WS"
- );
+
 int TYCOM_Plot
 (
  vtag_t &sheets,
@@ -325,5 +331,6 @@ int TYCOM_ExtrudeReplaceCurves(tag_t extrudeFeature, vtag_t newCurves);
 int TYCOM_ExtrudeReplaceCurvesOtherPart(tag_t extrudeFeature, vtag_t newCurves);
 int TYCOM_ExtrudeReplaceCurvesWorkPart(tag_t extrudeFeature, vtag_t newCurves);
 int TYCOM_ExtrudeReplaceCurve(tag_t extrudeFeature, tag_t newCurve);
+static tag_t CreateText( char* textHeight,double kedu,Point3d coordinates22,Vector3d xDirection1, Vector3d yDirection1, int assotype );
 */
 #endif

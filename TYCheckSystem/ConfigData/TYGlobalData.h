@@ -83,6 +83,9 @@ private:
 
 	//读excel数据
 	int GetPropertyExcelData();
+
+	//读TYConfig.xls数据
+	int ReadTYConfig();
 public:
 
 	vNXString m_nameFirst;//名称主类
@@ -98,6 +101,8 @@ public:
 	vSNameLayer m_nameLayer;
 	vSMaterialDensity m_materialDensity;
 	vNXString m_curlayers; 
+
+	vNXString m_printers;
 };
 
 #define TYGBDATA  (TYGlobalData::GetInstance())

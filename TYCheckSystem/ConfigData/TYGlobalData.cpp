@@ -18,6 +18,46 @@ TYGlobalData::~TYGlobalData()
 void TYGlobalData::Run()
 {
     GetPropertyExcelData();
+	ReadTYConfig();
+}
+
+int TYGlobalData::ReadTYConfig()
+{
+	//客户处理
+	BasicExcel excel;
+	// Load a workbook with one sheet, display its contents and save into another file.
+	const char *env_name = "TY_DATA_DIR";
+	char file_name[TY_STR_LEN] = "";
+	char * env = getenv(env_name);
+	strcpy(file_name, env);
+	strcat(file_name, "\\Parameter\\TYConfig.xls");
+
+	bool isOk = excel.Load(file_name);	
+	if (!isOk)
+	{
+		uc1601("加载数据文件失败，请检测",1);
+		return -1;
+	}
+
+	//名称处理
+	BasicExcelWorksheet* sheet2 = excel.GetWorksheet(L"打印机");
+	if (sheet2)
+	{
+		size_t maxCols = sheet2->GetTotalCols();
+		std::string value;
+		for(int i = 0; i < maxCols; i++)
+		{
+			vNXString strs;
+			BasicExcelCell *cel = sheet2->Cell(i,0);
+			value = cel->Get();
+			if(strlen(value.c_str()) == 0)
+				break;
+			
+			m_printers.push_back(value.c_str());
+		}
+	}
+
+	return 0;
 }
 
 int TYGlobalData::GetPropertyExcelData()

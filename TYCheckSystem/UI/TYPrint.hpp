@@ -30,6 +30,7 @@
 #include <NXOpen/BlockStyler_UIBlock.hxx>
 #include <NXOpen/BlockStyler_BlockDialog.hxx>
 #include <NXOpen/BlockStyler_PropertyList.hxx>
+#include "../Common/TY_Def.h"
 //------------------------------------------------------------------------------
 // Namespaces needed for following template
 //------------------------------------------------------------------------------
@@ -71,13 +72,14 @@ public:
     int cancel_cb();
     int update_cb(NXOpen::BlockStyler::UIBlock* block);
     int filter_cb(NXOpen::BlockStyler::UIBlock*  block, NXOpen::TaggedObject* selectObject);
-    
+     vNXString printers;
 private:
     std::string theDialogName;
     NXOpen::BlockStyler::BlockDialog* theDialog;
     NXOpen::BlockStyler::UIBlock* groupPrinter;// Block type: Group
     NXOpen::BlockStyler::UIBlock* enumPrinter;// Block type: Enumeration
-    NXOpen::BlockStyler::UIBlock* toggleOnlyCurrent;// Block type: Toggle
+    NXOpen::BlockStyler::UIBlock* togglePrintAll;// Block type: Toggle
+	NXOpen::BlockStyler::UIBlock* labelInfo;// Block type: Label
     
 };
 #endif //TYPRINT_H_INCLUDED

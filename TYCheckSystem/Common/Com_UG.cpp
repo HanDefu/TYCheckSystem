@@ -107,6 +107,19 @@
 #include "Com_Attribute.h"
 #include "../Common/TY_Def.h"
 #include <uf_mtx.h>
+#include <uf_drf.h>
+#include <NXOpen/Annotations_DraftingNoteBuilder.hxx>
+#include <NXOpen/ViewCollection.hxx>
+#include <NXOpen/View.hxx>
+#include <NXOpen/WCS.hxx>
+#include <NXOpen/Annotations_SimpleDraftingAid.hxx>
+#include <NXOpen/Annotations_AnnotationManager.hxx>
+#include <NXOpen/FontCollection.hxx>
+#include <NXOpen/PointCollection.hxx>
+#include <NXOpen/ModelingViewCollection.hxx>
+#include <NXOpen/ModelingView.hxx>
+#include <NXOpen/SelectDisplayableObject.hxx>
+
 
 using namespace NXOpen;
 using namespace std;
@@ -2211,6 +2224,59 @@ int TYCOM_SetText(tag_t text, NXString str, double height)
 	return 0;
 }
 
+int TYCOM_Plot_Single
+(
+ tag_t sheet,
+ NXOpen::PrintBuilder::PaperSize ps,//NXOpen::PrintBuilder::PaperSizeA4
+ NXOpen::PrintBuilder::OrientationOption orientation,//NXOpen::PrintBuilder::OrientationOptionLandscape
+ char * printer//"Canon MG7700 series Printer WS"
+ )
+{
+	//UG打印线条的粗细是这样设置的
+	//UG 默认有Plot Customer Width 1--9 9个宽度比例可以设置
+	//分别对应的是0.13 0.18 0.25.2.00九个宽度
+	//这几个宽度可以通过Plot Customer Width给个不同的任意宽度的比例关系得到 所有的任意宽度参数
+	//所以我们用的是虚线0.35 实线 0.7 那么分别对应Plot Customer Width  4 和 Plot Customer Width 6
+	//为了区别明显 我们只要把Plot Customer Width 4设置成1 Plot Customer Width 设置成 5或者更大
+	//再打印效果就出来了。因为这样0.35还是0.35  0.7已经变成0.7*5 = 3.5了 是十倍的宽度
+	//----这个必须要打勾 否则上面第一段说的比例是不起作用的
+	//另外关于ug图上制图空间显示的线条宽度是不是需要根据实际需要显示，可以在首选项--》可视化--》直线
+	//下面打勾显示线宽实现。
+	//
+	NXOpen::Session *theSession = NXOpen::Session::GetSession();
+	NXOpen::Part *workPart(theSession->Parts()->Work());
+
+	NXOpen::PrintBuilder *printBuilder1;
+	printBuilder1 = workPart->PlotManager()->CreatePrintBuilder();
+
+	printBuilder1->SetCopies(1);
+	printBuilder1->SetThinWidth(1.0);
+	printBuilder1->SetNormalWidth(5.0);
+	printBuilder1->SetThickWidth(6.0);
+
+	printBuilder1->SetOutput(NXOpen::PrintBuilder::OutputOptionWireframeBlackWhite);
+	printBuilder1->SetRasterImages(true);
+
+	std::vector<NXOpen::NXObject *> sheets1;
+	TaggedObject * tagobj = NXOpen::NXObjectManager::Get(sheet);
+	Drawings::DrawingSheet *drawingSheet = dynamic_cast<NXOpen::Drawings::DrawingSheet *>(tagobj);
+	sheets1.push_back(drawingSheet);
+
+	printBuilder1->SourceBuilder()->SetSheets(sheets1);
+
+	printBuilder1->SetPaper(ps);
+	printBuilder1->SetOrientation(orientation);
+	printBuilder1->SetPrinterText(printer);
+	//NXOpen::PrintBuilder::PaperSize paper1;
+	//paper1 = printBuilder1->Paper();
+
+	NXOpen::NXObject *nXObject1;
+	nXObject1 = printBuilder1->Commit();
+	printBuilder1->Destroy();
+
+	return 0;
+}
+
 /*
 int TYCOM_ExtrudeReplaceCurve(tag_t extrudeFeature, tag_t newCurve)
 {
@@ -2518,66 +2584,6 @@ int TYCOM_Plot
 	return 0;
 }
 
-int TYCOM_Plot_Single
-(
-    tag_t sheet,
-	NXOpen::PrintBuilder::PaperSize ps,//NXOpen::PrintBuilder::PaperSizeA4
-	NXOpen::PrintBuilder::OrientationOption orientation,//NXOpen::PrintBuilder::OrientationOptionLandscape
-	char * printer//"Canon MG7700 series Printer WS"
-)
-{
-	//UG打印线条的粗细是这样设置的
-	//UG 默认有Plot Customer Width 1--9 9个宽度比例可以设置
-	//分别对应的是0.13 0.18 0.25.2.00九个宽度
-	//这几个宽度可以通过Plot Customer Width给个不同的任意宽度的比例关系得到 所有的任意宽度参数
-	//所以我们用的是虚线0.35 实线 0.7 那么分别对应Plot Customer Width  4 和 Plot Customer Width 6
-	//为了区别明显 我们只要把Plot Customer Width 4设置成1 Plot Customer Width 设置成 5或者更大
-	//再打印效果就出来了。因为这样0.35还是0.35  0.7已经变成0.7*5 = 3.5了 是十倍的宽度
-	//----这个必须要打勾 否则上面第一段说的比例是不起作用的
-	//另外关于ug图上制图空间显示的线条宽度是不是需要根据实际需要显示，可以在首选项--》可视化--》直线
-	//下面打勾显示线宽实现。
-	//
-    NXOpen::Session *theSession = NXOpen::Session::GetSession();
-    NXOpen::Part *workPart(theSession->Parts()->Work());
-    
-    NXOpen::PrintBuilder *printBuilder1;
-    printBuilder1 = workPart->PlotManager()->CreatePrintBuilder();
-    
-    printBuilder1->SetCopies(1);
-    printBuilder1->SetThinWidth(1.0);
-    printBuilder1->SetNormalWidth(5.0);
-    printBuilder1->SetThickWidth(6.0);
-	printBuilder1->SetWidth1ScaleFactor(1.0);
-    printBuilder1->SetWidth2ScaleFactor(1.0);
-    printBuilder1->SetWidth3ScaleFactor(1.0);
-    printBuilder1->SetWidth4ScaleFactor(1.0);
-    printBuilder1->SetWidth5ScaleFactor(3.0);//实线用的是0.7 对应的是这个 设置宽一点
-    printBuilder1->SetWidth6ScaleFactor(3.0);
-    printBuilder1->SetWidth7ScaleFactor(3.0);
-    printBuilder1->SetWidth8ScaleFactor(3.0);
-    printBuilder1->SetWidth9ScaleFactor(3.0);
-    printBuilder1->SetOutput(NXOpen::PrintBuilder::OutputOptionWireframeBlackWhite);
-    printBuilder1->SetRasterImages(true);
-    
-	std::vector<NXOpen::NXObject *> sheets1;
-	TaggedObject * tagobj = NXOpen::NXObjectManager::Get(sheet);
-	Drawings::DrawingSheet *drawingSheet = dynamic_cast<NXOpen::Drawings::DrawingSheet *>(tagobj);
-	sheets1.push_back(drawingSheet);
-
-    printBuilder1->SourceBuilder()->SetSheets(sheets1);
-
-	printBuilder1->SetPaper(ps);
-	printBuilder1->SetOrientation(orientation);
-    printBuilder1->SetPrinterText(printer);
-    //NXOpen::PrintBuilder::PaperSize paper1;
-    //paper1 = printBuilder1->Paper();
-    
-    NXOpen::NXObject *nXObject1;
-    nXObject1 = printBuilder1->Commit();
-    printBuilder1->Destroy();
-   
-	return 0;
-}
 
 int TYCOM_AddObjectToReferenceSet(tag_t part, vtag_t objs, NXString refsetname)
 {
@@ -4113,4 +4119,386 @@ int TYCOM_GetObjectLayer(tag_t body)
 		return -1;
 
 	return disp_props.layer;
+}
+
+int CreateKeDuMark( char* textHeight,double kedu,Point3d coordinates22 )
+{
+	char *textstring[1];
+    char textStr[133]="";
+    sprintf_s(textStr,132,"%g",kedu);
+	textstring[0] = textStr;
+	double Id_locate[3]={coordinates22.X,coordinates22.Y,coordinates22.Z};
+	tag_t note_tag = NULL_TAG;
+	tag_t point_tag = NULL_TAG;
+
+	int irc = UF_DRF_create_note(1,textstring ,Id_locate,0,&note_tag);
+    UF_DRF_associative_origin_t origin_data;
+    origin_data.origin_type = UF_DRF_ORIGIN_AT_A_POINT;
+    origin_data.associated_view = NULL_TAG;
+    UF_CURVE_create_point(Id_locate,&origin_data.associated_point);
+    /*origin_data.offset_annotation = origin_data.associated_point;UF_DRF_init_associativity_data
+    origin_data.offset_alignment_position = UF_DRF_ALIGN_BOTTOM_LEFT;*/
+    UF_DRF_set_associative_origin(note_tag,&origin_data,Id_locate);
+	return note_tag;
+
+    //UF_DRF_ask_associative_origin(assoTag,&origin_data,origin);
+    /*origin_data->origin_type = UF_DRF_ORIGIN_RELATIVE_TO_VIEW;
+    origin_data->view_eid = view;
+    UF_DRF_set_associative_origin(note_tag,origin_data,Id_locate);
+    UF_free(origin_data);*/
+    return 0;
+}
+
+void setWcsToCurrentView()
+{
+	NXOpen::Session *theSession = NXOpen::Session::GetSession();
+	NXOpen::Part *workPart(theSession->Parts()->Work());
+	Point3d origin1 = workPart->Views()->WorkView()->Origin();
+	Matrix3x3 matrix1 = workPart->Views()->WorkView()->Matrix();
+	workPart->WCS()->SetOriginAndMatrix(origin1, matrix1);
+}
+tag_t CreateNoteText(char* textStr,double textHei, Point3d coordinates22, int type, logical isX, int xyz )
+{
+    NXOpen::Session *theSession = NXOpen::Session::GetSession();
+    NXOpen::Part *workPart(theSession->Parts()->Work());
+
+	CartesianCoordinateSystem *oldWcs = workPart->WCS()->CoordinateSystem();
+	
+
+    NXOpen::Annotations::SimpleDraftingAid *nullNXOpen_Annotations_SimpleDraftingAid(NULL);
+    NXOpen::Annotations::DraftingNoteBuilder *draftingNoteBuilder1;
+    draftingNoteBuilder1 = workPart->Annotations()->CreateDraftingNoteBuilder(nullNXOpen_Annotations_SimpleDraftingAid);
+    
+    std::vector<NXString> text1;
+    text1.push_back(textStr);
+    draftingNoteBuilder1->Text()->TextBlock()->SetText(text1);
+    draftingNoteBuilder1->Style()->LetteringStyle()->SetGeneralTextSize(textHei);
+	double angle = 0;
+	NXOpen::Point3d point2(coordinates22.X+5, coordinates22.Y+5, coordinates22.Z); 
+	//NXOpen::Point3d point2(coordinates22.X, coordinates22.Y, coordinates22.Z);
+	
+    draftingNoteBuilder1->SetTextAlignment(NXOpen::Annotations::DraftingNoteBuilder::TextAlignBelowTopExtToMaxUnderline);
+	/*if( 1 == xyz )
+		draftingNoteBuilder1->Origin()->Plane()->SetPlaneMethod(NXOpen::Annotations::PlaneBuilder::PlaneMethodTypeXyPlane);
+	if( 2 == xyz )
+	{
+		draftingNoteBuilder1->Origin()->Plane()->SetPlaneMethod(NXOpen::Annotations::PlaneBuilder::PlaneMethodTypeXzPlane);
+		workPart->WCS()->Rotate(NXOpen::WCS::AxisYAxis, 90.0);
+	}
+	else if(3 == xyz)
+	{
+		draftingNoteBuilder1->Origin()->Plane()->SetPlaneMethod(NXOpen::Annotations::PlaneBuilder::PlaneMethodTypeYzPlane);
+		workPart->WCS()->Rotate(NXOpen::WCS::AxisYAxis, 90.0);
+	}*/
+	draftingNoteBuilder1->Origin()->Plane()->SetPlaneMethod(NXOpen::Annotations::PlaneBuilder::PlaneMethodTypeXyPlane);
+	draftingNoteBuilder1->Origin()->SetInferRelativeToGeometry(true);
+
+	draftingNoteBuilder1->Origin()->SetAnchor(NXOpen::Annotations::OriginBuilder::AlignmentPositionBottomLeft);
+    
+    NXOpen::Point *point1;
+
+	if(isX)
+	{
+		if( type == 1 || type == 2 )
+		{
+			point2.Y = coordinates22.Y-5;
+			angle = 270;
+		}
+		else
+		{
+			point2.X = coordinates22.X-5;
+			angle = 90;
+		}
+	}
+	else
+	{
+		if( type == 3 || type == 2 )
+		{
+			point2.X = coordinates22.X-5;
+			draftingNoteBuilder1->Origin()->SetAnchor(NXOpen::Annotations::OriginBuilder::AlignmentPositionBottomRight);
+		}
+	}
+    if( xyz == 0 )
+    {
+        point2.X = coordinates22.X+5;
+        point2.Y = coordinates22.Y+5;
+        point2.Z = coordinates22.Z;
+        if(isX)
+        {
+            if(1==type||2==type)
+            {
+                point2.X = coordinates22.X-5;
+                point2.Y = coordinates22.Y-5;
+            }
+        }
+        else
+        {
+            if( 1==type||0==type )
+                draftingNoteBuilder1->Origin()->SetAnchor(NXOpen::Annotations::OriginBuilder::AlignmentPositionBottomRight);
+            else
+            {
+                point2.X = coordinates22.X-5;
+                draftingNoteBuilder1->Origin()->SetAnchor(NXOpen::Annotations::OriginBuilder::AlignmentPositionBottomLeft);
+            }
+        }
+    }
+	else if( xyz == 2 )
+    {
+        point2.X = coordinates22.X+5;
+        point2.Y = coordinates22.Y;
+        point2.Z = coordinates22.Z+5;
+        if(isX) 
+        {
+            point2.X = coordinates22.X-5;
+            point2.Z = coordinates22.Z+5;
+            if( type == 1 || type == 2 )
+            {
+                point2.X = coordinates22.X+5;
+                point2.Z = coordinates22.Z-5;
+            }
+        }
+        else
+        {
+            if( type == 3 || type == 2 )
+            {
+                point2.X = coordinates22.X-5;
+                //point2.Z = coordinates22.Z-5;
+            }
+        }
+    }
+    else if( xyz == 4 )
+    {
+        point2.X = coordinates22.X+5;
+        point2.Y = coordinates22.Y;
+        point2.Z = coordinates22.Z+5;
+        if(isX)
+        {
+            if( 1 == type || 2 == type )
+            {
+                point2.X = coordinates22.X-5;
+                point2.Z = coordinates22.Z-5;
+            }
+        }
+        else
+        {
+            draftingNoteBuilder1->Origin()->SetAnchor(NXOpen::Annotations::OriginBuilder::AlignmentPositionBottomRight);
+            if( type == 2 || type == 3 )
+            {
+                point2.X = coordinates22.X-5;
+                draftingNoteBuilder1->Origin()->SetAnchor(NXOpen::Annotations::OriginBuilder::AlignmentPositionBottomLeft);
+            }
+        }
+    }
+    else if( xyz == 3  )
+    {
+        point2.X = coordinates22.X;
+        point2.Y = coordinates22.Y+5;
+        point2.Z = coordinates22.Z+5;
+        if(isX) 
+        {
+            point2.Y = coordinates22.Y-5;
+            point2.Z = coordinates22.Z+5;
+            if( type == 1 || type == 2 )
+            {
+                point2.Y = coordinates22.Y+5;
+                point2.Z = coordinates22.Z-5;
+            }
+        }
+        else
+        {
+            if( type == 2 || type == 3  )
+            {
+                point2.Y = coordinates22.Y-5;
+            }
+        }
+    }
+    else if( 5 == xyz )
+    {
+        point2.X = coordinates22.X;
+        point2.Y = coordinates22.Y+5;
+        point2.Z = coordinates22.Z+5;
+        if( isX )
+        {
+            if( 1 == type || 2 == type)
+            {
+                point2.Y = coordinates22.Y-5;
+                point2.Z = coordinates22.Z-5;
+            }
+        }
+        else
+        {
+            if( 0 == type || 1 == type )
+                draftingNoteBuilder1->Origin()->SetAnchor(NXOpen::Annotations::OriginBuilder::AlignmentPositionBottomRight);
+            else
+            {
+                point2.Y = coordinates22.Y-5;
+                draftingNoteBuilder1->Origin()->SetAnchor(NXOpen::Annotations::OriginBuilder::AlignmentPositionBottomLeft);
+            }
+        }
+    }
+    
+    /*if( type == 1)
+    {
+        point2.Y = coordinates22.Y-5;
+        draftingNoteBuilder1->Origin()->SetAnchor(NXOpen::Annotations::OriginBuilder::AlignmentPositionTopLeft);
+    }
+    else if( type == 2 )
+    {
+        point2.Y = coordinates22.Y-5;
+        point2.X = coordinates22.X-5;
+        draftingNoteBuilder1->Origin()->SetAnchor(NXOpen::Annotations::OriginBuilder::AlignmentPositionTopRight);
+    }
+    else if( type == 3 )
+    {
+        point2.X = coordinates22.X-5;
+        draftingNoteBuilder1->Origin()->SetAnchor(NXOpen::Annotations::OriginBuilder::AlignmentPositionBottomRight);
+    }*/
+	draftingNoteBuilder1->Style()->LetteringStyle()->SetAngle(angle);
+    
+    point1 = workPart->Points()->CreatePoint(point2);
+    
+    NXOpen::Annotations::Annotation::AssociativeOriginData assocOrigin1;
+    assocOrigin1.OriginType = NXOpen::Annotations::AssociativeOriginTypeAtAPoint;
+    NXOpen::View *nullNXOpen_View(NULL);
+    assocOrigin1.View = nullNXOpen_View;
+    assocOrigin1.ViewOfGeometry = nullNXOpen_View;
+    NXOpen::Point *nullNXOpen_Point(NULL);
+    assocOrigin1.PointOnGeometry = nullNXOpen_Point;
+    NXOpen::Annotations::Annotation *nullNXOpen_Annotations_Annotation(NULL);
+    assocOrigin1.VertAnnotation = nullNXOpen_Annotations_Annotation;
+    assocOrigin1.VertAlignmentPosition = NXOpen::Annotations::AlignmentPositionTopLeft;
+    assocOrigin1.HorizAnnotation = nullNXOpen_Annotations_Annotation;
+    assocOrigin1.HorizAlignmentPosition = NXOpen::Annotations::AlignmentPositionTopLeft;
+    assocOrigin1.AlignedAnnotation = nullNXOpen_Annotations_Annotation;
+    assocOrigin1.DimensionLine = 0;
+    assocOrigin1.AssociatedView = workPart->ModelingViews()->WorkView();
+    assocOrigin1.AssociatedPoint = point1;
+    assocOrigin1.OffsetAnnotation = nullNXOpen_Annotations_Annotation;
+    assocOrigin1.OffsetAlignmentPosition = NXOpen::Annotations::AlignmentPositionTopLeft;
+    assocOrigin1.XOffsetFactor = 0.0;
+    assocOrigin1.YOffsetFactor = 0.0;
+    assocOrigin1.StackAlignmentPosition = NXOpen::Annotations::StackAlignmentPositionAbove;
+    draftingNoteBuilder1->Origin()->SetAssociativeOrigin(assocOrigin1);
+    
+    
+    /*draftingNoteBuilder1->Origin()->Origin()->SetValue(NULL, nullNXOpen_View, point2);*/
+    draftingNoteBuilder1->Origin()->Origin()->SetValue(NULL, nullNXOpen_View, point2);
+    
+    draftingNoteBuilder1->Origin()->SetInferRelativeToGeometry(true);
+    
+    NXOpen::NXObject *nXObject1;
+    nXObject1 = draftingNoteBuilder1->Commit();
+    tag_t text = nXObject1->Tag();
+    UF_OBJ_set_color(text,186);
+   
+    draftingNoteBuilder1->Destroy();
+
+	//workPart->WCS()->SetCoordinateSystem(oldWcs);
+
+    return text;
+
+}
+
+/*
+static tag_t CreateText( char* textHeight,double kedu,Point3d coordinates22,Vector3d xDirection1, Vector3d yDirection1, int assotype )
+{
+	NXOpen::Session *theSession = NXOpen::Session::GetSession();
+    NXOpen::Part *workPart(theSession->Parts()->Work());
+
+    NXOpen::Features::Text *nullNXOpen_Features_Text(NULL);
+    
+	int worklayer = -1;
+	int layerStatus = -1;
+    char textStr[133]="";
+    sprintf_s(textStr,132,"%g",kedu);
+	//UF_LAYER_ask_work_layer(&worklayer);
+	//UF_LAYER_ask_status(255,&layerStatus);
+	//UF_LAYER_set_status(255, UF_LAYER_WORK_LAYER);
+    
+    NXOpen::Features::TextBuilder *textBuilder1;
+    textBuilder1 = workPart->Features()->CreateTextBuilder(nullNXOpen_Features_Text);
+    
+    double mtx[9], vx[3]={xDirection1.X,xDirection1.Y,xDirection1.Z},vy[3]={yDirection1.X,yDirection1.Y,yDirection1.Z};
+	UF_MTX3_initialize(vx,vy,mtx);
+	Matrix3x3 element(mtx[0],mtx[1],mtx[2],mtx[3],mtx[4],mtx[5],mtx[6],mtx[7],mtx[8]);
+
+    NXOpen::Point3d origin1(0.0, 0.0, 0.0);
+    NXOpen::Vector3d normal1(mtx[6],mtx[7],mtx[8]);
+    NXOpen::Plane *plane1;
+    plane1 = workPart->Planes()->CreatePlane(origin1, normal1, NXOpen::SmartObject::UpdateOptionWithinModeling);
+    
+    textBuilder1->SetSectionPlane(plane1);
+    
+    textBuilder1->SetScript(NXOpen::Features::TextBuilder::ScriptOptionsWestern);
+    
+    textBuilder1->SetCanUseKerningSpaces(false);
+    if( 0 == assotype )
+        textBuilder1->PlanarFrame()->SetAnchorLocation(NXOpen::GeometricUtilities::RectangularFrameBuilder::AnchorLocationTypeBottomLeft);
+    else if( 1 == assotype )
+        textBuilder1->PlanarFrame()->SetAnchorLocation(NXOpen::GeometricUtilities::RectangularFrameBuilder::AnchorLocationTypeTopLeft);
+    else if( 2 == assotype )
+        textBuilder1->PlanarFrame()->SetAnchorLocation(NXOpen::GeometricUtilities::RectangularFrameBuilder::AnchorLocationTypeTopRight);
+    else if( 3 == assotype )
+        textBuilder1->PlanarFrame()->SetAnchorLocation(NXOpen::GeometricUtilities::RectangularFrameBuilder::AnchorLocationTypeBottomRight);
+
+    textBuilder1->PlanarFrame()->Height()->SetRightHandSide(textHeight);
+    
+    textBuilder1->PlanarFrame()->SetWScale(100);
+    textBuilder1->PlanarFrame()->Shear()->SetRightHandSide("0");
+    
+    textBuilder1->SetCanProjectCurves(true);
+    
+    textBuilder1->SelectFont("Modern", NXOpen::Features::TextBuilder::ScriptOptionsOem);//Arial
+    
+    textBuilder1->SetTextString(textStr);
+
+	NXOpen::CoordinateSystem *coordinateSystem1;
+
+	CoordinateSystemCollection *csysCollectionPtr = workPart->CoordinateSystems();
+	NXMatrixCollection *matrixCollection = workPart->NXMatrices();
+	
+	NXOpen::NXMatrix * orientation = matrixCollection->Create(element);
+	
+	coordinateSystem1 = csysCollectionPtr->CreateCoordinateSystem(coordinates22,orientation,true);
+
+	textBuilder1->PlanarFrame()->SetCoordinateSystem(coordinateSystem1);
+    
+    textBuilder1->PlanarFrame()->UpdateOnCoordinateSystem();
+
+    NXOpen::Point *point2;
+    point2 = workPart->Points()->CreatePoint(coordinates22);
+    
+    NXOpen::Point3d point3(coordinates22.X, coordinates22.Y, coordinates22.Z);
+    textBuilder1->PlanarFrame()->AnchorLocator()->SetValue(point2, workPart->ModelingViews()->WorkView(), point3);
+
+    NXOpen::NXObject *nXObject1;
+    nXObject1 = textBuilder1->Commit();
+
+	tag_t texttag = nXObject1->Tag();
+
+    textBuilder1->Destroy();
+    
+    plane1->DestroyPlane();
+
+	return texttag;
+}*/
+
+
+void SetWCSToABS()
+{
+	NXOpen::Session *theSession = NXOpen::Session::GetSession();
+	NXOpen::Part *workPart(theSession->Parts()->Work());
+	NXOpen::Point3d origin1(0.0, 0.0, 0.0);
+	NXOpen::Matrix3x3 matrix1;
+	matrix1.Xx = 1.0;
+	matrix1.Xy = 0.0;
+	matrix1.Xz = 0.0;
+	matrix1.Yx = 0.0;
+	matrix1.Yy = 1.0;
+	matrix1.Yz = 0.0;
+	matrix1.Zx = 0.0;
+	matrix1.Zy = 0.0;
+	matrix1.Zz = 1.0;
+	workPart->WCS()->SetOriginAndMatrix(origin1, matrix1);
+
 }
