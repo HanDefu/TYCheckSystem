@@ -72,21 +72,21 @@ using namespace NXOpen::BlockStyler;
 //------------------------------------------------------------------------------
 // Forward declaration for Class
 //------------------------------------------------------------------------------
-class TYExport;
+class TYExport3D;
 //
 //------------------------------------------------------------------------------
 // Declaration of global variables
 //------------------------------------------------------------------------------
-extern TYExport *theTYExport;
+extern TYExport3D *theTYExport;
 
-class TYExport
+class TYExport3D
 {
 	// class members
 public:
 	static Session *theSession;
 	static UI *theUI;
-	TYExport();
-	~TYExport();
+	TYExport3D();
+	~TYExport3D();
 	int Show();
 
 	//----------------------- BlockStyler Callback Prototypes ---------------------

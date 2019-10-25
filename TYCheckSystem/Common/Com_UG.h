@@ -297,6 +297,8 @@ int TYCOM_Plot_Single
  char * printer//"Canon MG7700 series Printer WS"
  );
 
+//
+void TYCOM_ExportSheetToAcadDwg(const char* prtFileName, const char* dwgFilename, NXString& drawingName );
 /*
 int TYCOM_WaveLinkBodyToWorkPart(tag_t body);
 int TYCOM_SubtractInAssembly(tag_t targetBody, tag_t toolBody);

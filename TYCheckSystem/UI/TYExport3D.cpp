@@ -13,7 +13,7 @@
 //
 //==============================================================================
 
-#include "TYExport.hpp"
+#include "TYExport3D.hpp"
 #include "../Common/Com_UI.h"
 #include <uf_part.h>
 #include "../Common/Com_UG.h"
@@ -23,27 +23,27 @@
 using namespace NXOpen;
 using namespace NXOpen::BlockStyler;
 
-Session *(TYExport::theSession) = NULL;
+Session *(TYExport3D::theSession) = NULL;
 
-UI *(TYExport::theUI) = NULL;
+UI *(TYExport3D::theUI) = NULL;
 
-TYExport *theTYExport;
+TYExport3D *theTYExport;
 
-TYExport::TYExport()
+TYExport3D::TYExport3D()
 {
     try
     {
         // Initialize the NX Open C++ API environment
-        TYExport::theSession = NXOpen::Session::GetSession();
-        TYExport::theUI = UI::GetUI();
+        TYExport3D::theSession = NXOpen::Session::GetSession();
+        TYExport3D::theUI = UI::GetUI();
         theDialogName = "TYExport.dlx";
-        theDialog = TYExport::theUI->CreateDialog(theDialogName.c_str());
+        theDialog = TYExport3D::theUI->CreateDialog(theDialogName.c_str());
         // Registration of callback functions
-        theDialog->AddApplyHandler(make_callback(this, &TYExport::apply_cb));
-        theDialog->AddOkHandler(make_callback(this, &TYExport::ok_cb));
-        theDialog->AddUpdateHandler(make_callback(this, &TYExport::update_cb));
-        theDialog->AddInitializeHandler(make_callback(this, &TYExport::initialize_cb));
-        theDialog->AddDialogShownHandler(make_callback(this, &TYExport::dialogShown_cb));
+        theDialog->AddApplyHandler(make_callback(this, &TYExport3D::apply_cb));
+        theDialog->AddOkHandler(make_callback(this, &TYExport3D::ok_cb));
+        theDialog->AddUpdateHandler(make_callback(this, &TYExport3D::update_cb));
+        theDialog->AddInitializeHandler(make_callback(this, &TYExport3D::initialize_cb));
+        theDialog->AddDialogShownHandler(make_callback(this, &TYExport3D::dialogShown_cb));
 
 		uc1601("建议本功能在BOM之后使用",1);
     }
@@ -57,7 +57,7 @@ TYExport::TYExport()
 //------------------------------------------------------------------------------
 // Destructor for NX Styler class
 //------------------------------------------------------------------------------
-TYExport::~TYExport()
+TYExport3D::~TYExport3D()
 {
     if (theDialog != NULL)
     {
@@ -70,20 +70,20 @@ void  TYExport_Main()
 {
     try
     {
-        theTYExport = new TYExport();
+        theTYExport = new TYExport3D();
         // The following method shows the dialog immediately
         theTYExport->Show();
     }
     catch(exception& ex)
     {
         //---- Enter your exception handling code here -----
-        TYExport::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
+        TYExport3D::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
     }
     delete theTYExport;
 }
 
 
-int TYExport::Show()
+int TYExport3D::Show()
 {
     try
     {
@@ -92,12 +92,12 @@ int TYExport::Show()
     catch(exception& ex)
     {
         //---- Enter your exception handling code here -----
-        TYExport::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
+        TYExport3D::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
     }
     return 0;
 }
 
-void TYExport::initialize_cb()
+void TYExport3D::initialize_cb()
 {
     try
     {
@@ -124,12 +124,12 @@ void TYExport::initialize_cb()
     catch(exception& ex)
     {
         //---- Enter your exception handling code here -----
-        TYExport::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
+        TYExport3D::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
     }
 }
 
 
-void TYExport::dialogShown_cb()
+void TYExport3D::dialogShown_cb()
 {
     try
     {
@@ -139,12 +139,12 @@ void TYExport::dialogShown_cb()
     catch(exception& ex)
     {
         //---- Enter your exception handling code here -----
-        TYExport::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
+        TYExport3D::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
     }
 }
 
 
-int TYExport::apply_cb()
+int TYExport3D::apply_cb()
 {
     try
     {
@@ -197,12 +197,12 @@ int TYExport::apply_cb()
     catch(exception& ex)
     {
         //---- Enter your exception handling code here -----
-        TYExport::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
+        TYExport3D::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
     }
     return 0;
 }
 
-int TYExport::update_cb(NXOpen::BlockStyler::UIBlock* block)
+int TYExport3D::update_cb(NXOpen::BlockStyler::UIBlock* block)
 {
     try
     {
@@ -231,13 +231,13 @@ int TYExport::update_cb(NXOpen::BlockStyler::UIBlock* block)
     catch(exception& ex)
     {
         //---- Enter your exception handling code here -----
-        TYExport::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
+        TYExport3D::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
     }
     return 0;
 }
 
 
-int TYExport::ok_cb()
+int TYExport3D::ok_cb()
 {
     try
     {
@@ -246,7 +246,7 @@ int TYExport::ok_cb()
     catch(exception& ex)
     {
         //---- Enter your exception handling code here -----
-        TYExport::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
+        TYExport3D::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
     }
     return 0;
 }

@@ -417,11 +417,19 @@
 				>
 			</File>
 			<File
-				RelativePath=".\UI\TYExport.cpp"
+				RelativePath=".\UI\TYExport3D.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\UI\TYExport.hpp"
+				RelativePath=".\UI\TYExport3D.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\UI\TYExportDwg.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\UI\TYExportDwg.hpp"
 				>
 			</File>
 			<File

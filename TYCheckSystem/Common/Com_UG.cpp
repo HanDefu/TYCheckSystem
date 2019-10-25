@@ -119,7 +119,8 @@
 #include <NXOpen/ModelingViewCollection.hxx>
 #include <NXOpen/ModelingView.hxx>
 #include <NXOpen/SelectDisplayableObject.hxx>
-
+#include <NXOpen/NXTo2dCreator.hxx>
+#include <NXOpen/DexManager.hxx>
 
 using namespace NXOpen;
 using namespace std;
@@ -2276,6 +2277,76 @@ int TYCOM_Plot_Single
 
 	return 0;
 }
+
+void TYCOM_ExportSheetToAcadDwg( const char* inputfile, const char* outputfile, NXString& drawingName )
+{
+	NXOpen::Session *theSession = NXOpen::Session::GetSession();
+	NXOpen::Part *workPart(theSession->Parts()->Work());
+	NXOpen::Part *displayPart(theSession->Parts()->Display());
+
+	int status = 0;
+	UF_CFI_ask_file_exist(outputfile,&status);
+	if( 0 == status )
+	{
+		uc4561(outputfile,0);
+	}
+	char *p_env;
+	char dwgdef[MAX_FSPEC_SIZE];
+	p_env = getenv("UGII_USER_DIR");
+	strcpy(dwgdef,p_env);
+	strcat(dwgdef,"\\application\\dxfdwg.def");
+
+	///////////////////////////////////////////////
+	NXTo2dCreator *nXTo2dCreator1;
+	nXTo2dCreator1 = theSession->DexManager()->CreateNxto2dCreator();
+
+	nXTo2dCreator1->SetMaxSystem3DModelSpace(true);
+
+	nXTo2dCreator1->SetMaxSystemPointRes(true);
+
+	nXTo2dCreator1->SetSpCurveTolerance(0.0508);
+
+	nXTo2dCreator1->SetMaxUser3DModelSpace(10000.0);
+
+	nXTo2dCreator1->SetMaxUserPointRes(0.001);
+
+	nXTo2dCreator1->SetOutputFileType(NXTo2dCreator::OutputAsOptionDWGFile);
+
+	nXTo2dCreator1->SetOutputFile(outputfile);
+
+	//nXTo2dCreator1->SetNxto2dSettingsFile("C:\\Program Files (x86)\\UGS\\NX 7.0\\ugto2d\\ugto2d.def");
+
+	nXTo2dCreator1->SetDxfSettingsFile(dwgdef);
+
+	nXTo2dCreator1->SetExportData(NXTo2dCreator::ExportDataOptionDrawing);
+
+	nXTo2dCreator1->SetFacetBodies(true);
+
+	nXTo2dCreator1->SetAutoCADRevision(NXTo2dCreator::AutoCADRevisionOptionR2004);
+
+	nXTo2dCreator1->SetInputFile(inputfile);
+
+	nXTo2dCreator1->SetDrawingName("Sheet1");
+
+	nXTo2dCreator1->SetViewName("TOP");
+
+	nXTo2dCreator1->SetUserCredential("", "", "");
+
+	NXObject *nXObject1;
+	nXObject1 = nXTo2dCreator1->Commit();
+
+	nXTo2dCreator1->Destroy();
+
+	int count = 0;
+	UF_CFI_ask_file_exist(outputfile,&status);
+	while( count < 300 && 1 == status)
+	{
+		_sleep(500);
+		count++;
+		UF_CFI_ask_file_exist(outputfile,&status);
+	}
+}
+
 
 /*
 int TYCOM_ExtrudeReplaceCurve(tag_t extrudeFeature, tag_t newCurve)

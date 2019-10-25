@@ -44,76 +44,6 @@
 
 using namespace NXOpen;
 
-static void export_sheet_to_acad_dwg2d2( char* inputfile, char* outputfile, NXString& drawingName )
-{
-	NXOpen::Session *theSession = NXOpen::Session::GetSession();
-	NXOpen::Part *workPart(theSession->Parts()->Work());
-	NXOpen::Part *displayPart(theSession->Parts()->Display());
-
-	int status = 0;
-	UF_CFI_ask_file_exist(outputfile,&status);
-	if( 0 == status )
-	{
-		uc4561(outputfile,0);
-	}
-	char *p_env;
-	char dwgdef[MAX_FSPEC_SIZE];
-	p_env = getenv("UGII_USER_DIR");
-	strcpy(dwgdef,p_env);
-	strcat(dwgdef,"\\application\\dxfdwg.def");
-
-    ///////////////////////////////////////////////
-	NXTo2dCreator *nXTo2dCreator1;
-	nXTo2dCreator1 = theSession->DexManager()->CreateNxto2dCreator();
-
-	nXTo2dCreator1->SetMaxSystem3DModelSpace(true);
-
-	nXTo2dCreator1->SetMaxSystemPointRes(true);
-
-	nXTo2dCreator1->SetSpCurveTolerance(0.0508);
-
-	nXTo2dCreator1->SetMaxUser3DModelSpace(10000.0);
-
-	nXTo2dCreator1->SetMaxUserPointRes(0.001);
-
-	nXTo2dCreator1->SetOutputFileType(NXTo2dCreator::OutputAsOptionDWGFile);
-
-	nXTo2dCreator1->SetOutputFile(outputfile);
-
-	//nXTo2dCreator1->SetNxto2dSettingsFile("C:\\Program Files (x86)\\UGS\\NX 7.0\\ugto2d\\ugto2d.def");
-
-	nXTo2dCreator1->SetDxfSettingsFile(dwgdef);
-
-	nXTo2dCreator1->SetExportData(NXTo2dCreator::ExportDataOptionDrawing);
-
-	nXTo2dCreator1->SetFacetBodies(true);
-
-	nXTo2dCreator1->SetAutoCADRevision(NXTo2dCreator::AutoCADRevisionOptionR2004);
-
-	nXTo2dCreator1->SetInputFile(inputfile);
-
-	nXTo2dCreator1->SetDrawingName("Sheet 1");
-
-	nXTo2dCreator1->SetViewName("TOP");
-
-	nXTo2dCreator1->SetUserCredential("", "", "");
-
-	NXObject *nXObject1;
-	nXObject1 = nXTo2dCreator1->Commit();
-
-	nXTo2dCreator1->Destroy();
-
-	int count = 0;
-	UF_CFI_ask_file_exist(outputfile,&status);
-	while( count < 300 && 1 == status)
-	{
-		_sleep(500);
-		count++;
-		UF_CFI_ask_file_exist(outputfile,&status);
-	}
-}
-
-
 static void export_sheet_to_acad_dwg2d( char* inputfile, char* outputfile, NXString& drawingName )
 {
 	NXOpen::Session *theSession = NXOpen::Session::GetSession();
@@ -1554,7 +1484,7 @@ int TY_AutoDrafting2(vtag_t &allBodies, NXString drawer)
 			    sprintf(outputfile,"%s\\%s.dwg",savepath.GetLocaleText(),dwgno.GetLocaleText());
 			else
                 sprintf(outputfile,"%s\\%s.dwg",savepath.GetLocaleText(),refNames[idx].GetLocaleText());
-            export_sheet_to_acad_dwg2d2(inputfile,outputfile,refNames[idx]);
+            TYCOM_ExportSheetToAcadDwg(inputfile,outputfile,refNames[idx]);
         }
         UF_PART_close(newpart,0,1);
         UF_PART_set_display_part(disp);

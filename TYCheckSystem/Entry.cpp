@@ -41,7 +41,8 @@
 #include "UI\TYBom.hpp"
 #include "UI\TYAutoDraft.hpp"
 #include "Common/Com_Draft2.h"
-#include "UI\TYExport.hpp"
+#include "UI\TYExport3D.hpp"
+#include "UI\TYExportDwg.hpp"
 
 using namespace NXOpen;
 
@@ -150,7 +151,7 @@ extern "C" DllExport void  ufusr(char *param, int *retcod, int param_len)
 
 		if(strcmp(param, "CUSTOM_TY_EXPORT_DWG") == 0)//µ¼³ödwg
 		{
-			TY_CMD_ExportDwg();
+			TYExportDwg_Main();
 		}
 
 
