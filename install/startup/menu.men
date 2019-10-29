@@ -81,11 +81,6 @@ MENU CUSTOM_TY
     LABEL 批量打印
     BITMAP print_lc
     ACTIONS TYCheckSystem.dll
-	
-    BUTTON CUSTOM_TY_EXPORT_DWG
-    LABEL 批量导出DWG
-    BITMAP restore_auto_text
-    ACTIONS TYCheckSystem.dll
 
     BUTTON CUSTOM_TY_CREATE_STANDARDPART_PROPERTY
     LABEL 标准件属性

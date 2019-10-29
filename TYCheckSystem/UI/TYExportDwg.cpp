@@ -41,6 +41,9 @@
 #include <uf_obj.h>
 #include "../Common/Com_UG.h"
 #include "../Common/Com_UI.h"
+#include <NXOpen/NXObjectManager.hxx>
+#include <NXOpen/Part.hxx>
+#include <uf_drf.h>
 
 
 using namespace NXOpen;
@@ -212,9 +215,24 @@ int TYExportDwg::apply_cb()
 			if (n > 0)
 				ret = UF_ASSEM_replace_refset(1,&child_part_occs[0],name);
 
+			UF_DRAW_open_drawing(drawing_tags[i]);
 			UF_DRAW_upd_out_of_date_views(drawing_tags[i]);
 
+			Part *part1(dynamic_cast<Part *>(NXOpen::NXObjectManager::Get(TYCOM_Prototype(child_part_occs[0]))));
+			bool loadStatus1;
+			loadStatus1 = part1->IsFullyLoaded();
+			if( !loadStatus1 )
+				part1->LoadFully();
+
+			UF_DISP_regenerate_display();
+			//UF_DISP_regenerate_view();
+			//UF_MODL_update();
+			//UF_MODL_update_all_features();
+
+			//ret = UF_DRF_update_views(name,UF_DRF_UPDATE_ALL,"");
+
 			NXString dwgFileName = path + name + NXString(".dwg");
+			
 			TYCOM_ExportSheetToAcadDwg( part_fspec, dwgFileName.getLocaleText(), NXString(name) );
 		}
 

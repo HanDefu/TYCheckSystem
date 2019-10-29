@@ -2326,7 +2326,8 @@ void TYCOM_ExportSheetToAcadDwg( const char* inputfile, const char* outputfile, 
 
 	nXTo2dCreator1->SetInputFile(inputfile);
 
-	nXTo2dCreator1->SetDrawingName("Sheet1");
+	//nXTo2dCreator1->SetDrawingName("Sheet 1");
+	nXTo2dCreator1->SetDrawingName(drawingName);
 
 	nXTo2dCreator1->SetViewName("TOP");
 
@@ -2346,7 +2347,6 @@ void TYCOM_ExportSheetToAcadDwg( const char* inputfile, const char* outputfile, 
 		UF_CFI_ask_file_exist(outputfile,&status);
 	}
 }
-
 
 /*
 int TYCOM_ExtrudeReplaceCurve(tag_t extrudeFeature, tag_t newCurve)
