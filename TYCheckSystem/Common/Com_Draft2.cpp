@@ -504,6 +504,11 @@ static int CreateBaseAndProjectViews( tag_t partTag, NXString& refset, double st
              //UF_DRAW_update_one_view
     double sheetLen = point1.X*2;
     double sheetHei = point1.Y*2;
+
+
+	//这个+-50也会影响第一第三视角，第一第三视角 和最后view被移动有关 
+	//记住：如果这里是point1.X+50, point1.Y 说明投影视图在右侧，那么必须把这个视图往右侧挪才行，如果挪到了左边 那么就和第一第三视角冲突了
+	//point1.X, point1.Y-50 说明投影视图往下投的，那么必须往下挪，否则如果挪到上面了 也是和第一第三视角反了
 	projectViewr = CreateProjectView(baseView,point1.X+50, point1.Y);
 	projectViewl = CreateProjectView(baseView,point1.X, point1.Y-50);
     
@@ -638,7 +643,7 @@ static void CreateDrawingSheet(NXString& name, double len, double hei )
 	UF_DRAW_info_t drawing_info;
 	drawing_info.drawing_scale = 1.0;
 	drawing_info.units = UF_PART_METRIC;
-	drawing_info.projection_angle = UF_DRAW_FIRST_ANGLE_PROJECTION;
+	drawing_info.projection_angle = UF_DRAW_THIRD_ANGLE_PROJECTION;//第一视角  第三视角 这个非常重要！！！！！！
 	drawing_info.size_state = UF_DRAW_METRIC_SIZE;
 	tag_t new_drawing_tag = NULL_TAG;
     drawing_info.size_state = UF_DRAW_CUSTOM_SIZE;

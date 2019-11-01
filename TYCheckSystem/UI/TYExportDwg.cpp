@@ -44,6 +44,10 @@
 #include <NXOpen/NXObjectManager.hxx>
 #include <NXOpen/Part.hxx>
 #include <uf_drf.h>
+#include <NXOpen/Assemblies_ComponentAssembly.hxx>
+#include <NXOpen/PartCollection.hxx>
+#include <NXOpen/Part.hxx>
+#include <NXOpen/Drawings_DrawingSheet.hxx>
 
 
 using namespace NXOpen;
@@ -184,6 +188,9 @@ int TYExportDwg::apply_cb()
 {
     try
     {
+		Session *theSession = Session::GetSession();
+		Part *workPart(theSession->Parts()->Work());
+
 		vtag_t allBodies;
 		vNXString fileNames;
 		NXString path;
@@ -212,11 +219,23 @@ int TYExportDwg::apply_cb()
 			char name[64] = "";
 			UF_OBJ_ask_name(drawing_tags[i], name);
 
-			if (n > 0)
-				ret = UF_ASSEM_replace_refset(1,&child_part_occs[0],name);
+			//if (n > 0)
+				//ret = UF_ASSEM_replace_refset(1,&child_part_occs[0],name);
 
-			UF_DRAW_open_drawing(drawing_tags[i]);
-			UF_DRAW_upd_out_of_date_views(drawing_tags[i]);
+			//UF_DRAW_open_drawing(drawing_tags[i]);
+			//UF_DRAW_upd_out_of_date_views(drawing_tags[i]);
+
+			int type = 0;
+			int subtype = 0;
+
+			Assemblies::Component * comp = dynamic_cast<Assemblies::Component *>(NXOpen::NXObjectManager::Get(child_part_occs[0]));
+			std::vector<Assemblies::Component *> components2(1);
+			components2[0] = comp;
+			ErrorList *errorList2 = workPart->ComponentAssembly()->ReplaceReferenceSetInOwners(name, components2);
+
+
+			Drawings::DrawingSheet * thisSheet = dynamic_cast<Drawings::DrawingSheet *>(NXOpen::NXObjectManager::Get(drawing_tags[i]));
+			thisSheet->Open();
 
 			Part *part1(dynamic_cast<Part *>(NXOpen::NXObjectManager::Get(TYCOM_Prototype(child_part_occs[0]))));
 			bool loadStatus1;
@@ -224,6 +243,7 @@ int TYExportDwg::apply_cb()
 			if( !loadStatus1 )
 				part1->LoadFully();
 
+			UF_DRAW_upd_out_of_date_views(drawing_tags[i]);
 			UF_DISP_regenerate_display();
 			//UF_DISP_regenerate_view();
 			//UF_MODL_update();

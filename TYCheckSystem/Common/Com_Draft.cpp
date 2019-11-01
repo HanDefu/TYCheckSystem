@@ -583,7 +583,7 @@ static void CreateDrawingSheet(NXString& name, double len, double hei )
 	UF_DRAW_info_t drawing_info;
 	drawing_info.drawing_scale = 1.0;
 	drawing_info.units = UF_PART_METRIC;
-	drawing_info.projection_angle = UF_DRAW_FIRST_ANGLE_PROJECTION;
+	drawing_info.projection_angle = UF_DRAW_THIRD_ANGLE_PROJECTION;
 	drawing_info.size_state = UF_DRAW_METRIC_SIZE;
 	tag_t new_drawing_tag = NULL_TAG;
     drawing_info.size_state = UF_DRAW_CUSTOM_SIZE;

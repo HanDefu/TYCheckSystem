@@ -76,6 +76,10 @@ MENU CUSTOM_TY
     BITMAP check_mass
     ACTIONS TYCheckSystem.dll
 	
+    BUTTON CUSTOM_TY_EXPORT_DWG
+    LABEL 批量导出DWG
+    BITMAP restore_auto_text
+    ACTIONS TYCheckSystem.dll
 	
     BUTTON CUSTOM_TY_PRINT
     LABEL 批量打印
