@@ -367,7 +367,7 @@ int TYStandPart::apply_cb()
 					//参数化驱动
 					TYCOM_STD_parametrize_part( all_express, std_tag);
 				}
-                TYCOM_set_obj_attr(std_tag, "标准件分类", classall.GetText());
+                TYCOM_set_obj_attr(std_tag, "供应商分类", classall.GetText());
                 TYCOM_create_STD_attributes(std_tag,assoAttrNames,assoAttrValues);
                 UF_ASSEM_set_work_part(workPart->Tag());
 			}
@@ -383,7 +383,7 @@ int TYStandPart::apply_cb()
 			}
 
 			logical ispocket = false;
-			UI_LogicalGetValue(toggleSubtract, ispocket);
+			//UI_LogicalGetValue(toggleSubtract, ispocket);
 			if( ispocket )
 			{
                 std::vector<NXOpen::TaggedObject* > objects =  UI_GetSelectObjects(selectionPocketTargets);
@@ -406,9 +406,10 @@ int TYStandPart::apply_cb()
 			//wave link bodies and remove instance
 			vtag_t trueBodies;
 			tag_t body_waved = 0;
-			int num_true = Royal_ask_refset_objs("TRUE",std_occ,trueBodies);
+			//int num_true = Royal_ask_refset_objs("TRUE",std_occ,trueBodies);
+			TYCOM_GetPartSolidBodies(std_occ, trueBodies);
 			for (int i = 0; i < trueBodies.size(); i++)
-			    TYCOM_WaveLinkBody(trueBodies[i], workPart->Tag(), body_waved);
+			    TYCOM_WaveLinkBody(TYCOM_ask_occ_of_entity(trueBodies[i]), workPart->Tag(), body_waved);
 			UF_ASSEM_remove_instance(instance);
 			uc4561(desName,2);//remove the file
 		}
@@ -428,6 +429,8 @@ int TYStandPart::apply_cb()
 //------------------------------------------------------------------------------
 int TYStandPart::update_cb(NXOpen::BlockStyler::UIBlock* block)
 {
+	return 0;
+
 	try
 	{
 		if(block == stringKey)
@@ -641,11 +644,11 @@ int TYStandPart::update_cb(NXOpen::BlockStyler::UIBlock* block)
 			NXOpen::NXMatrix *matrix = coord_system->Orientation();
 
 			NXOpen::Matrix3x3 mx3 = matrix->Element();*/
-			if( m_previewIndex > 0 )
+			//if( m_previewIndex > 0 )
 			{
 				PrieviewAddSTD(m_previewIndex+1);
 			}
-			else
+			//else
 			{
 				m_previewIndex++;
 			}
@@ -832,12 +835,12 @@ void TYStandPart::SetStdDefaultName()
 
 void TYStandPart::PrieviewAddSTD( int updateflag )
 {
-	logical isPreview  = false;
+	/*logical isPreview  = false;
 	UI_LogicalGetValue(togglePreview,isPreview);
 	if( !isPreview || m_previewIndex < 1 )
 	{
 		return;
-	}
+	}*/
 	int errorCode = 0;
 	char stdName[133] = "";
 	NXString stdNameNXStr = stdPartName->GetProperties()->GetString("Value");
@@ -940,8 +943,15 @@ void TYStandPart::PrieviewAddSTD( int updateflag )
 				int err = UF_ASSEM_add_part_to_assembly(workPart->Tag(),desName,"TRUE",NULL,org,csys,-1,&instance,&error_status);
 				if(err)
 				{
-					UF_free_string_array(error_status.n_parts, error_status.file_names);
-					UF_free(error_status.statuses);
+					char msg[132] = "";
+					//err = UF_ASSEM_add_part_to_assembly(workPart->Tag(),desName,"Entire Part",NULL,org,csys,-1,&instance,&error_status);
+					err = UF_ASSEM_add_part_to_assembly(workPart->Tag(),desName,NULL,NULL,org,csys,-1,&instance,&error_status);
+					if (err)
+					{
+						UF_get_fail_message(err,msg);
+						UF_free_string_array(error_status.n_parts, error_status.file_names);
+						UF_free(error_status.statuses);
+					}
 					std_occ = NULL_TAG;
 				}
 				else

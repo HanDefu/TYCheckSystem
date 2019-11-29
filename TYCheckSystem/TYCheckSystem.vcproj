@@ -362,6 +362,14 @@
 				RelativePath=".\Entry.hpp"
 				>
 			</File>
+			<File
+				RelativePath=".\UI\TYTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\UI\TYTest.hpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="UI"

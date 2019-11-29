@@ -87,7 +87,7 @@ int StandardPartData::Load_Level_1_Data( const char* regFileFullName )
 	bool isOk = excel.Load(regFileFullName);
 	if( isOk )
 	{
-		BasicExcelWorksheet* sheet1 = excel.GetWorksheet(L"标准件分类");
+		BasicExcelWorksheet* sheet1 = excel.GetWorksheet(L"供应商分类");
 		if (sheet1)
 		{
 			m1_1_firstClassTypes.clear();
