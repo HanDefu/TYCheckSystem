@@ -11,6 +11,7 @@ typedef struct HoleRecord
 	double m_oriDia;
 	double m_newDia;
 	double m_depth;
+	double m_chenTouDia;
 }SHoleRecord;
 
 typedef std::vector<SHoleRecord> vSHoleRecord;
@@ -29,7 +30,7 @@ private:
 	TYHoleData();
 	~TYHoleData();
 public:
-	bool GetHole(double oriDia, double &newDia, double& depth);
+	bool GetHole(double oriDia, double &newDia, double& depth, double &chenTouDia);
 	int Read();
 public:
     vSHoleRecord m_holdRecords;

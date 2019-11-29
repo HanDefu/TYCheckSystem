@@ -16,6 +16,8 @@
 #ifndef TYHOLE_H_INCLUDED
 #define TYHOLE_H_INCLUDED
 
+#define  HOLE_TYPE_GeneralCounterbore //如果定义了这个表示沉头孔 威唐模式 否则若宇模式 简单孔
+
 //------------------------------------------------------------------------------
 //These includes are needed for the following template code
 //------------------------------------------------------------------------------

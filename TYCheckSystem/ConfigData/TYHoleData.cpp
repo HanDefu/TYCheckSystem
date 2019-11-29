@@ -17,7 +17,7 @@ TYHoleData::~TYHoleData()
 
 }
 
-bool TYHoleData::GetHole(double oriDia, double &newDia, double& depth)
+bool TYHoleData::GetHole(double oriDia, double &newDia, double& depth, double &chenTouDia)
 {
 	double ndia = 0;
 	logical found = false;
@@ -29,6 +29,7 @@ bool TYHoleData::GetHole(double oriDia, double &newDia, double& depth)
 			found = true;
 			newDia = m_holdRecords[i].m_newDia;
 			depth = m_holdRecords[i].m_depth;
+			chenTouDia =  m_holdRecords[i].m_chenTouDia;
 			break;
 		}
 	}
@@ -64,6 +65,8 @@ int TYHoleData::Read()
 		oneRecord.m_newDia = cel->GetDouble();
 		cel = sheet1->Cell(i,2);
 		oneRecord.m_depth = cel->GetDouble();
+		cel = sheet1->Cell(i,3);
+		oneRecord.m_chenTouDia = cel->GetDouble();
 		m_holdRecords.push_back(oneRecord);
 	}
 
