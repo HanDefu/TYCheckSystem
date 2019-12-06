@@ -57,7 +57,7 @@ extern "C" DllExport void  ufusr(char *param, int *retcod, int param_len)
 {
 	try
 	{
-#ifndef TY_DEBUG
+#ifndef TYCOM_DEBUG
 
 		TYRegister::Show_TYRegister();//×¢²á»úÏà¹Ø
 
