@@ -45,7 +45,7 @@ using namespace YExcel;
 using namespace NXOpen;
 using namespace NXOpen::BlockStyler;
 
-int CreateHoleBodyFace( Body *body1, const tag_t targetFace, bool manualDepth, double depthOri );
+int CreateHoleBodyFace( Body *body1, const tag_t targetFace, bool manualDepth, double depthOri, double chentouDepth );
 
 //------------------------------------------------------------------------------
 // Initialize static variables
@@ -146,6 +146,7 @@ void TYHole::initialize_cb()
 		groupHoleDepth = theDialog->TopBlock()->FindBlock("groupHoleDepth");
 		enumAuto = theDialog->TopBlock()->FindBlock("enumAuto");
 		doubleHoleDepth = theDialog->TopBlock()->FindBlock("doubleHoleDepth");
+		doubleChenTouDepth = theDialog->TopBlock()->FindBlock("doubleChenTouDepth");
 
 		UI_SetSeletSolidBody(selectionBody);
 	}
@@ -200,11 +201,14 @@ int TYHole::apply_cb()
 		int manualDepth = 0;
 		UI_EnumGetCurrentSel(enumAuto,manualDepth);
 
+		double depthChenTou = 0;
+		UI_DoubleGetValue(doubleChenTouDepth,depthChenTou);
+
 
 		for( int idx = 0; idx < bodyobjects.size(); ++idx )
 		{
 			Body *body1 = dynamic_cast<Body *>(bodyobjects[idx]);
-			int num = CreateHoleBodyFace(body1, faceobjects[0]->Tag(),(bool)manualDepth, depth);
+			int num = CreateHoleBodyFace(body1, faceobjects[0]->Tag(),(bool)manualDepth, depth,depthChenTou);
 		}
 	}
 	catch(exception& ex)
@@ -294,7 +298,7 @@ int TYHole::filter_cb(NXOpen::BlockStyler::UIBlock*  block, NXOpen::TaggedObject
 }
 
 //如果是简单孔 chenTouDia 直接给0 即可
-void CreateHolePoint( tag_t targetBody, double point[3], const Vector3d& vec,double diameter, double depth, double chenTouDia, bool isSimpleHole )
+void CreateHolePoint( tag_t targetBody, double point[3], const Vector3d& vec,double diameter, double depth, double chenTouDepth, double chenTouDia, bool isSimpleHole )
 {
     NXOpen::Session *theSession = NXOpen::Session::GetSession();
     NXOpen::Part *workPart(theSession->Parts()->Work());
@@ -321,6 +325,7 @@ void CreateHolePoint( tag_t targetBody, double point[3], const Vector3d& vec,dou
     char diastr[32]="";
 	char depthstr[32]="";
 	char chentoudiastr[32]="";
+	char chentoudepthstr[32] = "";
 
     sprintf_s(diastr,"%f",diameter);
 	//hdf 0222
@@ -328,6 +333,7 @@ void CreateHolePoint( tag_t targetBody, double point[3], const Vector3d& vec,dou
     //sprintf_s(depthstr,"%f",depth+distance);
     sprintf_s(depthstr,"%f",depth);
 	sprintf_s(chentoudiastr,"%f",chenTouDia);
+	sprintf_s(chentoudepthstr,"%f",chenTouDepth);
 
 	if (isSimpleHole)
 	{
@@ -339,7 +345,10 @@ void CreateHolePoint( tag_t targetBody, double point[3], const Vector3d& vec,dou
 	{
 		holePackageBuilder1->GeneralCounterboreDiameter()->SetRightHandSide(chentoudiastr);
 
-		holePackageBuilder1->GeneralCounterboreDepth()->SetRightHandSide("15");
+		if (chenTouDepth > 0.0254)
+			holePackageBuilder1->GeneralCounterboreDepth()->SetRightHandSide(chentoudepthstr);
+		else
+		    holePackageBuilder1->GeneralCounterboreDepth()->SetRightHandSide("15");
 
 		holePackageBuilder1->GeneralCounterboreHoleDiameter()->SetRightHandSide(diastr);
 
@@ -398,7 +407,7 @@ void CreateHolePoint( tag_t targetBody, double point[3], const Vector3d& vec,dou
     }
 }
 
-int CreateHoleBodyFace( Body *body1, const tag_t targetFace, bool bManualDepth, double depthManual )
+int CreateHoleBodyFace( Body *body1, const tag_t targetFace, bool bManualDepth, double depthManual, double depthChenTou )
 {
     if(NULL_TAG == targetFace || NULL ==  body1 )
         return 0;
@@ -532,7 +541,7 @@ int CreateHoleBodyFace( Body *body1, const tag_t targetFace, bool bManualDepth, 
 					vec.X *= -1;
 					vec.Y *= -1;
 					vec.Z *= -1;
-					CreateHolePoint(targetBody,point,vec,newdia,depth, chenTouDia, false);
+					CreateHolePoint(targetBody,point,vec,newdia,depth, depthChenTou, chenTouDia, false);
 				}
 			}
 			UF_MODL_delete_list(&edge_list);

@@ -140,6 +140,7 @@ private:
     NXOpen::BlockStyler::UIBlock* groupHoleDepth;// Block type: Group
     NXOpen::BlockStyler::UIBlock* enumAuto;// Block type: Enumeration
     NXOpen::BlockStyler::UIBlock* doubleHoleDepth;// Block type: Double
+	NXOpen::BlockStyler::UIBlock* doubleChenTouDepth;// Block type: Double
     
 };
 #endif //TYHOLE_H_INCLUDED
