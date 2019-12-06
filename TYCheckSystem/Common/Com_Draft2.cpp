@@ -1384,24 +1384,24 @@ static int GZ_SetDrawingNoteInformation( tag_t thisBody, tag_t group, double sca
 }
 
 //按照用户出bom的顺序排号 TY_ATTR_DRAWING_NO出bom时候会设置上去
-static  logical CompareBody(tag_t &body1, tag_t &body2)
+static  logical CompareBody2(tag_t &body1, tag_t &body2)
 {
 	NXString dwgno1, dwgno2;
 	TYCOM_GetObjectStringAttribute( body1 , TY_ATTR_DRAWING_NO , dwgno1);
 	TYCOM_GetObjectStringAttribute( body2 , TY_ATTR_DRAWING_NO , dwgno2);
 
-	if (dwgno1.getLocaleText() == 0 || dwgno2.getLocaleText() != 0)
+	if (dwgno1.GetText() == 0 && dwgno2.GetText() != 0)
 		return false;
 
-	if (dwgno1.getLocaleText() != 0 || dwgno2.getLocaleText() == 0)
+	if (dwgno1.GetText() != 0 && dwgno2.GetText() == 0)
 		return true;
 
-	if (dwgno1.getLocaleText() == 0 || dwgno2.getLocaleText() == 0)
+	if (dwgno1.GetText() == 0 && dwgno2.GetText() == 0)
 		return false;
 	
-	if (strlen(dwgno1.getLocaleText()) >0 && strlen(dwgno2.getLocaleText()) > 0)
+	if (strlen(dwgno1.GetText()) >0 && strlen(dwgno2.GetText()) > 0)
 	{
-		if (strcmp(dwgno1.getLocaleText(),dwgno2.getLocaleText()) >= 0)
+		if (strcmp(dwgno1.GetText(),dwgno2.GetText()) >= 0)
 		    return false;
 		return true;
 	}
@@ -1411,9 +1411,21 @@ static  logical CompareBody(tag_t &body1, tag_t &body2)
 
 static int SortBomBodies(vtag_t &bomBodies)
 {
-	std::sort(bomBodies.begin(),bomBodies.end(),CompareBody);   
+	std::sort(bomBodies.begin(),bomBodies.end(),CompareBody2);   
 	return 0;
 }
+
+ int MoveToDifferentLayers(vtag_t &allBodies)
+ {
+	 for (int i = 0; i < allBodies.size(); i++)
+	 {
+		 if (i > 250)
+			 continue;
+		 UF_OBJ_set_layer(allBodies[i], i+1);
+	 }
+
+	 return 0;
+ }
 
 int TY_AutoDrafting2(vtag_t &allBodies, NXString drawer)
 {
@@ -1436,7 +1448,10 @@ int TY_AutoDrafting2(vtag_t &allBodies, NXString drawer)
 		
 		//bodies排序
         SortBomBodies(allBodies);
-     
+        
+		//把实体分层-主要是为了用户在ug三维模型空间容易找到对应的对象
+        MoveToDifferentLayers(allBodies);
+
 	    vNXString refNames;
         for( int idx = 0; idx < allBodies.size(); ++idx )
         {
