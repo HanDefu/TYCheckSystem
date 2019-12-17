@@ -168,7 +168,24 @@ void TYStandPart::initialize_cb()
 		//UI_SetShow(groupAssembly,false);
 		
 		// Load a workbook with one sheet, display its contents and save into another file.
-		//const char *env_name = "UGII_USER_DIR";
+		//const char *env_name = "UGII_USER_DIR"
+	}
+	catch(exception& ex)
+	{
+		//---- Enter your exception handling code here -----
+		TYStandPart::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
+	}
+}
+
+//------------------------------------------------------------------------------
+//Callback Name: dialogShown_cb
+//This callback is executed just before the dialog launch. Thus any value set 
+//here will take precedence and dialog will be launched showing that value. 
+//------------------------------------------------------------------------------
+void TYStandPart::dialogShown_cb()
+{
+	try
+	{
 		const char *env_name = getenv("TY_DATA_DIR");
 		if( env_name != NULL )
 		{
@@ -215,24 +232,6 @@ void TYStandPart::initialize_cb()
 		{
 			TYStandPart::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, "Can not find ROYAL_STANDARD_DIR");
 		}
-	}
-	catch(exception& ex)
-	{
-		//---- Enter your exception handling code here -----
-		TYStandPart::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, ex.what());
-	}
-}
-
-//------------------------------------------------------------------------------
-//Callback Name: dialogShown_cb
-//This callback is executed just before the dialog launch. Thus any value set 
-//here will take precedence and dialog will be launched showing that value. 
-//------------------------------------------------------------------------------
-void TYStandPart::dialogShown_cb()
-{
-	try
-	{
-		
 	}
 	catch(exception& ex)
 	{
@@ -337,10 +336,11 @@ int TYStandPart::apply_cb()
 		else
 		{
 			StandardPartClonePart(stdModelFile.getText(), desName );
-			int err = UF_ASSEM_add_part_to_assembly(workPart->Tag(),desName,"TRUE",NULL,org,csys,-1,&instance,&error_status);
+			int err = UF_ASSEM_add_part_to_assembly(workPart->Tag(),desName,NULL,NULL,org,csys,-1,&instance,&error_status);
 			if(err)
 			{
 				char msg[132] = "";
+				UF_get_fail_message(err,msg);
 				//err = UF_ASSEM_add_part_to_assembly(workPart->Tag(),desName,"Entire Part",NULL,org,csys,-1,&instance,&error_status);
 				err = UF_ASSEM_add_part_to_assembly(workPart->Tag(),desName,NULL,NULL,org,csys,-1,&instance,&error_status);
                 if (err)
@@ -410,7 +410,9 @@ int TYStandPart::apply_cb()
 			TYCOM_GetPartSolidBodies(std_occ, trueBodies);
 			for (int i = 0; i < trueBodies.size(); i++)
 			    TYCOM_WaveLinkBody(TYCOM_ask_occ_of_entity(trueBodies[i]), workPart->Tag(), body_waved);
-			UF_ASSEM_remove_instance(instance);
+
+			UF_PART_close(TYCOM_Prototype(std_occ),0,1);//首先关闭part
+			UF_ASSEM_remove_instance(instance);//去除instance
 			uc4561(desName,2);//remove the file
 		}
         //UF_PART_save();
@@ -429,8 +431,6 @@ int TYStandPart::apply_cb()
 //------------------------------------------------------------------------------
 int TYStandPart::update_cb(NXOpen::BlockStyler::UIBlock* block)
 {
-	return 0;
-
 	try
 	{
 		if(block == stringKey)
@@ -601,10 +601,10 @@ int TYStandPart::update_cb(NXOpen::BlockStyler::UIBlock* block)
 			{
 				int paramidx = enumNoKeyinPara->GetProperties()->GetEnum("Value");
 				RoyStdData.SetSpecialParamIndex(paramidx);
-				int idx1 = 0;
-				UI_EnumSetCurrentSel(enumFirstName,idx1);
-				int idx2 = 0;
-				UI_EnumSetCurrentSel(enumSecondName,idx2);
+				//int idx1 = 0;
+				//UI_EnumSetCurrentSel(enumFirstName,idx1);
+				//int idx2 = 0;
+				//UI_EnumSetCurrentSel(enumSecondName,idx2);
 				int idx3 = UI_ListBox_GetSelectItem(listParts);
 				StlNXStringVector expressionNames = RoyStdData.GetCurrentExpNames();
 				StlNXStringVectorVector expValues = RoyStdData.GetCurrentExpValues();
@@ -646,7 +646,7 @@ int TYStandPart::update_cb(NXOpen::BlockStyler::UIBlock* block)
 			NXOpen::Matrix3x3 mx3 = matrix->Element();*/
 			//if( m_previewIndex > 0 )
 			{
-				PrieviewAddSTD(m_previewIndex+1);
+				//PrieviewAddSTD(m_previewIndex+1);
 			}
 			//else
 			{
@@ -835,6 +835,7 @@ void TYStandPart::SetStdDefaultName()
 
 void TYStandPart::PrieviewAddSTD( int updateflag )
 {
+	return ;
 	/*logical isPreview  = false;
 	UI_LogicalGetValue(togglePreview,isPreview);
 	if( !isPreview || m_previewIndex < 1 )

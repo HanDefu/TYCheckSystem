@@ -11,7 +11,7 @@
 using namespace std;
 using namespace NXOpen;
 
-#define SPECPARAMETER_OTHER_LINES 3
+#define SPECPARAMETER_OTHER_LINES 2//若宇这个是3行涉及是否重命名 目前我们的标准件用2即可
 
 
 struct standardName
