@@ -68,7 +68,7 @@ static void GetNewMatrix(tag_t edge1, tag_t edge2, tag_t face, double Matrix[9],
 static logical ROY_is_face_parallel_XYZ(tag_t face, int& xyz);
 static tag_t CreateLine( Point3d startpoint,Point3d endpoint );
 static tag_t CreateNoteText2(char* textStr,double textHei, Point3d coordinate1,Point3d coordinate2,double origin[3] /*角点*/, double csys_mtx[9]);
-
+static int CreateNoteText3(char* textStr,double textHei, Point3d coordinate1,Point3d coordinate2,double origin[3] /*角点*/, double csys_mtx[9]);
 //------------------------------------------------------------------------------
 // Initialize static variables
 //------------------------------------------------------------------------------
@@ -244,8 +244,12 @@ int TYBaiWeiXian::apply_cb()
 		UI_EnumGetCurrentSel(enumTextHeight,sel);
 		if (sel == 0)
 			txtHei = 5;
-		else
+		else if (sel == 1)
+			txtHei = 6;
+		else if (sel == 2)
 			txtHei = 8;
+		else if (sel == 3)
+			txtHei = 10;
 
 		double csys_mtx[9]={1,0,0,0,1,0,0,0,1};
 		std::vector<NXOpen::TaggedObject* > objects = UI_GetSelectObjects(edgeX);
@@ -467,24 +471,24 @@ int TYBaiWeiXian::apply_cb()
 			{
 				tag_t line = CreateLine(lineXStartMapped[idx],lineXEndMapped[idx]);
 				AddTagToVector(line,lineandText);
-				sprintf(str,"%0.0fX",lineXStart[idx].X);
-				tag_t text = CreateNoteText2(str,txtHei,lineXStartMapped[idx],lineXEndMapped[idx],originRectMapped,csys_mtx);
+				sprintf(str,"X%0.0f",lineXStart[idx].X);
+				tag_t text = CreateNoteText3(str,txtHei,lineXStartMapped[idx],lineXEndMapped[idx],originRectMapped,csys_mtx);
 				AddTagToVector(text,lineandText);
 			}
 			for( int idx = 0; idx < lineYStartMapped.size(); ++idx )
 			{
 				tag_t line = CreateLine(lineYStartMapped[idx],lineYEndMapped[idx]);
 				AddTagToVector(line,lineandText);
-				sprintf(str,"%0.0fY",lineYStart[idx].Y);
-				tag_t text = CreateNoteText2(str,txtHei,lineYStartMapped[idx],lineYEndMapped[idx],originRectMapped,csys_mtx);
+				sprintf(str,"Y%0.0f",lineYStart[idx].Y);
+				tag_t text = CreateNoteText3(str,txtHei,lineYStartMapped[idx],lineYEndMapped[idx],originRectMapped,csys_mtx);
 				AddTagToVector(text,lineandText);
 			}
 			for( int idx = 0; idx < lineZStartMapped.size(); ++idx )
 			{
 				tag_t line = CreateLine(lineZStartMapped[idx],lineZEndMapped[idx]);
 				AddTagToVector(line,lineandText);
-				sprintf(str,"%0.0fZ",lineZStart[idx].Z);
-				tag_t text = CreateNoteText2(str,txtHei,lineZStartMapped[idx],lineZEndMapped[idx],originRectMapped,csys_mtx);
+				sprintf(str,"Z%0.0f",lineZStart[idx].Z);
+				tag_t text = CreateNoteText3(str,txtHei,lineZStartMapped[idx],lineZEndMapped[idx],originRectMapped,csys_mtx);
 				AddTagToVector(text,lineandText);
 			}	
 			CreateReferenceSet(lineandText,NXString("MODEL"));
@@ -950,4 +954,88 @@ static void GetNewMatrix(tag_t edge1, tag_t edge2, tag_t face, double Matrix[9],
 	Matrix[6] = faceNormal[0];
 	Matrix[7] = faceNormal[1];
 	Matrix[8] = faceNormal[2];
+}
+
+
+static int CreateNoteText3(char* textStr,double textHei, Point3d coordinate1,Point3d coordinate2,double origin[3] /*角点*/, double csys_mtx[9])
+{
+	double pt1[3]={coordinate1.X, coordinate1.Y, coordinate1.Z};
+	double pt2[3]={coordinate2.X, coordinate2.Y, coordinate2.Z};
+	double dist1 = 0,dist2 = 0;
+	UF_VEC3_distance(pt1,origin,&dist1);
+	UF_VEC3_distance(pt2,origin,&dist2);
+
+	int isPara = 0;
+	double vecX[3] = {1,0,0},mag=0;
+	double vecMapped[3] = {0};
+	double vec[3]={coordinate2.X-coordinate1.X,coordinate2.Y-coordinate1.Y,coordinate2.Z-coordinate1.Z};
+
+
+	NXOpen::Point3d txtPoint(coordinate1.X, coordinate1.Y, coordinate1.Z); 
+	if( dist1 > dist2 )
+	{
+		txtPoint.X = coordinate2.X;
+		txtPoint.Y = coordinate2.Y;
+		txtPoint.Z = coordinate2.Z;
+		vec[0]=coordinate1.X-coordinate2.X;
+		vec[1]=coordinate1.Y-coordinate2.Y;
+		vec[2]=coordinate1.Z-coordinate2.Z;
+	}
+	UF_CSYS_map_point(UF_CSYS_ROOT_COORDS ,vecX,UF_CSYS_WORK_COORDS,vecMapped);
+
+	UF_VEC3_unitize(vec,0.0254,&mag,vec);
+	UF_VEC3_is_parallel(csys_mtx,vec,0.0254,&isPara);
+
+	double angle = 0;
+	if( 0 == isPara )//所画的直线平行于X 垂直于Y轴
+	{
+		int isY = 0;
+		angle = 90; // Y dir mark, x-5, y+5
+		UF_VEC3_is_equal(csys_mtx+3,vec,0.0254,&isY);
+		txtPoint.X=txtPoint.X-csys_mtx[0]*15;
+		txtPoint.Y=txtPoint.Y-csys_mtx[1]*15;
+		txtPoint.Z=txtPoint.Z-csys_mtx[2]*15;
+		if( 1 == isY ) // +Y dir
+		{
+			txtPoint.X=txtPoint.X+csys_mtx[3]*10;
+			txtPoint.Y=txtPoint.Y+csys_mtx[4]*10;
+			txtPoint.Z=txtPoint.Z+csys_mtx[5]*10;
+		}
+		else
+		{
+			txtPoint.X=txtPoint.X-csys_mtx[3]*10;
+			txtPoint.Y=txtPoint.Y-csys_mtx[4]*10;
+			txtPoint.Z=txtPoint.Z-csys_mtx[5]*10;
+		}
+	}
+	else  // 所画的直线平行于Y 垂直于X轴
+	{
+		int isX;
+		UF_VEC3_is_equal(csys_mtx,vec,0.0254,&isX);
+		if( 1 == isX ) //  直线平行于Y， 起点到终点为X+方向
+		{
+			// x+5 y+5
+			txtPoint.X=txtPoint.X+csys_mtx[0]*20;
+			txtPoint.Y=txtPoint.Y+csys_mtx[1]*20;
+			txtPoint.Z=txtPoint.Z+csys_mtx[2]*20;
+		}
+		else//直线平行于Y， 起点到终点为X-方向
+		{
+			// x-5 y+5
+			txtPoint.X=txtPoint.X-csys_mtx[0]*20;
+			txtPoint.Y=txtPoint.Y-csys_mtx[1]*20;
+			txtPoint.Z=txtPoint.Z-csys_mtx[2]*20;
+		}
+		txtPoint.X=txtPoint.X+csys_mtx[3]*5;
+		txtPoint.Y=txtPoint.Y+csys_mtx[4]*5;
+		txtPoint.Z=txtPoint.Z+csys_mtx[5]*5;
+	}
+    
+ 
+	double basePnt[3] = {txtPoint.X, txtPoint.Y, txtPoint.Z};
+    //UF_OBJ_set_color(text,186);
+	TYText_Main2_ForBaiKeXian(textStr, basePnt, csys_mtx,textHei);
+
+    return 0;
+
 }

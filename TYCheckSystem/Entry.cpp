@@ -44,6 +44,7 @@
 #include "UI\TYExport3D.hpp"
 #include "UI\TYExportDwg.hpp"
 #include "UI\TYTest.hpp"
+#include "ui\TYTextPre.hpp"
 
 using namespace NXOpen;
 
@@ -120,6 +121,7 @@ extern "C" DllExport void  ufusr(char *param, int *retcod, int param_len)
 		if(strcmp(param, "CUSTOM_TY_BAIKEXIAN") == 0)//°Ù¿ÌÏß
 		{
 			TYBaiWeiXian::Show_TYBaiWeiXian();
+			//TYTEXT_PRE_Main();
 		}
 
 		if(strcmp(param, "CUSTOM_TY_CHECK_XUANKONG") == 0)//Ðü¿Õ¼ì²â

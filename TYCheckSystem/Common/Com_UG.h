@@ -297,6 +297,10 @@ int TYCOM_Plot_Single
  char * printer//"Canon MG7700 series Printer WS"
  );
 
+
+int TYText_Main(tag_t sel_face, double base_pt[3], char str[133], double scale, double depth, int style_flag, bool extrude);
+int TYText_Main2_ForBaiKeXian(char str[133], double base_pt[3], double dest_csys[6],double height);
+
 //
 void TYCOM_ExportSheetToAcadDwg(const char* prtFileName, const char* dwgFilename, NXString& drawingName );
 /*

@@ -504,6 +504,14 @@
 				RelativePath=".\UI\TYTextMark.hpp"
 				>
 			</File>
+			<File
+				RelativePath=".\UI\TYTextPre.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\UI\TYTextPre.hpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Common"

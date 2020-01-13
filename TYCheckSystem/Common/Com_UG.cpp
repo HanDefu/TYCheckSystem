@@ -121,6 +121,7 @@
 #include <NXOpen/SelectDisplayableObject.hxx>
 #include <NXOpen/NXTo2dCreator.hxx>
 #include <NXOpen/DexManager.hxx>
+#include <uf_trns.h>
 
 using namespace NXOpen;
 using namespace std;
@@ -4571,5 +4572,693 @@ void SetWCSToABS()
 	matrix1.Zy = 0.0;
 	matrix1.Zz = 1.0;
 	workPart->WCS()->SetOriginAndMatrix(origin1, matrix1);
+}
 
+
+//------------------------------刻字专用------------------------//
+/************************************************************************/
+/*funtion name: Calculate_face_point_cys                                */
+/*Description:  由一个法向计算得到一个Z向与法向平行的坐标系             */
+/*Input:        normal 法向                                             */
+/*Output:       csys   坐标系                                           */
+/*Return:       0，1                                                    */
+/************************************************************************/
+static int create_csys_two_vecs(double vec1[3],double vec2[3],double dest_csys[6] )
+{
+	dest_csys[0] = vec1[0];
+	dest_csys[1] = vec1[1];
+	dest_csys[2] = vec1[2];
+	dest_csys[3] = vec2[0];
+	dest_csys[4] = vec2[1];
+	dest_csys[5] = vec2[2];
+	return 0;
+}
+
+extern int Calculate_face_point_cys(double normal[3], double csys[6])
+{
+	double vec_x[3] = {1,0,0};
+	double vec_y[3] = {0,1,0};
+	double vec_z[3] = {0,0,1};
+	double tolerance = 0.0001;
+	double temp_vec[3];
+	int    isparallel;
+	UF_VEC3_is_parallel(normal,vec_x,tolerance,&isparallel);
+	if (isparallel)
+	{
+		UF_VEC3_cross(normal,vec_y,temp_vec);
+		create_csys_two_vecs(vec_y,temp_vec,csys);
+		return 0;
+
+	}
+	UF_VEC3_is_parallel(normal,vec_y,tolerance,&isparallel);
+	if (isparallel)
+	{
+		UF_VEC3_cross(normal,vec_x,temp_vec);
+		create_csys_two_vecs(vec_x,temp_vec,csys);
+		return 0;
+
+	}
+	UF_VEC3_is_parallel(normal,vec_z,tolerance,&isparallel);
+	if (isparallel)
+	{
+		UF_VEC3_cross(normal,vec_x,temp_vec);
+		create_csys_two_vecs(vec_x,temp_vec,csys);
+		return 0;
+
+	}
+	if ( normal[0]*normal[1]*normal[2] !=0.0 )//法矢中元素都不为0
+	{
+		double mag;
+		vec_x[0] = 1;
+		vec_x[1] = 0;
+		vec_x[2] = (-1)*normal[0]/normal[2];
+		UF_VEC3_cross(normal,vec_x,temp_vec);
+		UF_VEC3_unitize(vec_x,tolerance/100,&mag,vec_x);
+		UF_VEC3_unitize(temp_vec,tolerance/100,&mag,temp_vec);
+		create_csys_two_vecs(vec_x,temp_vec,csys);
+		return 0;
+	}
+	else                                    //法矢中元素只有一个为0
+	{
+		double mag;
+		if (normal[0] == 0.0)
+		{
+			UF_VEC3_cross(normal,vec_x,temp_vec);
+			UF_VEC3_unitize(temp_vec,tolerance/100,&mag,temp_vec);
+			create_csys_two_vecs(vec_x,temp_vec,csys);
+			return 0;
+		}
+		if (normal[1] == 0.0)
+		{
+			UF_VEC3_cross(normal,vec_y,temp_vec);
+			UF_VEC3_unitize(temp_vec,tolerance/100,&mag,temp_vec);
+			create_csys_two_vecs(vec_y,temp_vec,csys);
+			return 0;
+		}
+		if (normal[2] == 0.0)
+		{
+			UF_VEC3_cross(normal,vec_z,temp_vec);
+			UF_VEC3_unitize(temp_vec,tolerance/100,&mag,temp_vec);
+			create_csys_two_vecs(vec_z,temp_vec,csys);
+			return 0;
+		}
+	}
+	return 0;
+}
+
+
+/****************************************************************************************************/
+/****************************************************************************************************/
+extern int USER_SPLIT_string_by_sign(char *string,char *sign,char **outstrings,int *num)
+{
+	char *pstring=NULL;
+	int j=0;
+
+	pstring=strtok(string,sign);
+	while(pstring)
+	{
+		outstrings[j]=pstring;
+		pstring=strtok(NULL,sign);
+		j++;
+	}
+	*num=j;
+	return 0;
+}
+
+/*******************************************************************************************************
+*******************************************************************************************************/
+void USER_ROTATE_CURUE_INXY(tag_t *curve, double *rotate_angle)
+{
+	double rotate_origin[3] ={0, 0, 0};
+	double rotate_dir[3] = {0, 0, 1};
+	double mtx[16];
+	int status1;
+	int status2;
+	int obj_num = 1;
+	int move_flag = 1;
+	int dest_layer = -1;
+	int curve_off = 2;
+	/*char msg[133];*/
+	FTN(uf5945)(rotate_origin, rotate_dir, rotate_angle, mtx, &status1);
+	//	sprintf(msg,"status1 is %d", status1);
+	//	uc1601(msg, 1);
+
+	FTN(uf5947)(mtx, curve, &obj_num, &move_flag, &dest_layer, &curve_off, NULL_TAG, NULL_TAG, &status2);
+	//	sprintf(msg,"status2 is %d", status2);
+	//	uc1601(msg, 1);
+}
+
+/************************************************************************/
+/* SINO文件名获取相关  by wgw 2008.3.29                                                                   */
+/************************************************************************/
+extern int GetStampLetters(char *FullPath,int Type,char *StampName)
+{
+	char modstr[MAX_FSPEC_SIZE+1],prtstr[MAX_FSPEC_SIZE+1];
+	char PartName[MAX_FSPEC_SIZE+1];
+	char *p1,*p2;
+	strcpy(PartName,FullPath);
+	p2 = p1 = strstr(PartName,"\\3D\\");
+	if (!p1)
+	{
+		p2 = p1 = strstr(PartName,"\\3d\\");
+	}
+	if (p1)
+	{
+		strcpy(prtstr,p1+4);
+		p1 = strstr(prtstr,"-");
+		if (!p1)
+		{
+			p1 = strstr(prtstr,"_");
+			if (!p1)
+			{
+				p1 = strstr(prtstr,".prt");
+			}
+
+		}
+		*p1 = '\0';
+		*p2 = '\0';
+		while ((*p2)!='\\')
+		{
+			p2--;
+		}
+		strcpy(modstr,p2+1);
+		if (Type == 0)
+		{
+			strcpy(StampName,prtstr);
+			return 0;
+		}
+		else if (Type == 1)
+		{
+			strcpy(StampName,modstr);
+			strcat(StampName,"-");
+			strcat(StampName,prtstr);
+			return 0;
+		}
+		else 
+			return 0;
+	}
+	return 1;
+
+}
+/************************************************************************/
+/*funtion name: CreateStampStr                                          */
+/*Description:  创建字码槽中的字符实体                                  */
+/*Input:        str 需刻字的字符  depth 字符深度   scale字体大小        */
+/*              spacedist  字符间距    angle  字符与X方向角度           */
+/*              taper_angle  字符拉伸拔模角    type 字码槽类型          */
+/*Output:                                                               */
+/*Return:       0，1                                                    */
+/************************************************************************/
+int CreateStampStr(char *str,double depth, double scale, double spacedist,double angle, double taper_angle,int type, bool bExtrude)
+{
+	char *p_env;
+	char txt_path[133],txt_name[133],str_tem[1000],scale_factor[255];
+	char taper[32];
+	FILE *fp;
+	int  i,k=0,l=0,length,step,list_count;
+	double dep,point[3];
+	double direction[3]={0.0,0.0,-1.0};
+	uf_list_p_t spline_line_list,features;
+	char str_depth[32];
+	char *limits[2];
+	tag_t feature_eid,target_body = NULL_TAG;
+	tag_t tmp_body, tmp_feat;
+	double offsetx;
+
+	p_env=getenv("UGII_USER_DIR");
+	sprintf(txt_path,"%s\\data",p_env);
+	length = strlen(str);
+	if (type == 0 && length>2)
+	{
+		int i;
+		for (i=0;i<length-2;i++)
+		{
+			scale/=1.25;
+		}
+	}
+	offsetx = -(length-1)*spacedist/2;
+	for (i=0;i<length;i++)
+	{
+		char tem[32]="";
+		int num_line;
+		int num_spline;
+		tag_t line[1200];
+		tag_t spline[1200]; 
+
+		tem[0]=str[i];
+		if(str[i] == '*')   //特殊字符(*和/)的处理
+		{
+			tem[0]='#';
+		}
+		if(str[i] == '/')
+		{
+			tem[0]='&';
+		}
+		sprintf(txt_name,"%s\\%s.txt",txt_path,tem);
+		fp=fopen(txt_name,"r"); 
+		if (fp==NULL)
+		{
+			uc1601("字符库中缺少相应的字符",1);
+			return 1;
+		}
+
+		do 
+		{
+			fgets(str_tem,1000,fp);
+
+			if (str_tem[0]=='3')
+			{
+				int num,j;
+				char *p[3];
+				int num1[15];
+				char *p1[5][15];
+				UF_CURVE_line_t line_coords;
+
+				USER_SPLIT_string_by_sign(str_tem,"/",p,&num);
+
+				for (j=1;j<num;j++) 
+				{
+					USER_SPLIT_string_by_sign(p[j],",",p1[j],&num1[j]);
+				}
+				line_coords.start_point[0]=atof(p1[1][0])+i*spacedist+offsetx;
+				line_coords.start_point[1]=atof(p1[1][1])-5;
+				line_coords.start_point[2]=atof(p1[1][2]);
+				line_coords.end_point[0]=atof(p1[2][0])+i*spacedist+offsetx;
+				line_coords.end_point[1]=atof(p1[2][1])-5;
+				line_coords.end_point[2]=atof(p1[2][2]);
+
+				UF_CALL(UF_CURVE_create_line(&line_coords,&line[k]));
+				USER_ROTATE_CURUE_INXY(&line[k], &angle);
+				UF_CALL(UF_OBJ_set_layer(line[k],251));
+				k++;
+			}
+			else if(str_tem[0]=='9')
+			{ 
+				int num,j,m,n;
+				char *p[4];
+				int num2[15];
+				char *p2[5][16];
+				UF_CURVE_spline_t spline_data; 
+
+				int num_states; 
+				UF_CURVE_state_p_t states;
+				double tem_knots[133];
+				double tem_poles[32][4];
+
+				USER_SPLIT_string_by_sign(str_tem,"/",p,&num);
+
+				for (j=1;j<num;j++) 
+				{
+					USER_SPLIT_string_by_sign(p[j],",",p2[j],&num2[j]);
+				}
+				spline_data.num_poles=atoi(p2[1][0]);
+				spline_data.order=atoi(p2[1][1]);
+				spline_data.is_rational=atoi(p2[1][2]);
+				spline_data.start_param=atof(p2[1][3]);
+				spline_data.end_param=atof(p2[1][4]);
+				for (m=0;m<num2[2];m++)
+				{
+					tem_knots[m]=atof(p2[2][m]);
+				}
+				spline_data.knots=tem_knots;
+
+				for (n=0;n<(num2[3]/4);n++)
+				{  
+					int r;
+					for (r=2;r<4;r++)
+					{
+						tem_poles[n][r]=atof(p2[3][n*4+r]);
+					}
+					tem_poles[n][0]=atof(p2[3][n*4])+i*spacedist+offsetx;
+					tem_poles[n][1]=atof(p2[3][n*4+1])-5;
+				}
+				spline_data.poles=tem_poles;
+
+				UF_CALL(UF_CURVE_create_spline(&spline_data,&spline[l],&num_states,&states));
+				USER_ROTATE_CURUE_INXY(&spline[l], &angle);
+				UF_CALL(UF_OBJ_set_layer(spline[l],251));
+				l++;
+			}
+
+			str_tem[0]=0;
+
+		} while(!feof(fp));
+
+		UF_MODL_create_list(&spline_line_list);
+		for (num_line=0;num_line<k;num_line++)
+		{
+			UF_MODL_put_list_item(spline_line_list,line[num_line]);
+		}
+		for (num_spline=0;num_spline<l;num_spline++)
+		{
+			UF_MODL_put_list_item(spline_line_list,spline[num_spline]);
+		}
+		sprintf(scale_factor,"%f",(scale*3/10));
+		dep=(depth+0.5)/(scale*3/10);
+		sprintf(str_depth,"%f",dep);
+		sprintf(taper,"%f",taper_angle);
+
+		limits[0]="0.0";
+		limits[1]=str_depth;
+
+		//是否拉伸开槽
+		if (bExtrude)
+		{
+			UF_MODL_create_extruded1(spline_line_list,taper,limits,point,direction,UF_NULLSIGN,target_body,&features);
+
+			UF_MODL_ask_list_item(features, 0, &tmp_feat);
+			UF_MODL_ask_feat_body(tmp_feat,&tmp_body);
+
+			UF_CALL(UF_MODL_create_uniform_scale(tmp_body,UF_CSYS_WORK_COORDS,scale_factor,&feature_eid)) ;
+			UF_OBJ_set_name(tmp_body,"carve_char");
+
+			UF_MODL_ask_list_count(spline_line_list,&list_count);
+			for(step = 0; step < list_count; step++)
+			{
+				UF_MODL_ask_list_item(spline_line_list, step, &tmp_feat);
+				UF_OBJ_set_blank_status(tmp_feat, UF_OBJ_BLANKED);
+			}
+
+			UF_MODL_delete_list(&spline_line_list);
+		}
+		
+		k=0;
+		l=0;
+
+	}//end for
+	return 0;
+}
+
+// str 字体内容
+//scale 字体大小
+//depth 字体深度
+//style_flag 字符槽格式
+int TYText_Main(tag_t sel_face, double base_pt[3], char str[133], double scale, double depth, int style_flag, bool bExtrude)
+{
+	int length;
+	char *p_env;
+	double X = 3,Y = 6;//线距A和B
+	double direction[3]={0.0,0.0,1.0};
+	double direction2[3]={0.0,0.0,-1.0};
+
+	char new_part[133];
+	tag_t new_part_tag,display_part;
+	UF_import_part_modes_t modes;
+	double dest_csys[6]={1,0,0,0,1,0};
+	double dest_point[3]={0,0,0};
+	tag_t group;
+
+	tag_t lineA,lineB;
+	int  face_type;
+	double face_point[3]; 
+	double dir[3];
+	double box[6];
+	double radius; 
+	double rad_data;
+	int  norm_dir;
+	tag_t body_obj_id;
+	int num_result;
+	tag_t * resulting_bodies;
+	tag_t tool_tag = NULL_TAG;
+	int n;
+	double intersectpoint[3];
+	UF_UNDO_mark_id_t mark_id;
+	tag_t loc_face;
+	double size,spacedist=10;
+	int ret;
+
+	length = strlen(str);
+	scale/=3.0;
+	if (sel_face == NULL_TAG)
+		return -1;
+	else
+	{
+		UF_MODL_ask_face_body (sel_face, &body_obj_id );
+		//uc1601("point",1);
+		UF_MODL_ask_face_data (sel_face,&face_type,face_point,dir,box,&radius,&rad_data,&norm_dir );
+		Calculate_face_point_cys(dir, dest_csys);
+		for(n = 0; n < 3; n++)
+		{
+			intersectpoint[n] = base_pt[n];
+		}
+	}
+
+
+	p_env=getenv("UGII_USER_DIR");
+	display_part=UF_PART_ask_display_part();
+	sprintf(new_part,"%s\\application\\tem.prt",p_env);
+	UF_PART_new(new_part,1,&new_part_tag);
+	UF_PART_set_display_part(new_part_tag);
+
+	if (style_flag==0)
+	{
+		size = 6;
+		spacedist = 8;
+		if (length > 2)
+		{
+			spacedist = 7;
+		}
+	}
+	else if (style_flag==1)
+	{
+		size = (length-2)*3+2;
+	}
+	UF_CALL(CreateStampStr(str,depth,scale,spacedist,0,0,style_flag,false));
+
+	UF_PART_save();
+
+	UF_PART_set_display_part(display_part);
+
+	//	UF_CURVE_create_point(intersectpoint,&test);
+
+	modes.layer_mode=1;
+	modes.group_mode=0;
+	modes.csys_mode=0;
+	modes.plist_mode=0;
+	modes.view_mode=0;
+	modes.cam_mode=false;
+	modes.use_search_dirs=false;
+	UF_CALL( UF_PART_import(new_part,&modes,dest_csys,intersectpoint,1.0,&group));
+
+	if(bExtrude)
+	{
+		UF_OBJ_cycle_by_name("carve_char", &tool_tag);
+		while (tool_tag != NULL_TAG)
+		{
+			UF_MODL_subtract_bodies (body_obj_id, tool_tag, &num_result, &resulting_bodies ); 
+			UF_OBJ_cycle_by_name("carve_char", &tool_tag);
+		}
+	}
+	
+
+	UF_PART_close(new_part_tag,0,1);
+	uc4561(new_part,2);
+	sel_face = NULL_TAG;
+
+    return 0;
+}
+
+
+
+
+
+/*-----------------------------------------------改造版-------------------------*/
+/************************************************************************/
+/*funtion name: CreateStampStr                                          */
+/*Description:  创建字码槽中的字符实体                                  */
+/*Input:        str 需刻字的字符  depth 字符深度   scale字体大小        */
+/*              spacedist  字符间距    angle  字符与X方向角度           */
+/*              taper_angle  字符拉伸拔模角        */
+/*Output:                                                               */
+/*Return:       0，1                                                    */
+/************************************************************************/
+static int CreateStampStr2(char *str, double spacedist)
+{
+	double angle = 0;
+	double taper_angle = 0;
+	char *p_env = 0;
+	char txt_path[133],txt_name[133],str_tem[1000],scale_factor[255];
+	char taper[32];
+	FILE *fp;
+	int  i,k=0,l=0,length,step,list_count;
+	double dep,point[3];
+	double direction[3]={0.0,0.0,-1.0};
+	uf_list_p_t spline_line_list,features;
+	tag_t feature_eid,target_body = NULL_TAG;
+	tag_t tmp_body, tmp_feat;
+	double offsetx;
+
+	p_env=getenv("UGII_USER_DIR");
+	sprintf(txt_path,"%s\\data",p_env);
+	length = strlen(str);
+
+	offsetx = -(length-1)*spacedist/2;
+	for (i=0;i<length;i++)
+	{
+		char tem[32]="";
+		int num_line;
+		int num_spline;
+		tag_t line[1200];
+		tag_t spline[1200]; 
+
+		tem[0]=str[i];
+		if(str[i] == '*')   //特殊字符(*和/)的处理
+		{
+			tem[0]='#';
+		}
+		if(str[i] == '/')
+		{
+			tem[0]='&';
+		}
+		sprintf(txt_name,"%s\\%s.txt",txt_path,tem);
+		fp=fopen(txt_name,"r"); 
+		if (fp==NULL)
+		{
+			uc1601("字符库中缺少相应的字符",1);
+			return 1;
+		}
+
+		do 
+		{
+			fgets(str_tem,1000,fp);
+
+			if (str_tem[0]=='3')
+			{
+				int num,j;
+				char *p[3];
+				int num1[15];
+				char *p1[5][15];
+				UF_CURVE_line_t line_coords;
+
+				USER_SPLIT_string_by_sign(str_tem,"/",p,&num);
+
+				for (j=1;j<num;j++) 
+				{
+					USER_SPLIT_string_by_sign(p[j],",",p1[j],&num1[j]);
+				}
+				line_coords.start_point[0]=atof(p1[1][0])+i*spacedist+offsetx;
+				line_coords.start_point[1]=atof(p1[1][1])-5;
+				line_coords.start_point[2]=atof(p1[1][2]);
+				line_coords.end_point[0]=atof(p1[2][0])+i*spacedist+offsetx;
+				line_coords.end_point[1]=atof(p1[2][1])-5;
+				line_coords.end_point[2]=atof(p1[2][2]);
+
+				UF_CALL(UF_CURVE_create_line(&line_coords,&line[k]));
+				USER_ROTATE_CURUE_INXY(&line[k], &angle);
+				UF_CALL(UF_OBJ_set_layer(line[k],251));
+				k++;
+			}
+			else if(str_tem[0]=='9')
+			{ 
+				int num,j,m,n;
+				char *p[4];
+				int num2[15];
+				char *p2[5][16];
+				UF_CURVE_spline_t spline_data; 
+
+				int num_states; 
+				UF_CURVE_state_p_t states;
+				double tem_knots[133];
+				double tem_poles[32][4];
+
+				USER_SPLIT_string_by_sign(str_tem,"/",p,&num);
+
+				for (j=1;j<num;j++) 
+				{
+					USER_SPLIT_string_by_sign(p[j],",",p2[j],&num2[j]);
+				}
+				spline_data.num_poles=atoi(p2[1][0]);
+				spline_data.order=atoi(p2[1][1]);
+				spline_data.is_rational=atoi(p2[1][2]);
+				spline_data.start_param=atof(p2[1][3]);
+				spline_data.end_param=atof(p2[1][4]);
+				for (m=0;m<num2[2];m++)
+				{
+					tem_knots[m]=atof(p2[2][m]);
+				}
+				spline_data.knots=tem_knots;
+
+				for (n=0;n<(num2[3]/4);n++)
+				{  
+					int r;
+					for (r=2;r<4;r++)
+					{
+						tem_poles[n][r]=atof(p2[3][n*4+r]);
+					}
+					tem_poles[n][0]=atof(p2[3][n*4])+i*spacedist+offsetx;
+					tem_poles[n][1]=atof(p2[3][n*4+1])-5;
+				}
+				spline_data.poles=tem_poles;
+
+				UF_CALL(UF_CURVE_create_spline(&spline_data,&spline[l],&num_states,&states));
+				USER_ROTATE_CURUE_INXY(&spline[l], &angle);
+				UF_CALL(UF_OBJ_set_layer(spline[l],251));
+				l++;
+			}
+
+			str_tem[0]=0;
+
+		} while(!feof(fp));
+
+		UF_MODL_create_list(&spline_line_list);
+		for (num_line=0;num_line<k;num_line++)
+		{
+			UF_MODL_put_list_item(spline_line_list,line[num_line]);
+		}
+		for (num_spline=0;num_spline<l;num_spline++)
+		{
+			UF_MODL_put_list_item(spline_line_list,spline[num_spline]);
+		}
+
+		k=0;
+		l=0;
+
+	}//end for
+	return 0;
+}
+
+// str 字体内容
+//scale 字体大小
+//depth 字体深度
+//style_flag 字符槽格式   TYText_Main(faces[0], base_pt, "ABC-123.6", 1, 1, 1,false);
+int TYText_Main2_ForBaiKeXian(char str[133], double base_pt[3], double dest_csys[6],double height)
+{
+	char new_part_name[133] = "\0";
+	tag_t new_part_tag = 0,display_part = 0;
+	UF_import_part_modes_t modes;
+	tag_t group;
+	
+	int ret = 0;
+	double size,spacedist=10;
+	int length = strlen(str);
+
+	char *p_env=getenv("UGII_USER_DIR");
+	display_part=UF_PART_ask_display_part();
+	sprintf(new_part_name,"%s\\application\\tem.prt",p_env);
+	UF_PART_new(new_part_name,1,&new_part_tag);
+	UF_PART_set_display_part(new_part_tag);
+
+	size = (length-2)*3+2;
+	UF_CALL(CreateStampStr2(str,spacedist));
+
+	UF_PART_save();
+
+	UF_PART_set_display_part(display_part);
+
+	modes.layer_mode=1;
+	modes.group_mode=0;
+	modes.csys_mode=0;
+	modes.plist_mode=0;
+	modes.view_mode=0;
+	modes.cam_mode=false;
+	modes.use_search_dirs=false;
+
+	//默认高度是10.0 
+	UF_CALL( UF_PART_import(new_part_name,&modes,dest_csys,base_pt,height/10.0,&group));
+
+
+	UF_PART_close(new_part_tag,0,1);
+	uc4561(new_part_name,2);
+
+	return 0;
 }
