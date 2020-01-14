@@ -1345,3 +1345,64 @@ double TY_MIN(double a, double b)
 		return b;
 	return a;
 }
+
+#define  CHECK_USE_NUM_1 4300
+
+static bool CHECKUSE1()
+{
+	char filename[256] = "";
+	::GetTempPathA(256, filename);
+	//WCHAR wfilename[256] =L"";
+	//::GetTempPathW(256,wfilename);
+
+	//char filename = "C:\\Documents and Settings\\Administrator\\Local Settings\\Temp\\adxrt.txt";
+	//WCHAR *wfilename = L"filename";
+
+	strcat(filename, "~2ducfd77e99844plde~ni3cddb163b1");
+	//wcscat(wfilename,L"~2ducfd77e99844plde~ni3cddb163b");
+	BOOL isexist = ExistFile(filename);
+	FILE *m_file;
+	if(!isexist)
+	{
+		m_file = fopen(filename,"w");
+		//fgets(data, 256, m_file);
+		fputs("1",m_file);
+	}
+	else
+	{
+		SetFileAttributesA(filename,FILE_ATTRIBUTE_NORMAL);
+		char data[256];
+		m_file = fopen(filename,"r");
+		fgets(data, 256, m_file);
+		int a = atoi(data);
+		if(a > CHECK_USE_NUM_1) return false;
+		fclose(m_file);
+
+		m_file = fopen(filename,"w");
+		data[0] = 0;
+		sprintf(data,"%d",a+1);
+		fputs(data,m_file);  
+	}
+	fclose(m_file);
+	SetFileAttributesA(filename,FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM);
+	return true;
+}
+
+#include <atltime.h>
+bool checkuse()
+{
+	CTime tm = CTime::GetCurrentTime();
+	CTime tm1(2020,10,1,0,0,0,-1);
+	if (tm > tm1)
+	{
+		return FALSE;
+	}//暂时限制使用时间为2010,9,30,
+	else
+
+	if (!CHECKUSE1())
+	{
+		return false;
+	}
+	
+	return true;
+}
