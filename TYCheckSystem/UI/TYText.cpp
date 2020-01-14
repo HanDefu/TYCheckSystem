@@ -278,7 +278,7 @@ int TYText::apply_cb()
 		int sel = 0;
 		UI_EnumGetCurrentSel(enumTextType,sel);
 
-		ret = ImportText(str1, str2, sel == 0 || sel == 2 || sel == 4, ret < 3, group,pntOri,pntX,pntY);
+		ret = ImportText(str1, str2, sel == 0 || sel == 2 || sel == 4, sel <= 3, group,pntOri,pntX,pntY);
 		if(ret != 0)
 		{
 			TYText::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, "导入文字失败");
@@ -315,7 +315,7 @@ int TYText::apply_cb()
 			NXOpen::Point3d pntYM(mirrorPntY[0],mirrorPntY[1],mirrorPntY[2]);
 
 			tag_t groupM = 0;
-			int ret = ImportText(str1, str2, sel == 0 || sel == 2 || sel == 4, ret < 3,  groupM,pntOriM,pntXM,pntYM);
+			ret = ImportText(str1, str2, sel == 0 || sel == 2 || sel == 4, sel <= 3,  groupM,pntOriM,pntXM,pntYM);
 			if(ret != 0)
 			{
 				TYText::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, "导入文字失败");
@@ -402,6 +402,13 @@ int TYText::update_cb(NXOpen::BlockStyler::UIBlock* block)
 		else if(block == doubleEdgeDist)
 		{
 			//---------Enter your code here-----------
+		}
+		else if(block == toggleMirror)
+		{
+			//---------Enter your code here-----------
+			bool isMi = false;
+			UI_LogicalGetValue(toggleMirror, isMi);
+			UI_BlockSetShowStatus(mirrorPlane, isMi);
 		}
 	}
 	catch(exception& ex)
