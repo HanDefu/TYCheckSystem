@@ -43,8 +43,6 @@
 #include "Common/Com_Draft2.h"
 #include "UI\TYExport3D.hpp"
 #include "UI\TYExportDwg.hpp"
-#include "UI\TYTest.hpp"
-#include "ui\TYTextPre.hpp"
 
 using namespace NXOpen;
 

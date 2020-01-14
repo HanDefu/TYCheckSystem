@@ -362,14 +362,6 @@
 				RelativePath=".\Entry.hpp"
 				>
 			</File>
-			<File
-				RelativePath=".\UI\TYTest.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\UI\TYTest.hpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="UI"
@@ -502,14 +494,6 @@
 			</File>
 			<File
 				RelativePath=".\UI\TYTextMark.hpp"
-				>
-			</File>
-			<File
-				RelativePath=".\UI\TYTextPre.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\UI\TYTextPre.hpp"
 				>
 			</File>
 		</Filter>

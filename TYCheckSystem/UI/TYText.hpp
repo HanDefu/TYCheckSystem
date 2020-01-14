@@ -99,9 +99,8 @@ public:
 
 	int UpdateShowStatus();
 	int AddTextToModelReference(vtag_t &oriSplines, tag_t body);
-	int ReplaceTexts();
-	int GetKeyText(tag_t group, vtag_t &texts);
-	int ImportText(tag_t &group, NXOpen::Point3d pntOri,NXOpen::Point3d pntX, NXOpen::Point3d pntY);
+	int ImportText(char * str1, char * str2, bool bReverseY, bool bimport, tag_t &group, NXOpen::Point3d pntOri,NXOpen::Point3d pntX, NXOpen::Point3d pntY);
+	int GetStr1AndStr2(char *str1,char *str2);
 	int GetPrtFileName(char prtFileName[UF_CFI_MAX_PATH_NAME_SIZE]);
     
     //----------------------- BlockStyler Callback Prototypes ---------------------
@@ -124,6 +123,8 @@ private:
     NXOpen::BlockStyler::UIBlock* groupTextType;// Block type: Group
     NXOpen::BlockStyler::UIBlock* enumTextType;// Block type: Enumeration
     NXOpen::BlockStyler::UIBlock* groupContents;// Block type: Group
+	NXOpen::BlockStyler::UIBlock* integer1;// Block type: Integer
+	NXOpen::BlockStyler::UIBlock* integer2;// Block type: Integer
     NXOpen::BlockStyler::UIBlock* stringText1;// Block type: String
     NXOpen::BlockStyler::UIBlock* stringText2;// Block type: String
     NXOpen::BlockStyler::UIBlock* stringText3;// Block type: String
@@ -146,12 +147,6 @@ private:
 
 	tag_t m_text1;//ATTR_TYCOM_KEZI_1
 	tag_t m_text2;//ATTR_TYCOM_KEZI_2
-	tag_t m_text3;//ATTR_TYCOM_KEZI_3
-	tag_t m_text4;//ATTR_TYCOM_KEZI_4
-	tag_t m_text5;//ATTR_TYCOM_KEZI_5
-	tag_t m_text6;//ATTR_TYCOM_KEZI_6
-	tag_t m_text7;//ATTR_TYCOM_KEZI_7
-	tag_t m_text8;//ATTR_TYCOM_KEZI_8
     
 };
 

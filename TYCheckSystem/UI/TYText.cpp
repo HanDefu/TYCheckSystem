@@ -50,7 +50,7 @@ TYText::TYText()
 		// Initialize the NX Open C++ API environment
 		TYText::theSession = NXOpen::Session::GetSession();
 		TYText::theUI = UI::GetUI();
-		theDialogName = "TYMirrorText.dlx";
+		theDialogName = "TYText.dlx";
 		theDialog = TYText::theUI->CreateDialog(theDialogName.c_str());
 		// Registration of callback functions
 		theDialog->AddApplyHandler(make_callback(this, &TYText::apply_cb));
@@ -129,6 +129,8 @@ void TYText::initialize_cb()
 		groupTextType = theDialog->TopBlock()->FindBlock("groupTextType");
 		enumTextType = theDialog->TopBlock()->FindBlock("enumTextType");
 		groupContents = theDialog->TopBlock()->FindBlock("groupContents");
+		integer1 = theDialog->TopBlock()->FindBlock("integer1");
+		integer2 = theDialog->TopBlock()->FindBlock("integer2");
 		stringText1 = theDialog->TopBlock()->FindBlock("stringText1");
 		stringText2 = theDialog->TopBlock()->FindBlock("stringText2");
 		stringText3 = theDialog->TopBlock()->FindBlock("stringText3");
@@ -152,12 +154,6 @@ void TYText::initialize_cb()
 
 		m_text1 = 0;
 		m_text2 = 0;
-		m_text3 = 0;
-		m_text4 = 0;
-		m_text5 = 0;
-		m_text6 = 0;
-		m_text7 = 0;
-		m_text8 = 0;
 	}
 	catch(exception& ex)
 	{
@@ -178,6 +174,10 @@ void TYText::dialogShown_cb()
 		//---- Enter your callback code here -----
 		UI_LogicalSetValue(toggleMirror,false);
 		UI_BlockSetShowStatus(mirrorPlane, false);
+
+		UI_BlockSetShowStatus(enumEdgePos, false);
+
+		
 		UpdateShowStatus();
 	}
 	catch(exception& ex)
@@ -201,6 +201,40 @@ int TransformPnt(NXOpen::Point3d pnt, NXOpen::Point3d &outPnt)
 	return 0;
 }
 
+int TYText::GetStr1AndStr2(char *str1, char *str2)
+{
+	int sel = 0;
+	UI_EnumGetCurrentSel(enumTextType,sel);
+
+	int  value1=0, value2 = 0;
+	char str[32]="";
+    UI_IntGetValue(integer1, value1);
+	UI_IntGetValue(integer2, value2);
+
+	NXString nxstr;
+	UI_StringGetValue(stringText1, nxstr);
+
+	if(sel == 0 || sel == 1)
+	{
+        sprintf(str1, "%d", value1);
+		return 1;
+	}
+
+	if(sel == 2 || sel == 3)
+	{
+		sprintf(str1, "%d", value1);
+		sprintf(str2, "%d", value2);
+		return 2;
+	}
+
+	if(sel == 4)
+	{
+		strcpy(str1, nxstr.getLocaleText());
+		return 3;
+	}
+
+	return 0;
+}
 
 //------------------------------------------------------------------------------
 //Callback Name: apply_cb
@@ -218,8 +252,8 @@ int TYText::apply_cb()
 			objPart = UF_ASSEM_ask_prototype_of_occ( partocc ) ;
 		UF_ASSEM_set_work_part(objPart);
 
-		vtag_t oriSplines;
-		TYCOM_GetAllSplinesInPart( UF_ASSEM_ask_work_part(), oriSplines );
+		//vtag_t oriSplines;
+		//TYCOM_GetAllSplinesInPart( UF_ASSEM_ask_work_part(), oriSplines );
 
 		//第一步导入文字
 		tag_t group = 0;
@@ -230,37 +264,36 @@ int TYText::apply_cb()
 		UI_PointGetPoint(pointOrigin, pntOri);
 		UI_PointGetPoint(pointX, pntX);
 		UI_PointGetPoint(pointY, pntY);
-		
+	
 
-
-
-		NXOpen::Point3d outPnt;
+		/*NXOpen::Point3d outPnt;
 		TransformPnt(pntOri, pntOri);
 		TransformPnt(pntX, pntX);
-		TransformPnt(pntY, pntY);
+		TransformPnt(pntY, pntY);*/
 
-		int ret = ImportText(group,pntOri,pntX,pntY);
+		char str1[32] = "", str2[32] = "";
+		int ret = GetStr1AndStr2(str1,str2);
+
+
+		int sel = 0;
+		UI_EnumGetCurrentSel(enumTextType,sel);
+
+		ret = ImportText(str1, str2, sel == 0 || sel == 2 || sel == 4, ret < 3, group,pntOri,pntX,pntY);
 		if(ret != 0)
 		{
 			TYText::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, "导入文字失败");
 			return 0;
 		}
-
-		//第二步： 从group读取关键信息
-		vtag_t texts;
-		GetKeyText(group, texts);
-
-		//第三步: 替换文字
-		ReplaceTexts();
+		
 		//替换引用极和（把spline和选择的body绑定）
-		AddTextToModelReference(/*group, */oriSplines, objs[0]->Tag());
+		//AddTextToModelReference(/*group, */oriSplines, objs[0]->Tag());
 
 		//如果需要处理镜像
 		bool bMirror = false;
 		UI_LogicalGetValue(toggleMirror,bMirror);
 		if(bMirror)
 		{
-			TYCOM_GetAllSplinesInPart( UF_ASSEM_ask_work_part(), oriSplines );
+			//TYCOM_GetAllSplinesInPart( UF_ASSEM_ask_work_part(), oriSplines );
 			tag_t plane = UI_GetPlaneTag(mirrorPlane);
 			if(plane == 0)
 				return 0;
@@ -282,22 +315,15 @@ int TYText::apply_cb()
 			NXOpen::Point3d pntYM(mirrorPntY[0],mirrorPntY[1],mirrorPntY[2]);
 
 			tag_t groupM = 0;
-			int ret = ImportText(groupM,pntOriM,pntXM,pntYM);
+			int ret = ImportText(str1, str2, sel == 0 || sel == 2 || sel == 4, ret < 3,  groupM,pntOriM,pntXM,pntYM);
 			if(ret != 0)
 			{
 				TYText::theUI->NXMessageBox()->Show("Block Styler", NXOpen::NXMessageBox::DialogTypeError, "导入文字失败");
 				return 0;
 			}
 
-			//第二步： 从group读取关键信息
-			vtag_t texts;
-			GetKeyText(groupM, texts);
-
-			//第三步: 替换文字
-			ReplaceTexts();
-
 			//替换引用极
-			AddTextToModelReference(/*groupM,*/ oriSplines, objs[0]->Tag());
+			//AddTextToModelReference(/*groupM,*/ oriSplines, objs[0]->Tag());
 		}
 
 		UF_ASSEM_set_work_part(oriWorkPart);
@@ -354,10 +380,6 @@ int TYText::update_cb(NXOpen::BlockStyler::UIBlock* block)
 			//---------Enter your code here-----------
 		}
 		else if(block == selectionBody)
-		{
-			//---------Enter your code here-----------
-		}
-		else if(block == enumEdgePos)
 		{
 			//---------Enter your code here-----------
 		}
@@ -452,48 +474,22 @@ int TYText::GetPrtFileName(char prtFileName[UF_CFI_MAX_PATH_NAME_SIZE])
 	    strcat(prtFileName, "\\application\\TextPart\\two.prt");
 	if(sel == 3)
 	    strcat(prtFileName, "\\application\\TextPart\\two_1.prt");
-	
-	if(sel == 4)
-	{
-		if(sel1 == 0)
-			strcat(prtFileName, "\\application\\TextPart\\Single_1.prt");
-		else
-	        strcat(prtFileName, "\\application\\TextPart\\Single.prt");
-	}
-	if(sel == 5)
-	{
-		if(sel1 == 0)
-			strcat(prtFileName, "\\application\\TextPart\\S1_1.prt");
-		else
-	        strcat(prtFileName, "\\application\\TextPart\\S1.prt");
-	}
-	if(sel == 6)
-	{
-		if(sel1 == 0)
-			strcat(prtFileName, "\\application\\TextPart\\Muli_1.prt");
-		else
-	        strcat(prtFileName, "\\application\\TextPart\\Muli.prt");
-	}
-	if(sel == 8)
-	{
-		if(sel1 == 0)
-			strcat(prtFileName, "\\application\\TextPart\\None_1.prt");
-		else
-	        strcat(prtFileName, "\\application\\TextPart\\None.prt");
-	}
-	if(sel == 7)
-	{
-		if(sel1 == 0)
-			strcat(prtFileName, "\\application\\TextPart\\M2_1.prt");
-		else
-	        strcat(prtFileName, "\\application\\TextPart\\M2.prt");
-	}
 
 	return 0;
 }
 
-int TYText::ImportText(tag_t &group, NXOpen::Point3d pntOri,NXOpen::Point3d pntX, NXOpen::Point3d pntY)
+int TYText::ImportText(char * str1, //第一个但文字情况 和 自由的情况
+					   char * str2,//只用于第二个情况 两个文字
+					   bool bReverseY,//对于上边沿的需要reversey
+					   bool bimport, //只有自由的情况不需要导入
+					   tag_t &group, //导入后的group
+					   NXOpen::Point3d pntOri//原点
+					   ,NXOpen::Point3d pntX, //X方向点
+					   NXOpen::Point3d pntY)//y方向点
 {
+	if(str1 == 0 || strlen(str1) == 0)
+		return -1;
+
 	double dest_csys[6] = {pntX.X - pntOri.X, pntX.Y - pntOri.Y, pntX.Z - pntOri.Z,
 		pntY.X - pntOri.X, pntY.Y - pntOri.Y, pntY.Z - pntOri.Z};
 
@@ -509,121 +505,37 @@ int TYText::ImportText(tag_t &group, NXOpen::Point3d pntOri,NXOpen::Point3d pntX
     UI_DoubleGetValue(doubleEdgeDist, distance);
 	UF_VEC3_affine_comb(dest_point1, distance, unit_vec_Y, dest_point);
 
+	if(bimport)//自由输入的不需要import
+	{
+		char prtFileName[UF_CFI_MAX_PATH_NAME_SIZE] = "\0";
+		GetPrtFileName(prtFileName);
+
+		UF_import_part_modes_t mode;
+		mode.layer_mode = 0;
+		mode.group_mode = 1;
+		mode.csys_mode = 0;
+		mode.plist_mode = 0;
+		mode.view_mode = 0;
+		mode.cam_mode = 0;
+		mode.use_search_dirs = 0;
+		int ret = UF_PART_import(prtFileName, &mode, dest_csys, dest_point, 1.0, &group);
+	}
+
+
+	if (bReverseY)
+	    UF_VEC3_negate(&(dest_csys[3]), &(dest_csys[3]));
+
+	UF_VEC3_affine_comb(dest_point, 6, unit_vec_Y, dest_point);
+
+    TYText_Main2_ForBaiKeXian(str1, dest_point, dest_csys, 5);
+
+	if(str2 != 0 && strlen(str2) > 0)
+	{
+		UF_VEC3_affine_comb(dest_point, 7.5, unit_vec_Y, dest_point);
+		TYText_Main2_ForBaiKeXian(str2, dest_point, dest_csys, 5);
+	}
 	
-
-	char prtFileName[UF_CFI_MAX_PATH_NAME_SIZE] = "\0";
-	GetPrtFileName(prtFileName);
-
-	UF_import_part_modes_t mode;
-	mode.layer_mode = 0;
-	mode.group_mode = 1;
-	mode.csys_mode = 0;
-	mode.plist_mode = 0;
-	mode.view_mode = 0;
-	mode.cam_mode = 0;
-	mode.use_search_dirs = 0;
-	int ret = UF_PART_import(prtFileName, &mode, dest_csys, dest_point, 1.0, &group);
-	return ret;
-}
-
-int TYText::GetKeyText(tag_t group, vtag_t &texts)
-{
-	m_text1 = 0;
-	m_text2 = 0;
-	m_text3 = 0;
-	m_text4 = 0;
-	m_text5 = 0;
-	m_text6 = 0;
-	m_text7 = 0;
-	m_text8 = 0;
-
-	tag_t * group_members = 0;
-	int count_of_members = 0;
-	UF_GROUP_ask_group_data(group, &group_members, &count_of_members);
-
-	int type, subtype;
-	for(int i = 0; i < count_of_members; i++)
-	{
-		UF_OBJ_ask_type_and_subtype(group_members[i],&type,&subtype);
-		if(type == 9 && subtype == 0)
-		{
-			char val[133]="";
-			tag_t tempTag = 0;
-			UF_MODL_ask_object_feat(group_members[i], &tempTag);
-			if(tempTag == 0)
-				continue;
 	
-			if(TYCOM_GetObjectStringAttribute( tempTag , ATTR_TYCOM_KEZI_1 , val)>0)
-				m_text1 = tempTag;
-			else if(TYCOM_GetObjectStringAttribute( tempTag , ATTR_TYCOM_KEZI_2 , val)>0)
-				m_text2 = tempTag;
-			else if(TYCOM_GetObjectStringAttribute( tempTag , ATTR_TYCOM_KEZI_3 , val)>0)
-				m_text3 = tempTag;
-			else if(TYCOM_GetObjectStringAttribute( tempTag , ATTR_TYCOM_KEZI_4 , val)>0)
-				m_text4 = tempTag;
-			else if(TYCOM_GetObjectStringAttribute( tempTag , ATTR_TYCOM_KEZI_5 , val)>0)
-				m_text5 = tempTag;
-			else if(TYCOM_GetObjectStringAttribute( tempTag , ATTR_TYCOM_KEZI_6 , val)>0)
-				m_text6 = tempTag;
-			else if(TYCOM_GetObjectStringAttribute( tempTag , ATTR_TYCOM_KEZI_7 , val)>0)
-				m_text7 = tempTag;
-			else if(TYCOM_GetObjectStringAttribute( tempTag , ATTR_TYCOM_KEZI_8 , val)>0)
-				m_text8 = tempTag;
-		}
-	}
-	return 0;
-}
-
-int TYText::ReplaceTexts()
-{
-	NXString str1;
-	NXString str2;
-	UI_StringGetValue(stringText8,str1);
-
-	NXString str3,str4,str5,str6,str7,str8;
-	UI_StringGetValue(stringText1,str3);
-	UI_StringGetValue(stringText1,str4);
-	UI_StringGetValue(stringText2,str5);
-	UI_StringGetValue(stringText3,str6);
-
-	int sel;
-	UI_EnumGetCurrentSel(enumTextType, sel);
-	if(sel == 7)
-	{
-		UI_StringGetValue(stringText4,str1);
-		UI_StringGetValue(stringText5,str2);
-		UI_StringGetValue(stringText6,str7);
-		UI_StringGetValue(stringText7,str8);
-	}
-
-
-	if(m_text1 != NULL_TAG)
-		TYCOM_SetText(m_text1, str1);
-	if(m_text2 != NULL_TAG)
-		TYCOM_SetText(m_text2, str2);
-	if(m_text3 != NULL_TAG)
-	{
-		if(sel == 8)
-		{
-			double height = -1;
-			UI_DoubleGetValue(doubleTextHeight,height);
-			TYCOM_SetText(m_text3, str3,height);
-		}
-		else
-		    TYCOM_SetText(m_text3, str3);
-	}
-
-	if(m_text4 != NULL_TAG)
-		TYCOM_SetText(m_text4, str4);
-	if(m_text5 != NULL_TAG)
-		TYCOM_SetText(m_text5, str5);
-	if(m_text6 != NULL_TAG)
-		TYCOM_SetText(m_text6, str6);
-	if(m_text7 != NULL_TAG)
-		TYCOM_SetText(m_text7, str7);
-	if(m_text8 != NULL_TAG)
-		TYCOM_SetText(m_text8, str8);
-
 	return 0;
 }
 
@@ -656,127 +568,34 @@ int TYText::AddTextToModelReference(vtag_t &oriSplines, tag_t body)
 int TYText::UpdateShowStatus()
 {
 	int sel;
-	/*UI_EnumGetCurrentSel(enum0, sel);
+	UI_EnumGetCurrentSel(enumTextType, sel);
 	if(sel == 0 || sel == 1)
 	{
-		UI_BlockSetShowStatus(stringText8,1);
+		UI_BlockSetShowStatus(integer1,1);
+		UI_BlockSetShowStatus(integer2,0);
 		UI_BlockSetShowStatus(stringText1,0);
-		UI_BlockSetShowStatus(stringText2,0);
-		UI_BlockSetShowStatus(stringText3,0);
 
-		UI_BlockSetShowStatus(stringText4,0);
-		UI_BlockSetShowStatus(stringText5,0);
-		UI_BlockSetShowStatus(stringText6,0);
-		UI_BlockSetShowStatus(stringText7,0);
-
-		UI_BlockSetLabel(stringText8, "间隙");
+		UI_BlockSetLabel(integer1, "间隙");
 
 	}
 
 	if(sel == 2 || sel == 3)
 	{
-		UI_BlockSetShowStatus(stringText8,1);
+		UI_BlockSetShowStatus(integer1,1);
+		UI_BlockSetShowStatus(integer2,1);
 		UI_BlockSetShowStatus(stringText1,0);
-		UI_BlockSetShowStatus(stringText2,0);
-		UI_BlockSetShowStatus(stringText3,0);
 
-		UI_BlockSetShowStatus(stringText4,0);
-		UI_BlockSetShowStatus(stringText5,0);
-		UI_BlockSetShowStatus(stringText6,0);
-		UI_BlockSetShowStatus(stringText7,0);
-		UI_BlockSetShowStatus(enum01,0);
-		UI_BlockSetShowStatus(double01,0);
-
-		UI_BlockSetLabel(stringText8, "间隙");
+		UI_BlockSetLabel(integer1, "间隙");
+		UI_BlockSetLabel(integer2, "面差");
 	}
 
-	if(sel == 4 || sel == 5)
+	if(sel == 4 )
 	{
-		UI_BlockSetShowStatus(stringText8,1);
-		UI_BlockSetShowStatus(stringText1,0);
-		UI_BlockSetShowStatus(stringText2,0);
-		UI_BlockSetShowStatus(stringText3,0);
-
-		UI_BlockSetShowStatus(stringText4,0);
-		UI_BlockSetShowStatus(stringText5,0);
-		UI_BlockSetShowStatus(stringText6,0);
-		UI_BlockSetShowStatus(stringText7,0);
-
-		if(sel == 4)
-		{
-		    UI_BlockSetLabel(stringText8, "间隙");
-		    UI_BlockSetLabel(stringText1, "区域标识");
-		}
-
-		if(sel == 5)
-		{
-		    UI_BlockSetLabel(stringText8, "面差");
-		    UI_BlockSetLabel(stringText1, "区域标识");
-		}
-	}
-
-	if(sel == 6)
-	{
-		UI_BlockSetShowStatus(stringText8,1);
+		UI_BlockSetShowStatus(integer1,0);
+		UI_BlockSetShowStatus(integer2,0);
 		UI_BlockSetShowStatus(stringText1,1);
-		UI_BlockSetShowStatus(stringText2,1);
-		UI_BlockSetShowStatus(stringText3,1);
-
-		UI_BlockSetShowStatus(stringText4,0);
-		UI_BlockSetShowStatus(stringText5,0);
-		UI_BlockSetShowStatus(stringText6,0);
-		UI_BlockSetShowStatus(stringText7,0);
-		UI_BlockSetShowStatus(enum01,1);
-		UI_BlockSetShowStatus(double01,0);
-
-		UI_BlockSetLabel(stringText8, "轮廓度1");
-		UI_BlockSetLabel(string09, "轮廓度2");
-		UI_BlockSetLabel(string0, "区域标识1");
-		UI_BlockSetLabel(stringText1, "区域标识2");
-		UI_BlockSetLabel(stringText2, "关键特性1");
-		UI_BlockSetLabel(stringText3, "关键特性2");
-	}
-
-	if(sel == 7)
-	{
-		UI_BlockSetShowStatus(stringText8,0);
-		
-
-		UI_BlockSetShowStatus(stringText4,1);
-		UI_BlockSetShowStatus(stringText5,1);
-		UI_BlockSetShowStatus(stringText6,1);
-		UI_BlockSetShowStatus(stringText7,1);
-
-		UI_BlockSetShowStatus(stringText1,1);
-		UI_BlockSetShowStatus(stringText2,1);
-		UI_BlockSetShowStatus(stringText3,1);
-
-	
-		
-		UI_BlockSetLabel(stringText4, "轮廓度1");
-		UI_BlockSetLabel(stringText5, "复合公差1");
-		UI_BlockSetLabel(stringText6, "轮廓度2");
-		UI_BlockSetLabel(stringText7, "复合公差2");
-
-		UI_BlockSetLabel(stringText1, "区域标志1");
-		UI_BlockSetLabel(stringText1, "区域标志2");
-		UI_BlockSetLabel(stringText2, "关键特性1");
-		UI_BlockSetLabel(stringText3, "关键特性2");
-	}
-
-	if(sel == 8)
-	{
-		UI_BlockSetShowStatus(stringText8,0);
-		UI_BlockSetShowStatus(stringText1,0);
-		UI_BlockSetShowStatus(stringText2,0);
-		UI_BlockSetShowStatus(stringText3,0);
-
-		UI_BlockSetShowStatus(stringText4,0);
-		UI_BlockSetShowStatus(stringText5,0);
-		UI_BlockSetShowStatus(stringText6,0);
-		UI_BlockSetShowStatus(stringText7,0);
 
 		UI_BlockSetLabel(stringText1, "字符");
-	}*/
+	}
 	return 0;
 }

@@ -47,7 +47,7 @@ MENU CUSTOM_TY
     ACTIONS TYCheckSystem.dll
 	
     BUTTON CUSTOM_TY_TEXT_MARK
-    LABEL ¿Ì×ÖºÍ¾µÏñ¿Ì×Ö
+    LABEL ¿Ì×Ö
     BITMAP planar_text_lc
     ACTIONS TYCheckSystem.dll
 	
