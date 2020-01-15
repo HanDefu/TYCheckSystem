@@ -68,6 +68,11 @@ extern "C" DllExport void  ufusr(char *param, int *retcod, int param_len)
 
 #endif  // TYCOM_DEBUG
 
+		if (!checkuse())
+		{
+			return;
+		}
+
 		if(InitCheck() == false)
 			return;
 
