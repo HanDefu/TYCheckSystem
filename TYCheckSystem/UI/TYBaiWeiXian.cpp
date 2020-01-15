@@ -169,12 +169,12 @@ void TYBaiWeiXian::initialize_cb()
 		edgeY = theDialog->TopBlock()->FindBlock("edgeY");
 		pointOrigin = theDialog->TopBlock()->FindBlock("pointOrigin");
 		groupSetting = theDialog->TopBlock()->FindBlock("groupSetting");
+		enumXYZType = theDialog->TopBlock()->FindBlock("enumXYZType");
 		enumDist = theDialog->TopBlock()->FindBlock("enumDist");
 		enumStartXMaxDist = theDialog->TopBlock()->FindBlock("enumStartXMaxDist");
 		enumStartYMaxDist = theDialog->TopBlock()->FindBlock("enumStartYMaxDist");
 		enumTextHeight = theDialog->TopBlock()->FindBlock("enumTextHeight");
 		toggleYX = theDialog->TopBlock()->FindBlock("toggleYX");
-
 	}
 	catch(exception& ex)
 	{
@@ -272,236 +272,249 @@ int TYBaiWeiXian::apply_cb()
 			firstDisX = kexianjianju;
 		initpoints();
 		logical ispraXYZ = ROY_is_face_parallel_XYZ(face,xyz);
-		if(ispraXYZ)
-		{
-			const double kedutol = 0.5;
-			tag_t part_tag = UF_PART_ask_display_part();
-			tag_t prework = UF_PART_ask_display_part();
-			logical isAssemEnv = UF_ASSEM_is_occurrence(face);
-			Vector3d vecDirX(1,0,0);
-			Vector3d vecDirY(0,1,0);
-			double min_corner[3]={0.0},directions[3][3]={0.0},distances[3] = {0.0},startPoint[3]={0.0},endPoint[3]={0.0};
-			UF_MODL_ask_bounding_box_exact( face, NULL_TAG, min_corner, directions, distances );
-			if( 1 == xyz || 0 == xyz) //+Z -Z
-			{
-				double point1x[3],point2x[3],point1xx[3],point2xx[3];
-				int nn = 0;
-				if( min_corner[0]+50 >= 0 )
-					nn = (min_corner[0]+50)/50;
-				else
-					nn = (min_corner[0])/50;
-				int mm = 0;
-				if( min_corner[1]+50 >= 0 )
-					mm = (min_corner[1]+50)/50;
-				else
-					mm = (min_corner[1])/50;
-				double xkedu = nn*50;
-				double ykedu = mm*50;
-				while( (xkedu - min_corner[0]) <= (firstDisX-50))
-				{
-					xkedu+=50;
-				}
-				while( (ykedu - min_corner[1]) <= (firstDisY-50))
-				{
-					ykedu+=50;
-				}
-				while(xkedu < (min_corner[0]+distances[0]-kedutol))
-				{
-					startPoint[0] = xkedu;
-					startPoint[1] = min_corner[1];
-					startPoint[2] = min_corner[2];
-					endPoint[0] = xkedu;
-					endPoint[1] = min_corner[1]+distances[1];
-					endPoint[2] = min_corner[2];
-					Point3d lineStartPt(startPoint[0],startPoint[1],startPoint[2]);
-					Point3d lineEndPt(endPoint[0],endPoint[1],endPoint[2]);
-					lineXStart.push_back(lineStartPt);
-					lineXEnd.push_back(lineEndPt);
-					xkedu = xkedu+kexianjianju;
-				}
-				while(ykedu < (min_corner[1]+distances[1]-kedutol))
-				{
-					startPoint[0] = min_corner[0];
-					startPoint[1] = ykedu;
-					startPoint[2] = min_corner[2];
-					endPoint[0] = min_corner[0]+distances[0];
-					endPoint[1] = ykedu;
-					endPoint[2] = min_corner[2];
-					Point3d lineStartPt(startPoint[0],startPoint[1],startPoint[2]);
-					Point3d lineEndPt(endPoint[0],endPoint[1],endPoint[2]);
-					lineYStart.push_back(lineStartPt);
-					lineYEnd.push_back(lineEndPt);
-					ykedu = ykedu+kexianjianju;
-				}
-			}
-			else if( 2 == xyz || 4 == xyz )//xz plane -y,+y
-			{
-				int idx = 1,jdx = 1;
-				double point1x[3],point2x[3],point1xx[3],point2xx[3];
-				int nn = 0;
-				if( min_corner[0]+50 >= 0 )
-					nn = (min_corner[0]+50)/50;
-				else
-					nn = (min_corner[0])/50;
-				int mm = 0;
-				if( min_corner[2]+50 >= 0 )
-					mm = (min_corner[2]+50)/50;
-				else
-					mm = (min_corner[2])/50;
-				double xkedu = nn*50;
-				double ykedu = mm*50;
-				while( (xkedu - min_corner[0]) <= (firstDisX-50))
-				{
-					xkedu+=50;
-				}
-				while( (ykedu - min_corner[2]) <= (firstDisY-50))
-				{
-					ykedu+=50;
-				}
-
-				while(xkedu < (min_corner[0]+distances[0]-kedutol))
-				{
-					startPoint[0] = xkedu;
-					startPoint[1] = min_corner[1];
-					startPoint[2] = min_corner[2];
-					endPoint[0] = xkedu;
-					endPoint[1] = min_corner[1];
-					endPoint[2] = min_corner[2]+distances[2];
-					Point3d lineStartPt(startPoint[0],startPoint[1],startPoint[2]);
-					Point3d lineEndPt(endPoint[0],endPoint[1],endPoint[2]);
-					lineXStart.push_back(lineStartPt);
-					lineXEnd.push_back(lineEndPt);
-					xkedu += kexianjianju;
-				}
-				while(ykedu < (min_corner[2]+distances[2]-kedutol))
-				{
-					startPoint[0] = min_corner[0];
-					startPoint[1] = min_corner[1];
-					startPoint[2] = ykedu;
-					endPoint[0] = min_corner[0]+distances[0];
-					endPoint[1] = min_corner[1];
-					endPoint[2] = ykedu;
-					Point3d lineStartPt(startPoint[0],startPoint[1],startPoint[2]);
-					Point3d lineEndPt(endPoint[0],endPoint[1],endPoint[2]);
-					lineZStart.push_back(lineStartPt);
-					lineZEnd.push_back(lineEndPt);
-					ykedu += kexianjianju;
-				}
-			}
-			else if( 3 == xyz || 5 == xyz )//YZ PLANE +x,-x
-			{
-				int idx = 1,jdx = 1;
-				double point1x[3],point2x[3],point1xx[3],point2xx[3];
-				int nn = 0;
-				if( min_corner[1]+50 >= 0 )
-					nn = (min_corner[1]+50)/50;
-				else
-					nn = (min_corner[1])/50;
-				int mm = 0;
-				if( min_corner[2]+50 >= 0 )
-					mm = (min_corner[2]+50)/50;
-				else
-					mm = (min_corner[2])/50;
-				double xkedu = nn*50;
-				double ykedu = mm*50;
-				while( (xkedu - min_corner[1]) <= (firstDisX-50))
-				{
-					xkedu+=50;
-				}
-				while( (ykedu - min_corner[2]) <= (firstDisY-50))
-				{
-					ykedu+=50;
-				}
-				while(xkedu < (min_corner[1]+distances[1]-kedutol))
-				{
-					startPoint[0] = min_corner[0];
-					startPoint[1] = xkedu;
-					startPoint[2] = min_corner[2];
-					endPoint[0] = min_corner[0];
-					endPoint[1] = xkedu;
-					endPoint[2] = min_corner[2]+distances[2];
-					Point3d lineStartPt(startPoint[0],startPoint[1],startPoint[2]);
-					Point3d lineEndPt(endPoint[0],endPoint[1],endPoint[2]);
-					lineYStart.push_back(lineStartPt);
-					lineYEnd.push_back(lineEndPt);
-					xkedu += kexianjianju;
-				}
-				while(ykedu < (min_corner[2]+distances[2]-kedutol))
-				{
-					startPoint[0] = min_corner[0];
-					startPoint[1] = min_corner[1];
-					startPoint[2] = ykedu;
-					endPoint[0] = min_corner[0];
-					endPoint[1] = min_corner[1]+distances[1];
-					endPoint[2] = ykedu;
-					Point3d lineStartPt(startPoint[0],startPoint[1],startPoint[2]);
-					Point3d lineEndPt(endPoint[0],endPoint[1],endPoint[2]);
-					lineZStart.push_back(lineStartPt);
-					lineZEnd.push_back(lineEndPt);
-					ykedu += kexianjianju;
-				}
-			}
-
-			if(isAssemEnv)
-			{
-				//UF_ASSEM_set_work_part(prework);
-				tag_t partocc = part_tag = UF_ASSEM_ask_part_occurrence(face);
-				if(UF_ASSEM_is_occurrence(partocc))
-					part_tag = UF_ASSEM_ask_prototype_of_occ(partocc);
-				UF_ASSEM_set_work_part(part_tag);
-				MappingPointsToComponentPart();
-				UF_PART_set_display_part(part_tag);
-				workPart = theSession->Parts()->Work();
-
-			}
-			else
-			{
-				MappingPointsToComponentPart();
-			} 
-			tag_t oldcsys = NULL_TAG;
-			UF_CSYS_ask_wcs(&oldcsys);
-			tag_t new_csys = NULL_TAG;
-			tag_t matrix = NULL_TAG;
-			//double org[3]={0};
-			UF_CSYS_create_matrix(csys_mtx,&matrix);
-			UF_CSYS_create_csys( origin, matrix, &new_csys );
-			UF_CSYS_set_wcs( new_csys );//UF_CSYS_set_origin
-			char str[133]="";
-			for( int idx = 0; idx < lineXStartMapped.size(); ++idx )
-			{
-				tag_t line = CreateLine(lineXStartMapped[idx],lineXEndMapped[idx]);
-				AddTagToVector(line,lineandText);
-				sprintf(str,"X%0.0f",lineXStart[idx].X);
-				tag_t text = CreateNoteText3(str,txtHei,lineXStartMapped[idx],lineXEndMapped[idx],originRectMapped,csys_mtx);
-				AddTagToVector(text,lineandText);
-			}
-			for( int idx = 0; idx < lineYStartMapped.size(); ++idx )
-			{
-				tag_t line = CreateLine(lineYStartMapped[idx],lineYEndMapped[idx]);
-				AddTagToVector(line,lineandText);
-				sprintf(str,"Y%0.0f",lineYStart[idx].Y);
-				tag_t text = CreateNoteText3(str,txtHei,lineYStartMapped[idx],lineYEndMapped[idx],originRectMapped,csys_mtx);
-				AddTagToVector(text,lineandText);
-			}
-			for( int idx = 0; idx < lineZStartMapped.size(); ++idx )
-			{
-				tag_t line = CreateLine(lineZStartMapped[idx],lineZEndMapped[idx]);
-				AddTagToVector(line,lineandText);
-				sprintf(str,"Z%0.0f",lineZStart[idx].Z);
-				tag_t text = CreateNoteText3(str,txtHei,lineZStartMapped[idx],lineZEndMapped[idx],originRectMapped,csys_mtx);
-				AddTagToVector(text,lineandText);
-			}	
-			CreateReferenceSet(lineandText,NXString("MODEL"));
-			UF_CSYS_set_wcs( oldcsys );
-			if(isAssemEnv)
-			{
-				UF_PART_set_display_part(prework);
-			}
-		}
-		else
+		if(!ispraXYZ)
 		{
 			uc1601("所选平面不与XYZ平面平行",1);
 			return 1;
+		}
+		
+
+		const double kedutol = 0.5;
+		tag_t part_tag = UF_PART_ask_display_part();
+		tag_t prework = UF_PART_ask_display_part();
+		logical isAssemEnv = UF_ASSEM_is_occurrence(face);
+		Vector3d vecDirX(1,0,0);
+		Vector3d vecDirY(0,1,0);
+		double min_corner[3]={0.0},directions[3][3]={0.0},distances[3] = {0.0},startPoint[3]={0.0},endPoint[3]={0.0};
+		UF_MODL_ask_bounding_box_exact( face, NULL_TAG, min_corner, directions, distances );
+
+		if( 1 == xyz || 0 == xyz) //+Z -Z
+		{
+			double point1x[3],point2x[3],point1xx[3],point2xx[3];
+			int nn = 0;
+			if( min_corner[0]+50 >= 0 )
+				nn = (min_corner[0]+50)/50;
+			else
+				nn = (min_corner[0])/50;
+			int mm = 0;
+			if( min_corner[1]+50 >= 0 )
+				mm = (min_corner[1]+50)/50;
+			else
+				mm = (min_corner[1])/50;
+			double xkedu = nn*50;
+			double ykedu = mm*50;
+			while( (xkedu - min_corner[0]) <= (firstDisX-50))
+			{
+				xkedu+=50;
+			}
+			while( (ykedu - min_corner[1]) <= (firstDisY-50))
+			{
+				ykedu+=50;
+			}
+			while(xkedu < (min_corner[0]+distances[0]-kedutol))
+			{
+				startPoint[0] = xkedu;
+				startPoint[1] = min_corner[1];
+				startPoint[2] = min_corner[2];
+				endPoint[0] = xkedu;
+				endPoint[1] = min_corner[1]+distances[1];
+				endPoint[2] = min_corner[2];
+				Point3d lineStartPt(startPoint[0],startPoint[1],startPoint[2]);
+				Point3d lineEndPt(endPoint[0],endPoint[1],endPoint[2]);
+				lineXStart.push_back(lineStartPt);
+				lineXEnd.push_back(lineEndPt);
+				xkedu = xkedu+kexianjianju;
+			}
+			while(ykedu < (min_corner[1]+distances[1]-kedutol))
+			{
+				startPoint[0] = min_corner[0];
+				startPoint[1] = ykedu;
+				startPoint[2] = min_corner[2];
+				endPoint[0] = min_corner[0]+distances[0];
+				endPoint[1] = ykedu;
+				endPoint[2] = min_corner[2];
+				Point3d lineStartPt(startPoint[0],startPoint[1],startPoint[2]);
+				Point3d lineEndPt(endPoint[0],endPoint[1],endPoint[2]);
+				lineYStart.push_back(lineStartPt);
+				lineYEnd.push_back(lineEndPt);
+				ykedu = ykedu+kexianjianju;
+			}
+		}
+		else if( 2 == xyz || 4 == xyz )//xz plane -y,+y
+		{
+			int idx = 1,jdx = 1;
+			double point1x[3],point2x[3],point1xx[3],point2xx[3];
+			int nn = 0;
+			if( min_corner[0]+50 >= 0 )
+				nn = (min_corner[0]+50)/50;
+			else
+				nn = (min_corner[0])/50;
+			int mm = 0;
+			if( min_corner[2]+50 >= 0 )
+				mm = (min_corner[2]+50)/50;
+			else
+				mm = (min_corner[2])/50;
+			double xkedu = nn*50;
+			double ykedu = mm*50;
+			while( (xkedu - min_corner[0]) <= (firstDisX-50))
+			{
+				xkedu+=50;
+			}
+			while( (ykedu - min_corner[2]) <= (firstDisY-50))
+			{
+				ykedu+=50;
+			}
+
+			while(xkedu < (min_corner[0]+distances[0]-kedutol))
+			{
+				startPoint[0] = xkedu;
+				startPoint[1] = min_corner[1];
+				startPoint[2] = min_corner[2];
+				endPoint[0] = xkedu;
+				endPoint[1] = min_corner[1];
+				endPoint[2] = min_corner[2]+distances[2];
+				Point3d lineStartPt(startPoint[0],startPoint[1],startPoint[2]);
+				Point3d lineEndPt(endPoint[0],endPoint[1],endPoint[2]);
+				lineXStart.push_back(lineStartPt);
+				lineXEnd.push_back(lineEndPt);
+				xkedu += kexianjianju;
+			}
+			while(ykedu < (min_corner[2]+distances[2]-kedutol))
+			{
+				startPoint[0] = min_corner[0];
+				startPoint[1] = min_corner[1];
+				startPoint[2] = ykedu;
+				endPoint[0] = min_corner[0]+distances[0];
+				endPoint[1] = min_corner[1];
+				endPoint[2] = ykedu;
+				Point3d lineStartPt(startPoint[0],startPoint[1],startPoint[2]);
+				Point3d lineEndPt(endPoint[0],endPoint[1],endPoint[2]);
+				lineZStart.push_back(lineStartPt);
+				lineZEnd.push_back(lineEndPt);
+				ykedu += kexianjianju;
+			}
+		}
+		else if( 3 == xyz || 5 == xyz )//YZ PLANE +x,-x
+		{
+			int idx = 1,jdx = 1;
+			double point1x[3],point2x[3],point1xx[3],point2xx[3];
+			int nn = 0;
+			if( min_corner[1]+50 >= 0 )
+				nn = (min_corner[1]+50)/50;
+			else
+				nn = (min_corner[1])/50;
+			int mm = 0;
+			if( min_corner[2]+50 >= 0 )
+				mm = (min_corner[2]+50)/50;
+			else
+				mm = (min_corner[2])/50;
+			double xkedu = nn*50;
+			double ykedu = mm*50;
+			while( (xkedu - min_corner[1]) <= (firstDisX-50))
+			{
+				xkedu+=50;
+			}
+			while( (ykedu - min_corner[2]) <= (firstDisY-50))
+			{
+				ykedu+=50;
+			}
+			while(xkedu < (min_corner[1]+distances[1]-kedutol))
+			{
+				startPoint[0] = min_corner[0];
+				startPoint[1] = xkedu;
+				startPoint[2] = min_corner[2];
+				endPoint[0] = min_corner[0];
+				endPoint[1] = xkedu;
+				endPoint[2] = min_corner[2]+distances[2];
+				Point3d lineStartPt(startPoint[0],startPoint[1],startPoint[2]);
+				Point3d lineEndPt(endPoint[0],endPoint[1],endPoint[2]);
+				lineYStart.push_back(lineStartPt);
+				lineYEnd.push_back(lineEndPt);
+				xkedu += kexianjianju;
+			}
+			while(ykedu < (min_corner[2]+distances[2]-kedutol))
+			{
+				startPoint[0] = min_corner[0];
+				startPoint[1] = min_corner[1];
+				startPoint[2] = ykedu;
+				endPoint[0] = min_corner[0];
+				endPoint[1] = min_corner[1]+distances[1];
+				endPoint[2] = ykedu;
+				Point3d lineStartPt(startPoint[0],startPoint[1],startPoint[2]);
+				Point3d lineEndPt(endPoint[0],endPoint[1],endPoint[2]);
+				lineZStart.push_back(lineStartPt);
+				lineZEnd.push_back(lineEndPt);
+				ykedu += kexianjianju;
+			}
+		}
+
+		if(isAssemEnv)
+		{
+			//UF_ASSEM_set_work_part(prework);
+			tag_t partocc = part_tag = UF_ASSEM_ask_part_occurrence(face);
+			if(UF_ASSEM_is_occurrence(partocc))
+				part_tag = UF_ASSEM_ask_prototype_of_occ(partocc);
+			UF_ASSEM_set_work_part(part_tag);
+			MappingPointsToComponentPart();
+			UF_PART_set_display_part(part_tag);
+			workPart = theSession->Parts()->Work();
+
+		}
+		else
+		{
+			MappingPointsToComponentPart();
+		} 
+
+		tag_t oldcsys = NULL_TAG;
+		UF_CSYS_ask_wcs(&oldcsys);
+		tag_t new_csys = NULL_TAG;
+		tag_t matrix = NULL_TAG;
+		//double org[3]={0};
+		UF_CSYS_create_matrix(csys_mtx,&matrix);
+		UF_CSYS_create_csys( origin, matrix, &new_csys );
+		UF_CSYS_set_wcs( new_csys );//UF_CSYS_set_origin
+		char str[133]="";
+
+		int xyzType = 0;
+		UI_EnumGetCurrentSel(enumXYZType, xyzType);
+		for( int idx = 0; idx < lineXStartMapped.size(); ++idx )
+		{
+			tag_t line = CreateLine(lineXStartMapped[idx],lineXEndMapped[idx]);
+			AddTagToVector(line,lineandText);
+			if(xyzType == 0)
+			    sprintf(str,"X%0.0f",lineXStart[idx].X);
+			else
+                sprintf(str,"T%0.0f",lineXStart[idx].X);
+			tag_t text = CreateNoteText3(str,txtHei,lineXStartMapped[idx],lineXEndMapped[idx],originRectMapped,csys_mtx);
+			AddTagToVector(text,lineandText);
+		}
+		for( int idx = 0; idx < lineYStartMapped.size(); ++idx )
+		{
+			tag_t line = CreateLine(lineYStartMapped[idx],lineYEndMapped[idx]);
+			AddTagToVector(line,lineandText);
+			if(xyzType == 0)
+			    sprintf(str,"Y%0.0f",lineYStart[idx].Y);
+			else
+                sprintf(str,"B%0.0f",lineYStart[idx].Y);
+			tag_t text = CreateNoteText3(str,txtHei,lineYStartMapped[idx],lineYEndMapped[idx],originRectMapped,csys_mtx);
+			AddTagToVector(text,lineandText);
+		}
+		for( int idx = 0; idx < lineZStartMapped.size(); ++idx )
+		{
+			tag_t line = CreateLine(lineZStartMapped[idx],lineZEndMapped[idx]);
+			AddTagToVector(line,lineandText);
+            if(xyzType == 0)
+			    sprintf(str,"Z%0.0f",lineZStart[idx].Z);
+			else
+                sprintf(str,"H%0.0f",lineZStart[idx].Z);
+			tag_t text = CreateNoteText3(str,txtHei,lineZStartMapped[idx],lineZEndMapped[idx],originRectMapped,csys_mtx);
+			AddTagToVector(text,lineandText);
+		}	
+		CreateReferenceSet(lineandText,NXString("MODEL"));
+		UF_CSYS_set_wcs( oldcsys );
+		if(isAssemEnv)
+		{
+			UF_PART_set_display_part(prework);
 		}
 	}
 	catch(exception& ex)
@@ -992,9 +1005,9 @@ static int CreateNoteText3(char* textStr,double textHei, Point3d coordinate1,Poi
 		int isY = 0;
 		angle = 90; // Y dir mark, x-5, y+5
 		UF_VEC3_is_equal(csys_mtx+3,vec,0.0254,&isY);
-		txtPoint.X=txtPoint.X-csys_mtx[0]*15;
-		txtPoint.Y=txtPoint.Y-csys_mtx[1]*15;
-		txtPoint.Z=txtPoint.Z-csys_mtx[2]*15;
+		txtPoint.X=txtPoint.X-csys_mtx[0]*10;
+		txtPoint.Y=txtPoint.Y-csys_mtx[1]*10;
+		txtPoint.Z=txtPoint.Z-csys_mtx[2]*10;
 		if( 1 == isY ) // +Y dir
 		{
 			txtPoint.X=txtPoint.X+csys_mtx[3]*10;
@@ -1034,7 +1047,7 @@ static int CreateNoteText3(char* textStr,double textHei, Point3d coordinate1,Poi
  
 	double basePnt[3] = {txtPoint.X, txtPoint.Y, txtPoint.Z};
     //UF_OBJ_set_color(text,186);
-	TYText_Main2_ForBaiKeXian(textStr, basePnt, csys_mtx,textHei);
+	TYText_Main2_ForBaiKeXian(textStr, basePnt, csys_mtx,textHei,angle);
 
     return 0;
 

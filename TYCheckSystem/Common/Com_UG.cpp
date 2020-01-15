@@ -5072,9 +5072,8 @@ int TYText_Main(tag_t sel_face, double base_pt[3], char str[133], double scale, 
 /*Output:                                                               */
 /*Return:       0，1                                                    */
 /************************************************************************/
-static int CreateStampStr2(char *str, double spacedist)
+static int CreateStampStr2(char *str, double spacedist,double angle)
 {
-	double angle = 0;
 	double taper_angle = 0;
 	char *p_env = 0;
 	char txt_path[133],txt_name[133],str_tem[1000],scale_factor[255];
@@ -5221,7 +5220,7 @@ static int CreateStampStr2(char *str, double spacedist)
 //scale 字体大小
 //depth 字体深度
 //style_flag 字符槽格式   TYText_Main(faces[0], base_pt, "ABC-123.6", 1, 1, 1,false);
-int TYText_Main2_ForBaiKeXian(char str[133], double base_pt[3], double dest_csys[6],double height)
+int TYText_Main2_ForBaiKeXian(char str[133], double base_pt[3], double dest_csys[6],double height, double angle)
 {
 	char new_part_name[133] = "\0";
 	tag_t new_part_tag = 0,display_part = 0;
@@ -5239,7 +5238,7 @@ int TYText_Main2_ForBaiKeXian(char str[133], double base_pt[3], double dest_csys
 	UF_PART_set_display_part(new_part_tag);
 
 	size = (length-2)*3+2;
-	UF_CALL(CreateStampStr2(str,spacedist));
+	UF_CALL(CreateStampStr2(str,spacedist,angle));
 
 	UF_PART_save();
 

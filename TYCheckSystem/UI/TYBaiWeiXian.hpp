@@ -141,6 +141,7 @@ private:
     NXOpen::BlockStyler::UIBlock* edgeY;// Block type: Curve Collector
     NXOpen::BlockStyler::UIBlock* pointOrigin;// Block type: Specify Point
     NXOpen::BlockStyler::UIBlock* groupSetting;// Block type: Group
+	NXOpen::BlockStyler::UIBlock* enumXYZType;// Block type: Enumeration
     NXOpen::BlockStyler::UIBlock* enumDist;// Block type: Enumeration
     NXOpen::BlockStyler::UIBlock* enumStartXMaxDist;// Block type: Enumeration
     NXOpen::BlockStyler::UIBlock* enumStartYMaxDist;// Block type: Enumeration

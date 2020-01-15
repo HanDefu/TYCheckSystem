@@ -534,12 +534,12 @@ int TYText::ImportText(char * str1, //第一个但文字情况 和 自由的情况
 
 	UF_VEC3_affine_comb(dest_point, 6, unit_vec_Y, dest_point);
 
-    TYText_Main2_ForBaiKeXian(str1, dest_point, dest_csys, 5);
+    TYText_Main2_ForBaiKeXian(str1, dest_point, dest_csys, 5,0);
 
 	if(str2 != 0 && strlen(str2) > 0)
 	{
 		UF_VEC3_affine_comb(dest_point, 7.5, unit_vec_Y, dest_point);
-		TYText_Main2_ForBaiKeXian(str2, dest_point, dest_csys, 5);
+		TYText_Main2_ForBaiKeXian(str2, dest_point, dest_csys, 5,0);
 	}
 	
 	
