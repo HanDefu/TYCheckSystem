@@ -197,7 +197,7 @@ void TYBom::dialogShown_cb()
 	}
 }
 
-
+/*
 int GetPartNameFirstType(NXString str)
 {
 	if (str.getLocaleText() == NULL || strlen(str.getLocaleText()) == 0)
@@ -241,7 +241,7 @@ static int SortBomBodiesByType(vtag_t &bomBodies)
 {
 	std::sort(bomBodies.begin(),bomBodies.end(),CompareBody);   
 	return 0;
-}
+}*/
 
 
 static logical CompareBodyByPropertyIndex(tag_t &body1, tag_t &body2)
@@ -290,7 +290,7 @@ int TYBom::apply_cb()
 			return 0;
 		}
 
-		SortBodiesByPropertyIndex(bomBodies);
+		TYCOM_SortBodiesByPropertyIndex(bomBodies);
 		//SortBomBodiesByType(bomBodies);
 
 

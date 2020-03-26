@@ -226,6 +226,8 @@ int TYAutoDraft::apply_cb()
 			uc1601("没有选择实体对象",1);
 			return 0;
 		}
+		TYCOM_SortBodiesByPropertyIndex(allBodies);
+
 		m_allBodies = allBodies;
     
 

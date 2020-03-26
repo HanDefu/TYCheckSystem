@@ -3,3 +3,4 @@
 
 //得到目前最大的属性编号
 int TYCOM_GetMaxProperyIndex(vtag_t &bodies);
+int TYCOM_SortBodiesByPropertyIndex(vtag_t &bomBodies);
