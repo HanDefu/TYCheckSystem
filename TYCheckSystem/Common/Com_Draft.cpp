@@ -1299,11 +1299,22 @@ static int GZ_SetDrawingNoteInformation( tag_t thisBody, tag_t group, double sca
 			}
 			else if( 0 == strcmp("HEATPROCESS",note_name) )
 			{
-				StlNXStringVector tech;
-				char heat[256];
-				TYCOM_GetObjectStringAttribute( thisBody, ATTR_TYCOM_PROPERTY_HEAT_PROCESS, heat);
-				tech.push_back(heat);
-				EditLableNote(members[idx],tech);
+				//这里有一个特殊情况 同一个文字 做铝件6061时候 填表面处理 其他填写热处理
+				StlNXStringVector values;
+				char heat[256] = "";
+
+				char mat[256] = "";
+				TYCOM_GetObjectStringAttribute( thisBody, ATTR_TYCOM_PROPERTY_MATERIAL, mat);
+				if(strcmp(mat,"6061") == 0)
+				{
+                    TYCOM_GetObjectStringAttribute( thisBody, ATTR_TYCOM_PROPERTY_FACE_PROCESS, heat);
+				}
+				else
+				{
+                    TYCOM_GetObjectStringAttribute( thisBody, ATTR_TYCOM_PROPERTY_HEAT_PROCESS, heat);
+				}
+				values.push_back(heat);
+				EditLableNote(members[idx],values);
 			}
 			else if( 0 == strcmp("SCALE",note_name) )
 			{

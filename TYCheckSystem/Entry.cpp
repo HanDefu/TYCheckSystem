@@ -60,7 +60,7 @@ extern "C" DllExport void  ufusr(char *param, int *retcod, int param_len)
 
 		TYRegister::Show_TYRegister();//×¢²á»úÏà¹Ø
 
-		if(g_regOK == 0)
+		if(s_regOK == 0)
 		{
 			UF_terminate();
 			return;

@@ -236,6 +236,7 @@ int TYProperty::apply_cb()
 		NXString heatProcess;
 		UI_EnumGetBlockString(enumHeatProcess, heatProcess);
 
+
 		//表面处理
 		NXString faceProcess;
 		UI_EnumGetBlockString(enumFaceProcess, faceProcess);
