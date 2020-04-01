@@ -49,7 +49,7 @@ using namespace NXOpen::BlockStyler;
 int CreateHoleBodyFace( Body *body1, const tag_t targetFace, bool manualDepth, double depthOri, double chentouDepth, bool isSimpleHole );
 
 //Í¨¿×
-int CreateHoleBodyFace_THole( Body *body1, const tag_t targetFace, bool bManualDepth, double depthManual );
+//int CreateHoleBodyFace_THole( Body *body1, const tag_t targetFace, bool bManualDepth, double depthManual );
 
 //------------------------------------------------------------------------------
 // Initialize static variables
@@ -610,7 +610,7 @@ int CreateHoleBodyFace( Body *body1, const tag_t targetFace, bool bManualDepth, 
 }
 
 
-
+/*
 //-------------------------------------------------Í¨¿×---------------------------------------------//
 void CreateHolePoint_THole( tag_t targetBody, double point[3], const Vector3d& vec,double diameter, double depth )
 {
@@ -635,9 +635,7 @@ void CreateHolePoint_THole( tag_t targetBody, double point[3], const Vector3d& v
     point1 = workPart->Points()->CreatePoint(org);
 	NXOpen::Body *body1(dynamic_cast<NXOpen::Body *>(NXObjectManager::Get(targetBody)));
 
-	/*double distance = 0,pt3[3],pt4[3];
-	CF_AskMinimumDist(point1->Tag(),targetBody,distance,pt3,pt4);*/
-    
+
     char diastr[32]="";
     sprintf_s(diastr,"%f",diameter);
     char depthstr[32]="";
@@ -667,11 +665,7 @@ void CreateHolePoint_THole( tag_t targetBody, double point[3], const Vector3d& v
     
     holePackageBuilder1->ProjectionDirection()->SetProjectDirectionMethod(NXOpen::GeometricUtilities::ProjectionOptions::DirectionTypeVector);
     
-    /*NXOpen::Direction *direction1;
-    direction1 = holePackageBuilder1->ProjectionDirection()->ProjectVector();
-    direction1->SetVector(vec);
-    direction1->ReverseDirection();
-    holePackageBuilder1->ProjectionDirection()->SetProjectVector(direction1);*/
+
 	NXOpen::Point3d origin1(0.0, 0.0, 0.0);
 	NXOpen::Vector3d vector1(vec.X, vec.Y, vec.Z);
     NXOpen::Direction *direction1;
@@ -836,4 +830,4 @@ int CreateHoleBodyFace_THole( Body *body1, const tag_t targetFace, bool bManualD
         UF_ASSEM_set_work_part(workPart);
     }
     return cylinderFaces.size();
-}
+}*/
