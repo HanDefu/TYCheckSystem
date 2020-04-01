@@ -1308,12 +1308,14 @@ static int GZ_SetDrawingNoteInformation( tag_t thisBody, tag_t group, double sca
 				if(strcmp(mat,"6061") == 0)
 				{
                     TYCOM_GetObjectStringAttribute( thisBody, ATTR_TYCOM_PROPERTY_FACE_PROCESS, heat);
+					if(strlen(heat) < 2)
+						strcpy(heat,"ºÚÉ«Ñõ»¯");
 				}
 				else
 				{
                     TYCOM_GetObjectStringAttribute( thisBody, ATTR_TYCOM_PROPERTY_HEAT_PROCESS, heat);
 				}
-				values.push_back(heat);
+				values.push_back(NXString(heat));
 				EditLableNote(members[idx],values);
 			}
 			else if( 0 == strcmp("SCALE",note_name) )
