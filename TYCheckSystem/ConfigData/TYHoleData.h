@@ -30,10 +30,12 @@ private:
 	TYHoleData();
 	~TYHoleData();
 public:
+	bool GetTHole(double oriDia, double &newDia, double& depth);
 	bool GetHole(double oriDia, double &newDia, double& depth, double &chenTouDia);
 	int Read();
 public:
     vSHoleRecord m_holdRecords;
+	vSHoleRecord m_holdTRecords;
 };
 
 typedef std::vector<TYHoleData> vTYHoleData;

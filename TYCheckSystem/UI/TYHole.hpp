@@ -133,13 +133,15 @@ public:
 private:
     std::string theDialogName;
     NXOpen::BlockStyler::BlockDialog* theDialog;
+	NXOpen::BlockStyler::UIBlock* group;// Block type: Group
+	NXOpen::BlockStyler::UIBlock* enumHoleType;// Block type: Enumeration 孔类型选择
     NXOpen::BlockStyler::UIBlock* groupSelect;// Block type: Group
     NXOpen::BlockStyler::UIBlock* selectionBody;// Block type: Selection
     NXOpen::BlockStyler::UIBlock* selectFace;// Block type: Face Collector
     NXOpen::BlockStyler::UIBlock* groupSetting;// Block type: Group
     NXOpen::BlockStyler::UIBlock* groupHoleDepth;// Block type: Group
     NXOpen::BlockStyler::UIBlock* enumAuto;// Block type: Enumeration
-    NXOpen::BlockStyler::UIBlock* doubleHoleDepth;// Block type: Double
+    NXOpen::BlockStyler::UIBlock* doubleHoleDepth;// Block type: Double 通孔深度
 	NXOpen::BlockStyler::UIBlock* doubleChenTouDepth;// Block type: Double
     
 };

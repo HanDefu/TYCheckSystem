@@ -37,6 +37,25 @@ bool TYHoleData::GetHole(double oriDia, double &newDia, double& depth, double &c
 	return found;
 }
 
+bool TYHoleData::GetTHole(double oriDia, double &newDia, double& depth)
+{
+	double ndia = 0;
+	logical found = false;
+
+	for( int i = 0; i < m_holdTRecords.size(); i++)
+	{
+		if( abs(m_holdTRecords[i].m_oriDia - oriDia)< TOL0254  )
+		{
+			found = true;
+			newDia = m_holdTRecords[i].m_newDia;
+			depth = m_holdTRecords[i].m_depth;
+			break;
+		}
+	}
+
+	return found;
+}
+
 int TYHoleData::Read()
 {
 	char *p_env = getenv("TY_DATA_DIR");
@@ -50,7 +69,7 @@ int TYHoleData::Read()
 	if( !isOk )
 		return -1;
 
-	YExcel::BasicExcelWorksheet* sheet1 = excel.GetWorksheet(L"对照表");
+	YExcel::BasicExcelWorksheet* sheet1 = excel.GetWorksheet(L"沉头孔");
 	if (sheet1 == 0)
 		return -1;
 
@@ -68,6 +87,24 @@ int TYHoleData::Read()
 		cel = sheet1->Cell(i,3);
 		oneRecord.m_chenTouDia = cel->GetDouble();
 		m_holdRecords.push_back(oneRecord);
+	}
+
+
+	YExcel::BasicExcelWorksheet* sheet2 = excel.GetWorksheet(L"通孔");
+	if (sheet2 == 0)
+		return -1;
+
+	maxRows = sheet2->GetTotalRows();
+	for( int i = 1; i < maxRows; i++)
+	{
+
+		YExcel::BasicExcelCell *cel = sheet2->Cell(i,0);
+		oneRecord.m_oriDia = cel->GetDouble();
+		cel = sheet2->Cell(i,1);
+		oneRecord.m_newDia = cel->GetDouble();
+		cel = sheet2->Cell(i,2);
+		oneRecord.m_depth = cel->GetDouble();
+		m_holdTRecords.push_back(oneRecord);
 	}
 
     return 0;

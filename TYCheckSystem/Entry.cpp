@@ -99,11 +99,11 @@ extern "C" DllExport void  ufusr(char *param, int *retcod, int param_len)
 			TYColor::Show_TYColor();
 		}
 
-		if(strcmp(param, "CUSTOM_TY_STAND_PART") == 0)//标准件
+		/*if(strcmp(param, "CUSTOM_TY_STAND_PART") == 0)//标准件
 		{
 			TYStandPart::Show_TYStandPart();
 			//Test_Main();
-		}
+		}*/
 
 		if(strcmp(param, "CUSTOM_TY_AUTO_DRAFTING") == 0)//自动出图
 		{
