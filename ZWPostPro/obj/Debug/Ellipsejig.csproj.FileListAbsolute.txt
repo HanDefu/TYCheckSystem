@@ -1,0 +1,12 @@
+C:\Program Files (x86)\ZRXSDK14~20xx\Zrx2020\EllipseJig\obj\Debug\Ellipsejig.csprojResolveAssemblyReference.cache
+C:\Program Files (x86)\ZRXSDK14~20xx\Zrx2020\EllipseJig\bin\Debug\JigSample.dll
+C:\Program Files (x86)\ZRXSDK14~20xx\Zrx2020\EllipseJig\bin\Debug\JigSample.pdb
+C:\Program Files (x86)\ZRXSDK14~20xx\Zrx2020\EllipseJig\bin\Debug\ZwDatabaseMgd.dll
+C:\Program Files (x86)\ZRXSDK14~20xx\Zrx2020\EllipseJig\bin\Debug\ZwManaged.dll
+C:\Program Files (x86)\ZRXSDK14~20xx\Zrx2020\EllipseJig\obj\Debug\JigSample.dll
+C:\Program Files (x86)\ZRXSDK14~20xx\Zrx2020\EllipseJig\obj\Debug\JigSample.pdb
+E:\Projects\WeiTang\Src\ZWPostPro\bin\Debug\JigSample.dll
+E:\Projects\WeiTang\Src\ZWPostPro\bin\Debug\JigSample.pdb
+E:\Projects\WeiTang\Src\ZWPostPro\obj\Debug\Ellipsejig.csprojResolveAssemblyReference.cache
+E:\Projects\WeiTang\Src\ZWPostPro\obj\Debug\JigSample.dll
+E:\Projects\WeiTang\Src\ZWPostPro\obj\Debug\JigSample.pdb
