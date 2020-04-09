@@ -10,3 +10,8 @@ E:\Projects\WeiTang\Src\ZWPostPro\bin\Debug\JigSample.pdb
 E:\Projects\WeiTang\Src\ZWPostPro\obj\Debug\Ellipsejig.csprojResolveAssemblyReference.cache
 E:\Projects\WeiTang\Src\ZWPostPro\obj\Debug\JigSample.dll
 E:\Projects\WeiTang\Src\ZWPostPro\obj\Debug\JigSample.pdb
+E:\Projects\WeiTang\Src\TYCheckSystem\ZWPostPro\bin\Debug\JigSample.dll
+E:\Projects\WeiTang\Src\TYCheckSystem\ZWPostPro\bin\Debug\JigSample.pdb
+E:\Projects\WeiTang\Src\TYCheckSystem\ZWPostPro\obj\Debug\Ellipsejig.csprojResolveAssemblyReference.cache
+E:\Projects\WeiTang\Src\TYCheckSystem\ZWPostPro\obj\Debug\JigSample.dll
+E:\Projects\WeiTang\Src\TYCheckSystem\ZWPostPro\obj\Debug\JigSample.pdb

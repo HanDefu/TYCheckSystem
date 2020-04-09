@@ -312,7 +312,7 @@ namespace JigSample
 
                     Database db2 = new Database(false, true);
                     //读入Dwg文件
-                    db2.ReadDwgFile("D:\\TYuan\\DIMTemplate.dwg", FileShare.Read, true, "");
+                    db2.ReadDwgFile("D:\\TYInstall\\DIMTemplate.dwg", FileShare.Read, true, "");
                     //为了让插入块的函数在多个图形文件打开的情况下起作用，你必须使用下面的函数把Dwg文件关闭
                     
                

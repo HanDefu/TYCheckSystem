@@ -46,7 +46,7 @@ using namespace NXOpen;
 using namespace NXOpen::BlockStyler;
 
 //沉头孔
-int CreateHoleBodyFace( Body *body1, const tag_t targetFace, bool manualDepth, double depthOri, double chentouDepth, bool isSimpleHole );
+int CreateHoleBodyFace( Body *body1, vtag_t targetFaces, bool manualDepth, double depthOri, double chentouDepth, bool isSimpleHole );
 
 //通孔
 //int CreateHoleBodyFace_THole( Body *body1, const tag_t targetFace, bool bManualDepth, double depthManual );
@@ -214,6 +214,12 @@ int TYHole::apply_cb()
 		if(bodyobjects.size()==0 && faceobjects.size()==0)
 			return 0;
 
+		vtag_t faceTags;
+		for (int i = 0; i < faceobjects.size(); i++)
+		{
+			faceTags.push_back(faceobjects[i]->Tag());
+		}
+
 		double depth = 0;
 		UI_DoubleGetValue(doubleHoleDepth,depth);
 
@@ -231,7 +237,7 @@ int TYHole::apply_cb()
 			for( int idx = 0; idx < bodyobjects.size(); ++idx )
 			{
 				Body *body1 = dynamic_cast<Body *>(bodyobjects[idx]);
-				int num = CreateHoleBodyFace(body1, faceobjects[0]->Tag(),(bool)manualDepth, depth,depthChenTou,false);
+				CreateHoleBodyFace(body1, faceTags,(bool)manualDepth, depth,depthChenTou,false);
 			}
 		}
 		else
@@ -239,11 +245,9 @@ int TYHole::apply_cb()
 			for( int idx = 0; idx < bodyobjects.size(); ++idx )
 			{
 				Body *body1 = dynamic_cast<Body *>(bodyobjects[idx]);
-				int num = CreateHoleBodyFace(body1, faceobjects[0]->Tag(),(bool)manualDepth, depth,depthChenTou,true);
+				 CreateHoleBodyFace(body1, faceTags,(bool)manualDepth, depth,depthChenTou,true);
 			}
 		}
-
-
 		
 	}
 	catch(exception& ex)
@@ -458,17 +462,17 @@ void CreateHolePoint( tag_t targetBody, double point[3], const Vector3d& vec,dou
     }
 }
 
-int CreateHoleBodyFace( Body *body1, const tag_t targetFace, bool bManualDepth, double depthManual, double depthChenTou,bool isSimpleHole )
+int CreateHoleBodyFace( Body *body1, vtag_t targetFaces, bool bManualDepth, double depthManual, double depthChenTou,bool isSimpleHole )
 {
-    if(NULL_TAG == targetFace || NULL ==  body1 )
+    if(targetFaces.size() == 0 || NULL ==  body1 )
         return 0;
-    tag_t face = targetFace;
+
     tag_t part_tag = NULL_TAG;
     tag_t targetBody = NULL_TAG;
     
     tag_t workPart = UF_ASSEM_ask_work_part();
-    logical isOcc = UF_ASSEM_is_occurrence(targetFace);
-    UF_MODL_ask_face_body(targetFace,&targetBody);
+    
+    UF_MODL_ask_face_body(targetFaces[0],&targetBody);
     std::vector<Face*> faces = body1->GetFaces();
     vtag_t cylinderFaces;
     for( int idx = 0; idx < faces.size(); ++idx )
@@ -485,13 +489,17 @@ int CreateHoleBodyFace( Body *body1, const tag_t targetFace, bool bManualDepth, 
                 cylinderFaces.push_back(face1);
         }
     }
-    if( isOcc )
+
+	//20200408 威唐没有occ
+	logical isOcc = UF_ASSEM_is_occurrence(targetFaces[0]);
+    /*
+	if( isOcc )
     {
         face = UF_ASSEM_ask_prototype_of_occ(targetFace);
         UF_OBJ_ask_owning_part(face,&part_tag);
         UF_MODL_ask_face_body(face,&targetBody);
         UF_ASSEM_set_work_part(part_tag);
-    }
+    }*/
     
     
     int type = 0, norm = 0;
@@ -544,10 +552,24 @@ int CreateHoleBodyFace( Body *body1, const tag_t targetFace, bool bManualDepth, 
 
 				UF_MODL_ask_list_item(edge_list,0,&edge1);
 				UF_MODL_ask_list_item(edge_list,1,&edge2);
-				double dist1 = 0,dist2 = 0;
+				double dist1 = 100000,dist2 = 1000000;
 				double pt1[3],pt2[3];
-				TYCOM_AskMinimumDist(edge1,targetFace,dist1,pt1,pt2);
-				TYCOM_AskMinimumDist(edge2,targetFace,dist2,pt1,pt2);
+				tag_t targetFace = targetFaces[0];
+				for (int k = 0; k < targetFaces.size(); k++)
+				{
+					double tempDist1 = 0, tempDist2 = 0;
+					TYCOM_AskMinimumDist(edge1,targetFaces[k],tempDist1,pt1,pt2);
+					if(tempDist1 < dist1)
+						dist1 = tempDist1;
+
+					TYCOM_AskMinimumDist(edge2,targetFaces[k],tempDist2,pt1,pt2);
+					if(tempDist2 < dist2)
+					{
+						dist2 = tempDist2;
+						targetFace = targetFaces[k];
+					}
+				}
+				
 				
 				UF_EVAL_p_t evaluator;
 				UF_EVAL_arc_t e_arc;
