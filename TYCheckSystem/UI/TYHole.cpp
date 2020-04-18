@@ -46,7 +46,7 @@ using namespace NXOpen;
 using namespace NXOpen::BlockStyler;
 
 //沉头孔
-int CreateHoleBodyFace( Body *body1, vtag_t targetFaces, bool manualDepth, double depthOri, double chentouDepth, bool isSimpleHole );
+int CreateHoleBodyFace( Body *body1, vtag_t targetFaces, vtag_t holeFaces, bool manualDepth, double depthOri, double chentouDepth, bool isSimpleHole );
 
 //通孔
 //int CreateHoleBodyFace_THole( Body *body1, const tag_t targetFace, bool bManualDepth, double depthManual );
@@ -146,6 +146,7 @@ void TYHole::initialize_cb()
 		groupSelect = theDialog->TopBlock()->FindBlock("groupSelect");
 		selectionBody = theDialog->TopBlock()->FindBlock("selectionBody");
 		selectFace = theDialog->TopBlock()->FindBlock("selectFace");
+		holeFaces = theDialog->TopBlock()->FindBlock("holeFaces");
 		groupSetting = theDialog->TopBlock()->FindBlock("groupSetting");
 		groupHoleDepth = theDialog->TopBlock()->FindBlock("groupHoleDepth");
 		enumAuto = theDialog->TopBlock()->FindBlock("enumAuto");
@@ -214,10 +215,17 @@ int TYHole::apply_cb()
 		if(bodyobjects.size()==0 && faceobjects.size()==0)
 			return 0;
 
-		vtag_t faceTags;
+		std::vector<NXOpen::TaggedObject* > phoFaces = UI_GetSelectObjects(holeFaces);
+
+		vtag_t faceTags,holeFacesTags;
 		for (int i = 0; i < faceobjects.size(); i++)
 		{
 			faceTags.push_back(faceobjects[i]->Tag());
+		}
+
+		for (int i = 0; i < phoFaces.size(); i++)
+		{
+			holeFacesTags.push_back(phoFaces[i]->Tag());
 		}
 
 		double depth = 0;
@@ -237,7 +245,7 @@ int TYHole::apply_cb()
 			for( int idx = 0; idx < bodyobjects.size(); ++idx )
 			{
 				Body *body1 = dynamic_cast<Body *>(bodyobjects[idx]);
-				CreateHoleBodyFace(body1, faceTags,(bool)manualDepth, depth,depthChenTou,false);
+				CreateHoleBodyFace(body1, faceTags,holeFacesTags, (bool)manualDepth, depth,depthChenTou,false);
 			}
 		}
 		else
@@ -245,7 +253,7 @@ int TYHole::apply_cb()
 			for( int idx = 0; idx < bodyobjects.size(); ++idx )
 			{
 				Body *body1 = dynamic_cast<Body *>(bodyobjects[idx]);
-				 CreateHoleBodyFace(body1, faceTags,(bool)manualDepth, depth,depthChenTou,true);
+				 CreateHoleBodyFace(body1, faceTags,holeFacesTags,(bool)manualDepth, depth,depthChenTou,true);
 			}
 		}
 		
@@ -462,7 +470,7 @@ void CreateHolePoint( tag_t targetBody, double point[3], const Vector3d& vec,dou
     }
 }
 
-int CreateHoleBodyFace( Body *body1, vtag_t targetFaces, bool bManualDepth, double depthManual, double depthChenTou,bool isSimpleHole )
+int CreateHoleBodyFace( Body *body1, vtag_t targetFaces, vtag_t holeFaces, bool bManualDepth, double depthManual, double depthChenTou,bool isSimpleHole )
 {
     if(targetFaces.size() == 0 || NULL ==  body1 )
         return 0;
@@ -475,20 +483,28 @@ int CreateHoleBodyFace( Body *body1, vtag_t targetFaces, bool bManualDepth, doub
     UF_MODL_ask_face_body(targetFaces[0],&targetBody);
     std::vector<Face*> faces = body1->GetFaces();
     vtag_t cylinderFaces;
-    for( int idx = 0; idx < faces.size(); ++idx )
-    {
-        int type = 0;
-        tag_t face1 = faces[idx]->Tag();
-        int irc = UF_MODL_ask_face_type(face1,&type);
-        if( UF_MODL_CYLINDRICAL_FACE == type )
-        {
-            double dist = 0;
-            double pt1[3],pt2[3];
-            TYCOM_AskMinimumDist(face1,targetBody,dist,pt1,pt2);
-            if( dist < 0.0254 )
-                cylinderFaces.push_back(face1);
-        }
-    }
+
+	//如果选择了孔直接按照选择的来
+	if (holeFaces.size() > 0)
+		cylinderFaces = holeFaces;
+	else
+	{
+		for( int idx = 0; idx < faces.size(); ++idx )
+		{
+			int type = 0;
+			tag_t face1 = faces[idx]->Tag();
+			int irc = UF_MODL_ask_face_type(face1,&type);
+			if( UF_MODL_CYLINDRICAL_FACE == type )
+			{
+				double dist = 0;
+				double pt1[3],pt2[3];
+				TYCOM_AskMinimumDist(face1,targetBody,dist,pt1,pt2);
+				if( dist < 0.0254 )
+					cylinderFaces.push_back(face1);
+			}
+		}
+	}
+   
 
 	//20200408 威唐没有occ
 	logical isOcc = UF_ASSEM_is_occurrence(targetFaces[0]);

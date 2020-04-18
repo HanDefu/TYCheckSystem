@@ -138,6 +138,7 @@ private:
     NXOpen::BlockStyler::UIBlock* groupSelect;// Block type: Group
     NXOpen::BlockStyler::UIBlock* selectionBody;// Block type: Selection
     NXOpen::BlockStyler::UIBlock* selectFace;// Block type: Face Collector
+	NXOpen::BlockStyler::UIBlock* holeFaces;// Block type: Face Collector
     NXOpen::BlockStyler::UIBlock* groupSetting;// Block type: Group
     NXOpen::BlockStyler::UIBlock* groupHoleDepth;// Block type: Group
     NXOpen::BlockStyler::UIBlock* enumAuto;// Block type: Enumeration
