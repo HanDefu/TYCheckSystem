@@ -17,6 +17,8 @@
 //These includes are needed for the following template code
 //------------------------------------------------------------------------------
 #include "TYPropertyClear.hpp"
+#include "../Common/Com_UI.h"
+#include "../Common/Com_UG.h"
 #include <uf_attr.h>
 using namespace NXOpen;
 using namespace NXOpen::BlockStyler;
@@ -115,6 +117,9 @@ void TYPropertyClear::initialize_cb()
 	{
 		groupSelect = theDialog->TopBlock()->FindBlock("groupSelect");
 		selectionBodies = theDialog->TopBlock()->FindBlock("selectionBodies");
+		toggleClearAll = theDialog->TopBlock()->FindBlock("toggleClearAll");
+		UI_SetShow(selectionBodies,false);
+		UI_LogicalSetValue(toggleClearAll,true);
 	}
 	catch(exception& ex)
 	{
@@ -148,17 +153,35 @@ int TYPropertyClear::apply_cb()
 {
 	try
 	{
-		NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
-		//bodies
-		pAttr = selectionBodies->GetProperties();
-		std::vector<NXOpen::TaggedObject *> objsBodies = pAttr->GetTaggedObjectVector("SelectedObjects");
+		bool clearAll =false;
+		UI_LogicalGetValue(toggleClearAll, clearAll);
 
-		for(int i = 0; i < objsBodies.size(); i++)
+		if(!clearAll)
 		{
-			UF_ATTR_delete_all( objsBodies[i]->Tag() , UF_ATTR_any );
+			NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
+			//bodies
+			pAttr = selectionBodies->GetProperties();
+			std::vector<NXOpen::TaggedObject *> objsBodies = pAttr->GetTaggedObjectVector("SelectedObjects");
+
+			for(int i = 0; i < objsBodies.size(); i++)
+			{
+				UF_ATTR_delete_all( objsBodies[i]->Tag() , UF_ATTR_any );
+			}
+			delete pAttr;
+			pAttr = 0;
 		}
-		delete pAttr;
-		pAttr = 0;
+		else
+		{
+			vtag_t bomBodies;
+		    TYCOM_GetCurrentPartSolidBodies(bomBodies);
+
+			for(int i = 0; i < bomBodies.size(); i++)
+			{
+				UF_ATTR_delete_all( bomBodies[i], UF_ATTR_any );
+			}
+		}
+		
+		
 	}
 	catch(exception& ex)
 	{
@@ -178,6 +201,12 @@ int TYPropertyClear::update_cb(NXOpen::BlockStyler::UIBlock* block)
 		if(block == selectionBodies)
 		{
 			//---------Enter your code here-----------
+		}
+		else if(block == toggleClearAll)
+		{
+			bool clearAll =false;
+			UI_LogicalGetValue(toggleClearAll, clearAll);
+			UI_SetShow(selectionBodies,!clearAll);
 		}
 	}
 	catch(exception& ex)

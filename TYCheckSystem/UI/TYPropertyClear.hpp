@@ -108,6 +108,7 @@ private:
     std::string theDialogName;
     NXOpen::BlockStyler::BlockDialog* theDialog;
     NXOpen::BlockStyler::UIBlock* groupSelect;// Block type: Group
+	NXOpen::BlockStyler::UIBlock* toggleClearAll;// Block type: Toggle
     NXOpen::BlockStyler::UIBlock* selectionBodies;// Block type: Selection
     
 };
