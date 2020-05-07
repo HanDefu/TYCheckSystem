@@ -1334,6 +1334,23 @@ static int GZ_SetDrawingNoteInformation( tag_t thisBody, tag_t group, double sca
 				tech.push_back(dwgno);
 				EditLableNote(members[idx],tech);
 			}
+			else if( 0 == strcmp("PROJNO",note_name) )
+			{
+				StlNXStringVector tech;
+				char projno[256] = "",projnotemp[256]="";
+				TYCOM_GetObjectStringAttribute( thisBody, TY_ATTR_DRAWING_NO, projnotemp);
+                int len = strlen(projnotemp);
+				int index = 0;
+				while(true)
+				{
+					if (projnotemp[index] == '-' || index == len)
+					    break;
+					projno[index] = projnotemp[index++];
+				}
+
+				tech.push_back(projno);
+				EditLableNote(members[idx],tech);
+			}
 		}
 	}
 	UF_free(members);
