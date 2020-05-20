@@ -134,6 +134,8 @@ private:
 	int m_firstNameSel;
 	int m_secondNameSel;
 	int m_materialSel;
+	int m_heatProcessSel;
+	int m_faceProcessSel;
 
 	int m_workType;//1 标准件模式  //0自绘零件模式
     

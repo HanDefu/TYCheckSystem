@@ -626,9 +626,20 @@ int CreateHoleBodyFace( Body *body1, vtag_t targetFaces, vtag_t holeFaces, bool 
 						UF_CSYS_map_point(UF_CSYS_ROOT_COORDS,point,UF_CSYS_WORK_COORDS,point);
                         UF_CSYS_map_point(UF_CSYS_ROOT_COORDS,point2,UF_CSYS_WORK_COORDS,point2);
                     }
-                    vec.X = point[0] -point2[0];
-                    vec.Y = point[1] -point2[1];
-                    vec.Z = point[2] -point2[2];
+
+					if (isSimpleHole)
+					{
+						vec.X = point[0] -point2[0];
+						vec.Y = point[1] -point2[1];
+						vec.Z = point[2] -point2[2];
+					}
+					else
+					{
+						vec.X = point2[0] -point[0];
+						vec.Y = point2[1] -point[1];
+						vec.Z = point2[2] -point[2];
+					}
+                   
 
 					//如果是沉头孔 需要反过来方向---20200401好像这里不需要反过来
 					//vec.X *= -1;

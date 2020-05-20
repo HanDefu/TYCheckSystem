@@ -90,6 +90,8 @@ public:
     ~TYPropertyClear();
     int Show();
     
+	int ClearOldFaceColorAndProperty(tag_t faceBody);
+	int ClearOldFaceColorAndProperty(tag_t faceBody, bool clearColor);
     //----------------------- BlockStyler Callback Prototypes ---------------------
     // The following member function prototypes define the callbacks 
     // specified in your BlockStyler dialog.  The empty implementaiton
@@ -110,6 +112,7 @@ private:
     NXOpen::BlockStyler::UIBlock* groupSelect;// Block type: Group
 	NXOpen::BlockStyler::UIBlock* toggleClearAll;// Block type: Toggle
     NXOpen::BlockStyler::UIBlock* selectionBodies;// Block type: Selection
+	 NXOpen::BlockStyler::UIBlock* toggleClearColor;// Block type: Toggle
     
 };
 #endif //TYPROPERTYCLEAR_H_INCLUDED

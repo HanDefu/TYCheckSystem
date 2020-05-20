@@ -118,8 +118,8 @@ void TYPropertyClear::initialize_cb()
 		groupSelect = theDialog->TopBlock()->FindBlock("groupSelect");
 		selectionBodies = theDialog->TopBlock()->FindBlock("selectionBodies");
 		toggleClearAll = theDialog->TopBlock()->FindBlock("toggleClearAll");
-		UI_SetShow(selectionBodies,false);
-		UI_LogicalSetValue(toggleClearAll,true);
+		toggleClearColor = theDialog->TopBlock()->FindBlock("toggleClearColor");
+		
 	}
 	catch(exception& ex)
 	{
@@ -138,6 +138,9 @@ void TYPropertyClear::dialogShown_cb()
 	try
 	{
 		//---- Enter your callback code here -----
+		UI_SetShow(selectionBodies,false);
+		UI_LogicalSetValue(toggleClearAll,true);
+		UI_LogicalSetValue(toggleClearColor,false);
 	}
 	catch(exception& ex)
 	{
@@ -146,6 +149,76 @@ void TYPropertyClear::dialogShown_cb()
 	}
 }
 
+int TYPropertyClear::ClearOldFaceColorAndProperty(tag_t faceBody)
+{
+	if(faceBody == 0)
+		return -1;
+
+	uf_list_p_t faceList;
+	UF_MODL_ask_body_faces(faceBody, &faceList);
+
+	vtag_t faces;
+	TYCOM_AskListItemsAndDelete(faceList, faces);
+
+	UF_OBJ_disp_props_t disp_props;
+	UF_OBJ_ask_display_properties(faceBody, &disp_props);
+
+	for(int i = 0; i < faces.size(); i++)
+	{
+		UF_OBJ_disp_props_t disp_props1;
+		UF_OBJ_ask_display_properties(faces[i], &disp_props1);
+		if(disp_props1.color == 186)
+		{
+			UF_ATTR_delete_all( faces[i] , UF_ATTR_any );
+			UF_OBJ_set_color(faces[i] , disp_props.color);
+		}
+	}
+	return 0;
+}
+
+
+int TYPropertyClear::ClearOldFaceColorAndProperty(tag_t faceBody, bool clearColor)
+{
+	if(clearColor)
+	{
+		UF_ATTR_delete_all( faceBody , UF_ATTR_any );
+		ClearOldFaceColorAndProperty(faceBody);
+	}
+	else
+	{
+		int idx=0;
+		int type=UF_ATTR_any ;
+		char title[UF_ATTR_MAX_TITLE_LEN + 1]="";
+		UF_ATTR_value_t value;
+		//循环读取程序的属性
+		UF_ATTR_cycle(faceBody,&idx,type,title,&value);
+		char titles[128][64] = {"\0"};
+
+		int num = 0;
+		while (idx)
+		{
+			if(strcmp(title, ATTR_NORMAL_DIR_X_X) == 0 || 
+				strcmp(title, ATTR_NORMAL_DIR_X_Y) == 0 ||
+				strcmp(title, ATTR_NORMAL_DIR_X_Z) == 0 ||
+				strcmp(title, ATTR_NORMAL_DIR_Y_X) == 0 ||
+				strcmp(title, ATTR_NORMAL_DIR_Y_Y) == 0 ||
+				strcmp(title, ATTR_NORMAL_DIR_Y_Z) == 0)
+			{
+				strcpy(title,"\0");
+				continue;
+			}
+
+			strcpy(titles[num++],title);
+
+			UF_ATTR_cycle(faceBody,&idx,type,title,&value);
+		}
+		UF_free(value.value.string);
+
+		for (int i = 0; i < num; i++)
+			UF_ATTR_delete(faceBody,UF_ATTR_any,titles[i]);
+	}
+	return 0;
+}
 //------------------------------------------------------------------------------
 //Callback Name: apply_cb
 //------------------------------------------------------------------------------
@@ -156,6 +229,9 @@ int TYPropertyClear::apply_cb()
 		bool clearAll =false;
 		UI_LogicalGetValue(toggleClearAll, clearAll);
 
+		bool clearColor =false;
+		UI_LogicalGetValue(toggleClearColor, clearColor);
+
 		if(!clearAll)
 		{
 			NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
@@ -165,7 +241,7 @@ int TYPropertyClear::apply_cb()
 
 			for(int i = 0; i < objsBodies.size(); i++)
 			{
-				UF_ATTR_delete_all( objsBodies[i]->Tag() , UF_ATTR_any );
+				ClearOldFaceColorAndProperty(objsBodies[i]->Tag(),clearColor);
 			}
 			delete pAttr;
 			pAttr = 0;
@@ -177,7 +253,7 @@ int TYPropertyClear::apply_cb()
 
 			for(int i = 0; i < bomBodies.size(); i++)
 			{
-				UF_ATTR_delete_all( bomBodies[i], UF_ATTR_any );
+				ClearOldFaceColorAndProperty(bomBodies[i],clearColor);
 			}
 		}
 		

@@ -376,6 +376,12 @@ void UI_EnumSetValues(NXOpen::BlockStyler::UIBlock* block, std::vector<NXString>
 	NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
 	pAttr = block->GetProperties();
 
+	//nx7.0有个bug 如果enum已经有几个string，那么新设置的values如果是空的，将会不起作用
+	//所以这里 如果是values是空 加空格
+	if (values.size() == 0)
+	{
+		values.push_back(NXString(""));
+	}
 	pAttr->SetEnumMembers("Value",values);
 
 	delete pAttr;

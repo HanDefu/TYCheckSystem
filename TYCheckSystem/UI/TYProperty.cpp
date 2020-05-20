@@ -79,6 +79,8 @@ TYProperty::TYProperty()
 		m_firstNameSel = 0;
 		m_secondNameSel = 0;
 		m_materialSel = 0;
+		m_heatProcessSel = 0;
+		m_faceProcessSel = 0;
 		m_workType = 0;//默认自绘模式
 	}
 	catch(exception& ex)
@@ -191,6 +193,7 @@ void TYProperty::dialogShown_cb()
 		
 		UpdateMaterial();
 		UI_EnumSetCurrentSel(enumMaterial, m_materialSel);
+		
 		UpdateHeatAndFace();
 		UpdateTech();
 	}
@@ -216,6 +219,10 @@ int TYProperty::apply_cb()
 		pAttr = NULL;
 
 		int cursel = 0;
+
+
+		UI_EnumGetCurrentSel(enumHeatProcess, m_heatProcessSel);
+		UI_EnumGetCurrentSel(enumFaceProcess, m_faceProcessSel);
 
 
 		//名称
@@ -312,12 +319,14 @@ int TYProperty::update_cb(NXOpen::BlockStyler::UIBlock* block)
 		}
 		else if(block == enumSecondName)
 		{
+			UI_EnumGetCurrentSel(enumSecondName, m_secondNameSel);
 			UpdateMaterial();
 			UpdateTech();
 			UpdateHeatAndFace();
 		}
 		else if(block == enumMaterial)
 		{
+			UI_EnumGetCurrentSel(enumMaterial, m_materialSel);
 			UpdateHeatAndFace();
 		}
 		else if(block == enumHeatProcess)
@@ -397,10 +406,14 @@ void TYProperty::UpdateHeatAndFace()
 
 	vNXString faceProcesses = TYGBDATA->GetFaceProcess(firstName,material);
 	UI_EnumSetValues(enumFaceProcess,faceProcesses);
+	if(faceProcesses.size() > m_faceProcessSel)
+		UI_EnumSetCurrentSel(enumFaceProcess, m_faceProcessSel);
 
 
 	vNXString heatProcesses = TYGBDATA->GetHeatProcess(firstName,material);
 	UI_EnumSetValues(enumHeatProcess,heatProcesses);
+	if(heatProcesses.size() > m_heatProcessSel)
+		UI_EnumSetCurrentSel(enumHeatProcess, m_heatProcessSel);
 }
 
 void TYProperty::UpdateMaterial()
