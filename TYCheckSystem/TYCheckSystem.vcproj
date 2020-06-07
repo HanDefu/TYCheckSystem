@@ -473,6 +473,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\UI\TYSameBody.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\UI\TYSameBody.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\UI\TYStandPart.cpp"
 				>
 			</File>

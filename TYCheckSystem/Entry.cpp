@@ -43,6 +43,7 @@
 #include "Common/Com_Draft2.h"
 #include "UI\TYExport3D.hpp"
 #include "UI\TYExportDwg.hpp"
+#include "UI\TYSameBody.hpp"
 
 using namespace NXOpen;
 
@@ -92,6 +93,11 @@ extern "C" DllExport void  ufusr(char *param, int *retcod, int param_len)
 		if(strcmp(param, "CUSTOM_TY_CLEAR_PROPERTY") == 0)//清空属性
 		{
 			TYPropertyClear::Show_TYPropertyClear();
+		}
+
+		if(strcmp(param, "CUSTOM_TY_SAME_BODY") == 0)//相同件选择
+		{
+			TYSameBody::Show_TYSameBody();
 		}
 
 		if(strcmp(param, "CUSTOM_TY_COLOR_TOOL") == 0)//着色

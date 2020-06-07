@@ -61,6 +61,8 @@ typedef std::vector<StlLogicalVector> StlLogicalVectorVector;
 #define ATTR_NORMAL_DIR_Y_Y "ATTR_NORMAL_DIR_Y_Y"
 #define ATTR_NORMAL_DIR_Y_Z "ATTR_NORMAL_DIR_Y_Z"
 
+#define ATTR_TY_SAME_BODY "ATTR_TY_SAME_BODY"
+
 
 #define TY_STR_LEN 256
 #define TY_GAP_DIS 0.1 //Ðü¿Õ¼ì²â

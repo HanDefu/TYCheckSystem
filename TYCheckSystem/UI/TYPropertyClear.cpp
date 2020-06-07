@@ -119,6 +119,8 @@ void TYPropertyClear::initialize_cb()
 		selectionBodies = theDialog->TopBlock()->FindBlock("selectionBodies");
 		toggleClearAll = theDialog->TopBlock()->FindBlock("toggleClearAll");
 		toggleClearColor = theDialog->TopBlock()->FindBlock("toggleClearColor");
+
+		UI_SetSeletSolidBody(selectionBodies);
 		
 	}
 	catch(exception& ex)

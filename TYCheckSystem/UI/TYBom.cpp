@@ -440,7 +440,7 @@ int TYBom::filter_cb(NXOpen::BlockStyler::UIBlock*  block, NXOpen::TaggedObject*
 	return(UF_UI_SEL_ACCEPT);
 }
 
-int TY_BOM_WriteOneBody(BasicExcelWorksheet* sheet, int rowIndex, int index, tag_t body)
+int TY_BOM_WriteOneBody(BasicExcelWorksheet* sheet, int rowIndex, int index, tag_t body, vtag_t sameBodies)
 {
 	TYBomData bomData(body);
 
@@ -464,7 +464,12 @@ int TY_BOM_WriteOneBody(BasicExcelWorksheet* sheet, int rowIndex, int index, tag
 	cel = sheet->Cell(rowIndex,1);
 	NXString nxstr = bomData.m_projectNo + NXString("-") + NXString(str);
 	cel->Set(nxstr.getLocaleText());
-	TYCOM_SetObjectStringAttribute( body, TY_ATTR_DRAWING_NO, nxstr.getLocaleText());
+
+	for (int jj = 0; jj < sameBodies.size(); jj++)
+	{
+		TYCOM_SetObjectStringAttribute( sameBodies[jj], TY_ATTR_DRAWING_NO, nxstr.getLocaleText());
+	}
+	
 
 
 	//第三列:MAT_L
@@ -479,8 +484,9 @@ int TY_BOM_WriteOneBody(BasicExcelWorksheet* sheet, int rowIndex, int index, tag
 
 
 	//第五列:QTY
+	sprintf(str, "%d", sameBodies.size());//第几个
 	cel = sheet->Cell(rowIndex,4);
-	cel->Set("1");
+	cel->Set(str);
 
 
 	//第六列:DESCRIPTION
@@ -507,7 +513,7 @@ int TY_BOM_WriteOneBody(BasicExcelWorksheet* sheet, int rowIndex, int index, tag
 
 int TY_WT_Bom(vtag_t bodies, NXString srcName, NXString xlsFilePathName)
 {
-	int startRow = 3;
+	int startRow = 2;
 
 	//客户处理
 	BasicExcel excel;
@@ -522,9 +528,25 @@ int TY_WT_Bom(vtag_t bodies, NXString srcName, NXString xlsFilePathName)
 	if (sheet1)
 	{
 	
+		int thisIndex = 1;
 		for (int i = 0; i < bodies.size(); i++)
 		{
-			TY_BOM_WriteOneBody(sheet1, startRow + i, i+1, bodies[i]);
+			vtag_t allSameBodies;
+			TYCOM_GetSameBodiesForOneBody(bodies[i], bodies, allSameBodies);
+			allSameBodies.push_back(bodies[i]);
+
+			TY_BOM_WriteOneBody(sheet1, startRow + thisIndex, thisIndex, bodies[i], allSameBodies);
+			thisIndex++;
+
+            for (int j = 0; j < allSameBodies.size(); j++)
+            {
+				int findIndex = vFind(bodies,allSameBodies[j]);
+				if(findIndex >= 0)
+				{
+				    bodies.erase(bodies.begin() + findIndex);
+				}
+            }
+			i = -1;//每次i置零
 		}
 	}
 

@@ -269,22 +269,33 @@ int TYProperty::apply_cb()
 				thisBody = objsBodies[i]->Tag();
 
 
-			UF_OBJ_set_blank_status(objsBodies[i]->Tag(),UF_OBJ_BLANKED);
-			TYCOM_SetObjectStringAttribute( thisBody, ATTR_TYCOM_PROPERTY_SOLID_NAME, firstName.getLocaleText());
-			TYCOM_SetObjectStringAttribute( thisBody, ATTR_TYCOM_PROPERTY_SOLID_NAME2, secondName.getLocaleText());
-			TYCOM_SetObjectAttributeLong(thisBody, ATTR_TYCOM_PROPERTY_TECH_REQUIREMENT, requs);
-			TYCOM_SetObjectStringAttribute( thisBody, ATTR_TYCOM_PROPERTY_MATERIAL, material.getLocaleText());
-			TYCOM_SetObjectStringAttribute( thisBody, ATTR_TYCOM_PROPERTY_HEAT_PROCESS, heatProcess.getLocaleText());
-			TYCOM_SetObjectStringAttribute( thisBody, ATTR_TYCOM_PROPERTY_FACE_PROCESS, faceProcess.getLocaleText());
-			TYCOM_SetObjectRealAttribute( thisBody, TY_ATTR_DENSITY, density);
+			vtag_t allSameBodies;
+			TYCOM_GetSameBodiesForOneBody(objsBodies[i]->Tag(), partBodies, allSameBodies);
 
-			int indexProperty = 0;
-			ret = EF_ask_obj_integer_attr( thisBody , ATTR_TYCOM_PROPERTY_INDEX , &indexProperty );
-			if(ret != 0) //仅仅处理不存在的情况
+			//把原始件放进来
+			allSameBodies.push_back(objsBodies[i]->Tag());
+
+			int maxIndex = TYCOM_GetMaxProperyIndex(partBodies);
+
+			for (int jj = 0; jj < allSameBodies.size(); jj++)
 			{
-                 int maxIndex = TYCOM_GetMaxProperyIndex(partBodies);
-				 TYCOM_SetObjectIntAttribute( thisBody, ATTR_TYCOM_PROPERTY_INDEX, maxIndex+1 );
+				UF_OBJ_set_blank_status(allSameBodies[jj],UF_OBJ_BLANKED);
+				TYCOM_SetObjectStringAttribute( allSameBodies[jj], ATTR_TYCOM_PROPERTY_SOLID_NAME, firstName.getLocaleText());
+				TYCOM_SetObjectStringAttribute( allSameBodies[jj], ATTR_TYCOM_PROPERTY_SOLID_NAME2, secondName.getLocaleText());
+				TYCOM_SetObjectAttributeLong(allSameBodies[jj], ATTR_TYCOM_PROPERTY_TECH_REQUIREMENT, requs);
+				TYCOM_SetObjectStringAttribute( allSameBodies[jj], ATTR_TYCOM_PROPERTY_MATERIAL, material.getLocaleText());
+				TYCOM_SetObjectStringAttribute( allSameBodies[jj], ATTR_TYCOM_PROPERTY_HEAT_PROCESS, heatProcess.getLocaleText());
+				TYCOM_SetObjectStringAttribute( allSameBodies[jj], ATTR_TYCOM_PROPERTY_FACE_PROCESS, faceProcess.getLocaleText());
+				TYCOM_SetObjectRealAttribute( allSameBodies[jj], TY_ATTR_DENSITY, density);
+
+				//int indexProperty = 0;
+				//ret = EF_ask_obj_integer_attr( thisBody , ATTR_TYCOM_PROPERTY_INDEX , &indexProperty );
+				//if(ret != 0) //仅仅处理不存在的情况
+				{
+					TYCOM_SetObjectIntAttribute( allSameBodies[jj], ATTR_TYCOM_PROPERTY_INDEX, maxIndex+1 );
+				}
 			}
+			
 		}
 
 	}

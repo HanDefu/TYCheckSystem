@@ -10,40 +10,49 @@ END_OF_TOP_MENU
 
 MENU CUSTOM_TY
     
-    BUTTON CUSTOM_TY_ADD_PROPERTY
-    LABEL 添加属性
-    BITMAP attribute_object
-    ACTIONS TYCheckSystem.dll
-
     BUTTON CUSTOM_TY_CLEAR_PROPERTY
     LABEL 清空属性
     BITMAP clear_highlights
     ACTIONS TYCheckSystem.dll
 
+    BUTTON CUSTOM_TY_SAME_BODY
+    LABEL 相同件选择
+    BITMAP compare_common2
+    ACTIONS TYCheckSystem.dll
+
+    BUTTON CUSTOM_TY_ADD_PROPERTY
+    LABEL 添加属性
+    BITMAP attribute_object
+    ACTIONS TYCheckSystem.dll
 	
     BUTTON CUSTOM_TY_COLOR_TOOL
     LABEL 着色
     BITMAP color_random_display
     ACTIONS TYCheckSystem.dll
-	
-    BUTTON CUSTOM_TY_STAND_PART
-    LABEL 标准件库
-    BITMAP standard_option_sc
+
+    BUTTON CUSTOM_TY_BOM
+    LABEL 自动BOM
+    BITMAP table_export
     ACTIONS TYCheckSystem.dll
 	
     BUTTON CUSTOM_TY_AUTO_DRAFTING
     LABEL 自动出图
     BITMAP edit_drafting_object_associativity
     ACTIONS TYCheckSystem.dll
-	
-    BUTTON CUSTOM_TY_BOM
-    LABEL 自动BOM
-    BITMAP table_export
-    ACTIONS TYCheckSystem.dll
 
     BUTTON CUSTOM_TY_EXPORT3D
     LABEL 批量导出模型
     BITMAP export_assy
+    ACTIONS TYCheckSystem.dll
+
+    BUTTON CUSTOM_TY_CREATE_HOLE
+    LABEL 自动引孔
+    BITMAP tfe_hole_counterbore_sc
+    ACTIONS TYCheckSystem.dll
+
+    BUTTON CUSTOM_TY_STAND_PART
+    LABEL 标准件库
+    BITMAP standard_option_sc
     ACTIONS TYCheckSystem.dll
 	
     BUTTON CUSTOM_TY_TEXT_MARK
@@ -56,11 +65,6 @@ MENU CUSTOM_TY
     BITMAP grid_options_lc
     ACTIONS TYCheckSystem.dll
 	
-    BUTTON CUSTOM_TY_CREATE_HOLE
-    LABEL 自动引孔
-    BITMAP tfe_hole_counterbore_sc
-    ACTIONS TYCheckSystem.dll
-
     BUTTON CUSTOM_TY_CHECK_XUANKONG
     LABEL 悬空检测
     BITMAP mw_parting_check
