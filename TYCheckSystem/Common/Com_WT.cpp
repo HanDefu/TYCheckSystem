@@ -46,7 +46,7 @@ int TYCOM_SortBodiesByPropertyIndex(vtag_t &bomBodies)
 bool TYCOM_isSameBody(tag_t body1, tag_t body2)
 {
 
-	if(body1 == 0 || body2)
+	if(body1 == 0 || body2 == 0)
 		return false;
 
 	char attriValue1[128] = "";

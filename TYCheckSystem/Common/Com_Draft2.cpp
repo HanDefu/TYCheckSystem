@@ -1288,7 +1288,7 @@ static void EditLableNote(  tag_t orgNote, vNXString text )
 	}
 }
 
-static int GZ_SetDrawingNoteInformation( tag_t thisBody, tag_t group, double scale, NXString& DrawingNO, NXString &drawer )
+static int GZ_SetDrawingNoteInformation( tag_t thisBody, tag_t group, double scale, NXString& DrawingNO, NXString &drawer, int itemNumber )
 {
 	int n = 0;
 	tag_t *members = NULL;
@@ -1348,6 +1348,14 @@ static int GZ_SetDrawingNoteInformation( tag_t thisBody, tag_t group, double sca
 			{
 				StlNXStringVector tech;
 				tech.push_back(drawer);
+				EditLableNote(members[idx],tech);;
+			}
+			else if( 0 == strcmp("ITEM_NUMBER",note_name) )
+			{
+				StlNXStringVector tech;
+				char cnum[32]="";
+				sprintf(cnum, "%dPCS",itemNumber);
+				tech.push_back(NXString(cnum));
 				EditLableNote(members[idx],tech);;
 			}
 			else if( 0 == strcmp("HEATPROCESS",note_name) )
@@ -1445,17 +1453,24 @@ static int SortBomBodies(vtag_t &bomBodies)
 	return 0;
 }
 
- int MoveToDifferentLayers(vtag_t &allBodies)
- {
-	 for (int i = 0; i < allBodies.size(); i++)
-	 {
-		 if (i > 250)
-			 continue;
-		 UF_OBJ_set_layer(allBodies[i], i+1);
-	 }
+#include "../Common/Com_WT.h"
+int MoveToDifferentLayers(vtag_t &allBodies)
+{
+	int layerIndex = 1;
+	for (int i = 0; i < allBodies.size(); i++)
+	{
+		if (i > 250)
+			continue;
 
-	 return 0;
- }
+		if(i > 0 && TYCOM_isSameBody(allBodies[i],allBodies[i-1]))
+		{
+			continue;
+		}
+		UF_OBJ_set_layer(allBodies[i], layerIndex++);
+	}
+
+	return 0;
+}
 
 int TY_AutoDrafting2(vtag_t &allBodies, NXString drawer)
 {
@@ -1483,13 +1498,17 @@ int TY_AutoDrafting2(vtag_t &allBodies, NXString drawer)
         MoveToDifferentLayers(allBodies);
 
 	    vNXString refNames;
+		int refIndex = 0;
         for( int idx = 0; idx < allBodies.size(); ++idx )
         {
      
+			if(idx > 0 && TYCOM_isSameBody(allBodies[idx],allBodies[idx-1]))
+			     continue;
+
 			vtag_t bodies;
 			bodies.push_back(allBodies[idx]);
 			char  crefName[32] = "";
-			sprintf_s(crefName,"BODY_%d",idx);
+			sprintf_s(crefName,"BODY_%d",refIndex++);
 			NXString refName(crefName);
 			refNames.push_back(refName);
             CreateReferenceSet(bodies,refName);
@@ -1500,6 +1519,7 @@ int TY_AutoDrafting2(vtag_t &allBodies, NXString drawer)
         if( NULL_TAG == newpart )
             return 1;
         UF_PART_ask_part_name(newpart,inputfile);
+		refIndex = 0;
         for( int idx = 0; idx < allBodies.size(); ++idx )
         {
             tag_t view = NULL_TAG;
@@ -1511,10 +1531,19 @@ int TY_AutoDrafting2(vtag_t &allBodies, NXString drawer)
 			double viewrdir[3][3]={0};
             double viewbound[4] = {0};
 
-			GetTopViewProjectDirection( disp, refNames[idx], direction );
+			if(idx > 0 && TYCOM_isSameBody(allBodies[idx],allBodies[idx-1]))
+				continue;
 
-            tag_t group = CreateDrawingViewDWG(disp,allBodies[idx],view,viewl,viewr,refNames[idx],NXString("A4ºá"),NXString("¸Ö²Ä"),viewbound,scale);
-            GZ_SetDrawingNoteInformation(allBodies[idx],group,scale,refNames[idx],drawer);
+			GetTopViewProjectDirection( disp, refNames[refIndex], direction );
+
+            tag_t group = CreateDrawingViewDWG(disp,allBodies[idx],view,viewl,viewr,refNames[refIndex],NXString("A4ºá"),NXString("¸Ö²Ä"),viewbound,scale);
+
+			vtag_t sameBodies;
+			TYCOM_GetSameBodiesForOneBody(allBodies[idx], allBodies, sameBodies);
+			sameBodies.push_back(allBodies[idx]);
+
+
+            GZ_SetDrawingNoteInformation(allBodies[idx],group,scale,refNames[refIndex],drawer,sameBodies.size());
             RY_DWG_create_demention(disp,view,scale,direction);
 			for( int i = 0; i< 3; i++)
 				viewldir[0][i] = direction[0][i];
@@ -1533,8 +1562,9 @@ int TY_AutoDrafting2(vtag_t &allBodies, NXString drawer)
 			if (dwgno.getLocaleText() != 0 && strlen(dwgno.getLocaleText()) > 0)
 			    sprintf(outputfile,"%s\\%s.dwg",savepath.GetLocaleText(),dwgno.GetLocaleText());
 			else
-                sprintf(outputfile,"%s\\%s.dwg",savepath.GetLocaleText(),refNames[idx].GetLocaleText());
-            TYCOM_ExportSheetToAcadDwg(inputfile,outputfile,refNames[idx]);
+                sprintf(outputfile,"%s\\%s.dwg",savepath.GetLocaleText(),refNames[refIndex].GetLocaleText());
+            TYCOM_ExportSheetToAcadDwg(inputfile,outputfile,refNames[refIndex]);
+			refIndex++;
         }
         UF_PART_close(newpart,0,1);
         UF_PART_set_display_part(disp);
