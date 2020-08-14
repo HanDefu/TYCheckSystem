@@ -47,8 +47,7 @@ using JigSample;
 
  */
 [assembly: CommandClass(typeof(JigSample.TestEntityJig))]
-
-
+[assembly: CommandClass(typeof(JigSample.WT2MergeDwg))]
 //This application implements a command called ellipsejig. It will help you 
 //create an ellipse from scratch by doing a jig. The user is first asked to
 //enter the ellipse major axis followed by ellipse minor axis. 
@@ -153,33 +152,53 @@ namespace JigSample
 		}
 
 
-        public static ObjectId InsertBlockReference(this ObjectId spaceId, string layer, string blockName, Point3d position, Scale3d scale, double rotateAngle)
+        public static ObjectId InsertBlockReference(this ObjectId spaceId, string layer, string blockName, Point3d position, Scale3d scale, double rotateAngle, ref double xLen)
         {
             ObjectId blockRefId;//存储要插入的块参照的Id
-            Database db = spaceId.Database;//获取数据库对象
-            //以读的方式打开块表
-            BlockTable bt = (BlockTable)db.BlockTableId.GetObject(OpenMode.ForRead);
-            //如果没有blockName表示的块，则程序返回
-            if (!bt.Has(blockName)) return ObjectId.Null;
-            //以写的方式打开空间（模型空间或图纸空间）
-            BlockTableRecord space = (BlockTableRecord)spaceId.GetObject(OpenMode.ForWrite);
-            //创建一个块参照并设置插入点
-            BlockReference br = new BlockReference(position, bt[blockName]);
-            br.ScaleFactors = scale;//设置块参照的缩放比例
-            br.Layer = layer;//设置块参照的层名
-            br.Rotation = rotateAngle;//设置块参照的旋转角度
-            ObjectId btrId = bt[blockName];//获取块表记录的Id
-            //打开块表记录
-            BlockTableRecord record = (BlockTableRecord)btrId.GetObject(OpenMode.ForRead);
-            //添加可缩放性支持
-            //if (record.Annotative == AnnotativeStates.True)
+            //Database db = spaceId.Database;//获取数据库对象
+            Database db = HostApplicationServices.WorkingDatabase;
+            
+            using (Transaction trans = db.TransactionManager.StartTransaction())
             {
-                //ObjectContextCollection contextCollection = db.ObjectContextManager.GetContextCollection("ACDB_ANNOTATIONSCALES");
-                //ObjectContexts.AddContext(br, contextCollection.GetContext("1:1"));
+                //以读的方式打开块表
+                BlockTable bt = (BlockTable)trans.GetObject(db.BlockTableId, OpenMode.ForRead);
+
+                //如果没有blockName表示的块，则程序返回
+                if (!bt.Has(blockName)) 
+                    return ObjectId.Null;
+                //以写的方式打开空间（模型空间或图纸空间）
+                //打开数据库的模型空间块表记录对象
+                BlockTableRecord space = (BlockTableRecord)trans.GetObject(db.CurrentSpaceId, OpenMode.ForWrite);
+
+
+                //创建一个块参照并设置插入点
+                BlockReference br = new BlockReference(position, bt[blockName]);
+                br.ScaleFactors = scale;//设置块参照的缩放比例
+                br.Layer = layer;//设置块参照的层名
+                br.Rotation = rotateAngle;//设置块参照的旋转角度
+                ObjectId btrId = bt[blockName];//获取块表记录的Id
+
+                //打开块表记录
+                //BlockTableRecord record = (BlockTableRecord)btrId.GetObject(OpenMode.ForRead);
+                //添加可缩放性支持
+                //if (record.Annotative == AnnotativeStates.True)
+                {
+                    //ObjectContextCollection contextCollection = db.ObjectContextManager.GetContextCollection("ACDB_ANNOTATIONSCALES");
+                    //ObjectContexts.AddContext(br, contextCollection.GetContext("1:1"));
+                }
+                blockRefId = space.AppendEntity(br);//在空间中加入创建的块参照
+                db.TransactionManager.AddNewlyCreatedDBObject(br, true);//通知事务处理加入创建的块参照
+                space.DowngradeOpen();//为了安全，将块表状态改为读
+
+                Entity entity = (Entity)trans.GetObject(blockRefId, OpenMode.ForRead);
+                xLen = entity.GeomExtents.MaxPoint.X - entity.GeomExtents.MinPoint.X;
+                entity.Dispose();
+
+                trans.Commit();
             }
-            blockRefId = space.AppendEntity(br);//在空间中加入创建的块参照
-            db.TransactionManager.AddNewlyCreatedDBObject(br, true);//通知事务处理加入创建的块参照
-            space.DowngradeOpen();//为了安全，将块表状态改为读
+
+
+
             return blockRefId;//返回添加的块参照的Id
         }
 
@@ -292,9 +311,6 @@ namespace JigSample
 
         public static void ReadDwgFileTest(string fileName)
         {
-            
-
-
             Document doc = Application.DocumentManager.MdiActiveDocument;
 
             using (Database db = new Database(false, true))
@@ -345,5 +361,50 @@ namespace JigSample
             }
         }
 	}
+
+
+    public static class WT2MergeDwg
+    {
+        [CommandMethod("wt2")]
+        static public void DoIt()
+        {
+            try
+            {
+                Editor ed = Application.DocumentManager.MdiActiveDocument.Editor;
+                //ImportBlocksFromDwg(this Database destDb, string sourceFileName);
+                Database db = HostApplicationServices.WorkingDatabase;
+                //TestEntityJig.ImportBlocksFromDwg(db, "D:\\BODY_0_1.dwg");
+
+                string[] files = Class1.GetFiles();
+                double xoffset = 0;
+                foreach (string fileName in files)
+                {
+                    Database db2 = new Database(false, true);
+                    db2.ReadDwgFile(fileName, FileShare.Read, true, "");
+                    string justNanme = Path.GetFileName(db2.Filename);
+
+                    ObjectId btrId = db.Insert(justNanme, db2, false);
+                    db2.CloseInput(true);
+                    db2.Dispose();
+                   
+
+                    Scale3d sc = new Scale3d(1.0, 1.0, 1.0);
+                    double xLen = 0;
+                    TestEntityJig.InsertBlockReference(SymbolUtilityServices.GetBlockModelSpaceId(db), "0", justNanme, new Point3d(xoffset, 0, 0), sc, 0, ref xLen);
+                    xoffset = xoffset + xLen + 100;
+
+                }
+
+                db.Dispose();
+            }
+            catch (System.Exception ex)
+            {
+
+                return;
+            }
+            return;
+
+        }
+    }
 	
 }
