@@ -83,7 +83,7 @@ extern int KONKA_STYLER_set_item_value_string( int dialog_id, char *item, char *
 extern int KONKA_STYLER_ask_item_value_string( int dialog_id, char *item, char *value );
 
 void UI_SetSeletSolidBody(NXOpen::BlockStyler::UIBlock* block);
-
+void UI_SetSeletCsys(NXOpen::BlockStyler::UIBlock* block);
 
 
 //-----------------NX7---------------//

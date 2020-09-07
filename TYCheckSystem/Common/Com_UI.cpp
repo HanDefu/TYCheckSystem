@@ -371,6 +371,23 @@ void UI_SetSeletSolidBody(NXOpen::BlockStyler::UIBlock* block)
 	pAttr = NULL;
 }
 
+void UI_SetSeletCsys(NXOpen::BlockStyler::UIBlock* block)
+{
+	NXOpen::Selection::MaskTriple mt1;
+	mt1.Type = UF_coordinate_system_type;
+	mt1.Subtype = UF_csys_normal_subtype;
+	//mt1.SolidBodySubtype = UF_UI_SEL_FEATURE_SOLID_BODY;
+	std::vector<NXOpen::Selection::MaskTriple>  maskTriples;
+	maskTriples.push_back(mt1);
+
+	NXOpen::BlockStyler::PropertyList *  pAttr = NULL;
+	pAttr = block->GetProperties();
+	pAttr->SetSelectionFilter("SelectionFilter", NXOpen::Selection::SelectionActionClearAndEnableSpecific,
+		maskTriples);
+	delete pAttr;
+	pAttr = NULL;
+}
+
 void UI_EnumSetValues(NXOpen::BlockStyler::UIBlock* block, std::vector<NXString> & values)
 {
 	NXOpen::BlockStyler::PropertyList *  pAttr = NULL;

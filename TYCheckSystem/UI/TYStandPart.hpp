@@ -141,6 +141,7 @@ private:
     NXOpen::BlockStyler::UIBlock* doublePara;// Block type: Double
     NXOpen::BlockStyler::UIBlock* enumNoKeyinPara;// Block type: Enumeration
     NXOpen::BlockStyler::UIBlock* groupPosition;// Block type: Group
+	NXOpen::BlockStyler::UIBlock* toggleWCS;// Block type: Toggle
     NXOpen::BlockStyler::UIBlock* csysPos;// Block type: Specify Csys
     NXOpen::BlockStyler::UIBlock* groupSetting;// Block type: Group
 	NXOpen::BlockStyler::UIBlock* groupPocket;// Block type: Group

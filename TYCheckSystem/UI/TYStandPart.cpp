@@ -25,6 +25,7 @@
 #include <NXOpen/CoordinateSystem.hxx>
 #include <NXOpen/NXMatrix.hxx>
 #include "../Common/Com_UG.h"
+#include <uf_csys.h>
 
 using namespace NXOpen;
 using namespace NXOpen::BlockStyler;
@@ -155,6 +156,7 @@ void TYStandPart::initialize_cb()
 		doublePara = theDialog->TopBlock()->FindBlock("doublePara");
 		enumNoKeyinPara = theDialog->TopBlock()->FindBlock("enumNoKeyinPara");
 		groupPosition = theDialog->TopBlock()->FindBlock("groupPosition");
+		toggleWCS = theDialog->TopBlock()->FindBlock("toggleWCS");
 		csysPos = theDialog->TopBlock()->FindBlock("csysPos");
 		groupSetting = theDialog->TopBlock()->FindBlock("groupSetting");
 		groupPocket = theDialog->TopBlock()->FindBlock("groupPocket");
@@ -227,6 +229,9 @@ void TYStandPart::dialogShown_cb()
 			UI_LogicalSetValue(toggleSubtract,false);
 			UI_SetShow(enumPocketMethod,false);
 			UI_SetShow(selectionPocketTargets,false);
+
+			UI_LogicalSetValue(toggleWCS,1);
+			UI_SetShow(csysPos,false);
 		}
 		else
 		{
@@ -299,23 +304,37 @@ int TYStandPart::apply_cb()
 		NXString stdModelFile = RoyStdData.GetCurrentStdPartModel();
         //sprintf(sourceName,"%s\\standard\\screw.prt",p_env);
         
-        Point3d originPoint;
-		std::vector<NXOpen::TaggedObject *> csysObjects;
-		UI_CSYS_GetSelected(csysPos, csysObjects);
-		if( csysObjects.size() > 0 )
+
+		//¼ÆËã°Ú·ÅÎ»ÖÃ
+		Point3d originPoint;
+		tag_t csys_tag = 0;
+		bool isWcs = 0;
+		UI_LogicalGetValue(toggleWCS,isWcs);
+		if(isWcs)
 		{
-			tag_t csys_tag = csysObjects[0]->Tag();
-			NXOpen::CoordinateSystem *coord_system = (NXOpen::CoordinateSystem *)NXOpen::NXObjectManager::Get(csys_tag);
-			originPoint =  coord_system->Origin(); 
-			NXOpen::NXMatrix *matrix = coord_system->Orientation();
-			Matrix3x3 matrix33 = matrix->Element();
-			csys[0] = matrix33.Xx;
-			csys[1] = matrix33.Xy;
-			csys[2] = matrix33.Xz;
-			csys[3] = matrix33.Yx;
-			csys[4] = matrix33.Yy;
-			csys[5] = matrix33.Yz;
+			UF_CSYS_ask_wcs(&csys_tag);
 		}
+		else
+		{
+			std::vector<NXOpen::TaggedObject *> csysObjects;
+			UI_CSYS_GetSelected(csysPos, csysObjects);
+			if( csysObjects.size() > 0 )
+				csys_tag = csysObjects[0]->Tag();
+		}
+
+		NXOpen::CoordinateSystem *coord_system = (NXOpen::CoordinateSystem *)NXOpen::NXObjectManager::Get(csys_tag);
+		originPoint =  coord_system->Origin(); 
+		NXOpen::NXMatrix *matrix = coord_system->Orientation();
+		Matrix3x3 matrix33 = matrix->Element();
+		csys[0] = matrix33.Xx;
+		csys[1] = matrix33.Xy;
+		csys[2] = matrix33.Xz;
+		csys[3] = matrix33.Yx;
+		csys[4] = matrix33.Yy;
+		csys[5] = matrix33.Yz;
+
+       
+
 		/*else
 		{
 			originPoint =  point_pos->GetProperties()->GetPoint("Point");; 
@@ -652,6 +671,15 @@ int TYStandPart::update_cb(NXOpen::BlockStyler::UIBlock* block)
 			{
 				m_previewIndex++;
 			}
+		}
+		else if(block == toggleWCS)
+		{
+			bool sel = 0;
+			UI_LogicalGetValue(toggleWCS,sel);
+			if(sel == 0)
+				UI_SetShow(csysPos,true);
+			else
+				UI_SetShow(csysPos,false);
 		}
 		else if(block == toggleSubtract)
 		{
